@@ -1,0 +1,9 @@
+backup/
+**/node_modules/
+**/build/
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.venv/
+**/dist/
+frontend_green_campus/green-campus-frontend/.git_frontend_backup/
