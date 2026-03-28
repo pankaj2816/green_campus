@@ -46,7 +46,12 @@ return (
 
     <p>
       {dashboardCopy.auth.noAccountText}{" "}
-      <a href="/register">{dashboardCopy.auth.registerPrompt}</a>
+      <span
+        onClick={() => navigate("/register")}
+        style={{ color: "blue", cursor: "pointer" }}
+      >
+        {dashboardCopy.auth.registerPrompt}
+      </span>
     </p>
 
   </div>
