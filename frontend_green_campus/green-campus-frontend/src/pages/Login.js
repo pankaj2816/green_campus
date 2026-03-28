@@ -3,7 +3,7 @@ import { loginUser } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { dashboardCopy } from "../config/dashboardConfig";
 
-function Login() {
+function Login({ onLogin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,8 +18,8 @@ function Login() {
       const data = await loginUser(username, password);
 
       if (data?.access_token) {
-        localStorage.setItem("token", data.access_token);
-        window.location.assign("/dashboard");
+        onLogin?.(data.access_token);
+        navigate("/dashboard");
       } else {
         setMessage(dashboardCopy.auth.loginInvalid);
       }
