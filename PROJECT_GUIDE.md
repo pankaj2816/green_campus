@@ -192,6 +192,92 @@ npm run build
 - Backend API: `http://127.0.0.1:8000`
 - API docs: `http://127.0.0.1:8000/docs`
 
+## Deployment
+
+Recommended free setup:
+
+- Frontend: Render Static Site
+- Backend: Render Web Service
+
+This repo now includes:
+
+- `D:\working_green_campus\render.yaml`
+
+You can use that file with Render Blueprint deployment.
+
+### Render deployment steps
+
+1. Sign in to Render
+2. Connect your GitHub account
+3. Choose the repo:
+   `https://github.com/pankaj2816/green_campus`
+4. Create services from `render.yaml`
+
+### Backend settings
+
+Service type:
+
+- Web Service
+
+Root directory:
+
+- `green-campus`
+
+Build command:
+
+```text
+pip install -r requirements.txt
+```
+
+Start command:
+
+```text
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+Required environment variables:
+
+- `DATABASE_URL`
+- `CORS_ORIGINS`
+
+Example `CORS_ORIGINS` value after frontend deploy:
+
+```text
+https://your-frontend-name.onrender.com
+```
+
+### Frontend settings
+
+Service type:
+
+- Static Site
+
+Root directory:
+
+- `frontend_green_campus/green-campus-frontend`
+
+Build command:
+
+```text
+npm install && npm run build
+```
+
+Publish directory:
+
+```text
+build
+```
+
+Required environment variable:
+
+- `REACT_APP_API_BASE_URL`
+
+Example value:
+
+```text
+https://your-backend-name.onrender.com
+```
+
 ## Main User Flow
 
 1. Start backend

@@ -8,3 +8,6 @@ pandas
 numpy
 scikit-learn
 prophet
+python-multipart
+python-jose
+passlib[bcrypt]

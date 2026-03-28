@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: green-campus-backend
+    runtime: python
+    rootDir: green-campus
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: static_site
+    name: green-campus-frontend
+    rootDir: frontend_green_campus/green-campus-frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: build
+    envVars:
+      - key: REACT_APP_API_BASE_URL
+        sync: false

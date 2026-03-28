@@ -11,6 +11,7 @@ from app.routers import data_import
 from app.routers import meta, simulation
 from app.routers import seasonal
 from app.routers import alerts
+import os
 
 
 # Create tables
@@ -20,9 +21,12 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Green Campus MVP")
 
 # CORS (allow React frontend)
+cors_env = os.getenv("CORS_ORIGINS", "")
+env_origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    *env_origins,
 ]
 
 app.add_middleware(
