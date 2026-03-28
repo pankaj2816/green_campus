@@ -11,8 +11,9 @@ services:
       - key: CORS_ORIGINS
         sync: false
 
-  - type: static_site
+  - type: web
     name: green-campus-frontend
+    runtime: static
     rootDir: frontend_green_campus/green-campus-frontend
     buildCommand: npm install && npm run build
     staticPublishPath: build
