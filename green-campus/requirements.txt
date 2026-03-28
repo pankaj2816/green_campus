@@ -5,6 +5,7 @@ psycopg2-binary
 pydantic
 python-dotenv
 pandas
+openpyxl
 numpy
 scikit-learn
 prophet

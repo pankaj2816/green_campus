@@ -229,6 +229,9 @@ Build command:
 pip install -r requirements.txt
 ```
 
+Excel upload note:
+- `.xlsx` import uses `openpyxl`, which is included in backend requirements and must be installed in both local and deployed environments.
+
 Start command:
 
 ```text
