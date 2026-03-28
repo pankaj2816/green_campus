@@ -15,7 +15,7 @@ services:
     name: green-campus-frontend
     runtime: static
     rootDir: frontend_green_campus/green-campus-frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --legacy-peer-deps && npm run build
     staticPublishPath: build
     envVars:
       - key: REACT_APP_API_BASE_URL

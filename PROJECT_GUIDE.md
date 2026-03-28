@@ -259,7 +259,7 @@ Root directory:
 Build command:
 
 ```text
-npm install && npm run build
+npm install --legacy-peer-deps && npm run build
 ```
 
 Publish directory:
