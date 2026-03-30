@@ -2,13 +2,15 @@ import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
 
+const { theme } = dashboardCopy;
+
 function AlertCenter({ alertsData }) {
   if (!alertsData) {
     return null;
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-1">
       <div style={styles.header}>
         <div>
           <h3 style={{ margin: 0 }}>{dashboardCopy.alerts.title}</h3>
@@ -65,10 +67,10 @@ function levelColor(level) {
 
 const styles = {
   container: {
-    background: "#ffffff",
-    padding: "20px",
-    borderRadius: "16px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
+    background: theme.colors.surface,
+    padding: "22px",
+    borderRadius: theme.radius.card,
+    boxShadow: theme.shadows.card,
     marginBottom: "20px",
   },
   header: {
@@ -80,12 +82,12 @@ const styles = {
     marginBottom: "16px",
   },
   subtext: {
-    color: "#5f706a",
+    color: theme.colors.secondaryText,
     marginTop: "8px",
   },
   scopePill: {
     background: "#eef7f2",
-    color: "#1b7f62",
+    color: theme.colors.accent,
     padding: "10px 14px",
     borderRadius: "999px",
     fontWeight: "600",
@@ -96,19 +98,19 @@ const styles = {
     gap: "16px",
   },
   panel: {
-    background: "#f8fbfa",
-    borderRadius: "14px",
-    padding: "16px",
+    background: theme.colors.softSurface,
+    borderRadius: "18px",
+    padding: "18px",
   },
   alertCard: {
-    background: "#ffffff",
+    background: theme.colors.surface,
     borderRadius: "12px",
-    padding: "12px",
+    padding: "14px",
     marginBottom: "10px",
   },
   cardText: {
     marginBottom: 0,
-    color: "#60756f",
+    color: theme.colors.secondaryText,
     lineHeight: 1.5,
   },
   exportSummary: {
@@ -118,15 +120,15 @@ const styles = {
     marginTop: "8px",
     fontSize: "22px",
     fontWeight: "700",
-    color: "#17342d",
+    color: theme.colors.primaryText,
   },
   exportCard: {
     display: "flex",
     justifyContent: "space-between",
     gap: "12px",
-    background: "#ffffff",
+    background: theme.colors.surface,
     borderRadius: "12px",
-    padding: "12px",
+    padding: "14px",
     marginBottom: "10px",
   },
 };

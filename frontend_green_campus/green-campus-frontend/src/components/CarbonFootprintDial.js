@@ -15,7 +15,7 @@ function CarbonFootprintDial({ data }) {
   const percent = Math.min(carbonTon / 5, 1);
 
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="premium-card lift-card stagger-in stagger-in-delay-1">
       <div style={styles.header}>
         <div>
           <h2 style={styles.title}>{dashboardCopy.carbon.title}</h2>

@@ -13,6 +13,9 @@ function DashboardHeader({
   refresh,
   forecastGranularity,
   setForecastGranularity,
+  screenshotMode,
+  setScreenshotMode,
+  onPrintReport,
 }) {
   const navigate = useNavigate();
 
@@ -27,6 +30,25 @@ function DashboardHeader({
         <span style={styles.kicker}>{dashboardCopy.header.kicker}</span>
         <h1 style={styles.title}>{dashboardCopy.header.title}</h1>
         <p style={styles.subtitle}>{dashboardCopy.header.subtitle}</p>
+
+        <div style={styles.statusGrid}>
+          <StatusCard
+            label={dashboardCopy.header.statusCards.scope}
+            value={selectedBuilding || dashboardCopy.header.buildingPlaceholder}
+          />
+          <StatusCard
+            label={dashboardCopy.header.statusCards.forecast}
+            value={
+              dashboardCopy.header.forecastOptions.find(
+                (option) => option.value === forecastGranularity
+              )?.label || forecastGranularity
+            }
+          />
+          <StatusCard
+            label={dashboardCopy.header.statusCards.live}
+            value="Live operations view"
+          />
+        </div>
 
         <div style={styles.filters}>
           <select
@@ -57,6 +79,19 @@ function DashboardHeader({
           <button onClick={handleLogout} style={styles.logoutBtn}>
             {dashboardCopy.header.logoutLabel}
           </button>
+
+          <button
+            onClick={() => setScreenshotMode?.((current) => !current)}
+            style={styles.ghostBtn}
+          >
+            {screenshotMode
+              ? dashboardCopy.presentation.normalMode
+              : dashboardCopy.presentation.screenshotMode}
+          </button>
+
+          <button onClick={onPrintReport} style={styles.printBtn}>
+            {dashboardCopy.presentation.printReport}
+          </button>
         </div>
       </div>
 
@@ -67,15 +102,24 @@ function DashboardHeader({
   );
 }
 
+function StatusCard({ label, value }) {
+  return (
+    <div style={styles.statusCard}>
+      <span style={styles.statusLabel}>{label}</span>
+      <strong style={styles.statusValue}>{value}</strong>
+    </div>
+  );
+}
+
 const styles = {
   hero: {
     display: "grid",
-    gridTemplateColumns: "1.35fr 1fr",
+    gridTemplateColumns: "minmax(0, 1.4fr) minmax(320px, 0.95fr)",
     gap: "20px",
     padding: "28px",
     borderRadius: "30px",
     background: `linear-gradient(135deg, ${theme.colors.heroStart} 0%, ${theme.colors.heroMiddle} 45%, ${theme.colors.heroEnd} 100%)`,
-    boxShadow: "0 24px 50px rgba(18, 34, 29, 0.08)",
+    boxShadow: theme.shadows.hero,
     marginBottom: "24px",
   },
   heroText: {
@@ -103,6 +147,31 @@ const styles = {
     maxWidth: "700px",
     lineHeight: 1.6,
   },
+  statusGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+    gap: "12px",
+    marginTop: "22px",
+  },
+  statusCard: {
+    background: "rgba(255,255,255,0.72)",
+    border: "1px solid rgba(173, 198, 192, 0.5)",
+    borderRadius: "18px",
+    padding: "14px 16px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+  },
+  statusLabel: {
+    color: theme.colors.secondaryText,
+    fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+  statusValue: {
+    color: theme.colors.primaryText,
+    fontSize: "16px",
+  },
   filters: {
     display: "flex",
     gap: "12px",
@@ -124,9 +193,25 @@ const styles = {
     borderRadius: theme.radius.button,
     cursor: "pointer",
   },
+  ghostBtn: {
+    padding: "12px 16px",
+    background: "rgba(255,255,255,0.82)",
+    color: theme.colors.primaryText,
+    border: "1px solid #d1ded8",
+    borderRadius: theme.radius.button,
+    cursor: "pointer",
+  },
+  printBtn: {
+    padding: "12px 16px",
+    background: "linear-gradient(135deg, #17342d, #2563eb)",
+    color: theme.colors.surface,
+    border: "none",
+    borderRadius: theme.radius.button,
+    cursor: "pointer",
+  },
   sidePanel: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "stretch",
     justifyContent: "center",
   },
 };

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 
 import DashboardHeader from "../components/DashboardHeader";
+import DashboardSidebar from "../components/DashboardSidebar";
 import KPISection from "../components/KPISection";
 import SolarSection from "../components/SolarSection";
 import ResourceCharts from "../components/ResourceCharts";
@@ -13,8 +14,19 @@ import SustainabilitySimulator from "../components/SustainabilitySimulator";
 import AssumptionsPanel from "../components/AssumptionsPanel";
 import SeasonalOutlookPanel from "../components/SeasonalOutlookPanel";
 import AlertCenter from "../components/AlertCenter";
+import ExecutiveReportView from "../components/ExecutiveReportView";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle } from "../services/api";
+
+function SectionIntro({ kicker, title, subtitle }) {
+  return (
+    <div style={styles.sectionIntro}>
+      <span style={styles.sectionKicker}>{kicker}</span>
+      <h2 style={styles.sectionTitle}>{title}</h2>
+      <p style={styles.sectionSubtitle}>{subtitle}</p>
+    </div>
+  );
+}
 
 function Dashboard() {
   const [data, setData] = useState(null);
@@ -30,6 +42,8 @@ function Dashboard() {
   const [alertsData, setAlertsData] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [forecastGranularity, setForecastGranularity] = useState("monthly");
+  const [activeView, setActiveView] = useState("overview");
+  const [screenshotMode, setScreenshotMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -79,59 +93,241 @@ function Dashboard() {
     return <h2 style={{ padding: "30px" }}>{dashboardCopy.global.loadingDashboard}</h2>;
   }
 
+  const handlePrintReport = () => {
+    setActiveView("report");
+    setTimeout(() => {
+      window.print();
+    }, 180);
+  };
+
   return (
-    <div style={styles.page}>
-      <DashboardHeader
-        buildings={buildingOptions}
-        selectedBuilding={selectedBuilding}
-        setSelectedBuilding={setSelectedBuilding}
-        refresh={fetchData}
-        forecastGranularity={forecastGranularity}
-        setForecastGranularity={setForecastGranularity}
-      />
+    <div
+      style={{
+        ...styles.page,
+        ...(screenshotMode ? styles.pageScreenshot : {}),
+      }}
+      className={`app-shell-ambient ${screenshotMode ? "screenshot-mode" : ""}`}
+    >
+      <div style={styles.ambientOne} />
+      <div style={styles.ambientTwo} />
+      <div style={styles.ambientThree} />
+      <div style={styles.pageInner}>
+        <div style={styles.shell} className="dashboard-shell">
+          <DashboardSidebar
+            activeView={activeView}
+            setActiveView={setActiveView}
+            selectedBuilding={selectedBuilding}
+            forecastGranularity={forecastGranularity}
+          />
 
-      <SeasonalOutlookPanel outlook={seasonalOutlook} />
-      <AlertCenter alertsData={alertsData} />
-      <KPISection data={data} />
+          <div
+            style={{
+              ...styles.mainColumn,
+              ...(screenshotMode ? styles.mainColumnScreenshot : {}),
+            }}
+            className="dashboard-main-column"
+          >
+            <DashboardHeader
+              buildings={buildingOptions}
+              selectedBuilding={selectedBuilding}
+              setSelectedBuilding={setSelectedBuilding}
+              refresh={fetchData}
+              forecastGranularity={forecastGranularity}
+              setForecastGranularity={setForecastGranularity}
+              screenshotMode={screenshotMode}
+              setScreenshotMode={setScreenshotMode}
+              onPrintReport={handlePrintReport}
+            />
 
-      <div style={styles.twoCol}>
-        <div>
-          <CarbonFootprintDial data={data} />
-        </div>
-        <div>
-          <SolarSection data={data} />
+            <div style={styles.mobileTabs} className="dashboard-mobile-tabs">
+              {dashboardCopy.header.sectionTabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id)}
+                  style={{
+                    ...styles.mobileTabButton,
+                    ...(activeView === tab.id ? styles.mobileTabButtonActive : {}),
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {activeView === "overview" ? (
+            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+              <SectionIntro {...dashboardCopy.layout.primarySection} />
+              <SeasonalOutlookPanel outlook={seasonalOutlook} />
+              <KPISection data={data} />
+            </section>
+            ) : null}
+
+            {activeView === "intelligence" ? (
+            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+              <SectionIntro {...dashboardCopy.layout.performanceSection} />
+              <AlertCenter alertsData={alertsData} />
+
+              <div style={styles.twoCol}>
+                <CarbonFootprintDial data={data} />
+                <SolarSection data={data} />
+              </div>
+
+              <ResourceCharts
+                data={data}
+                trendData={trendData}
+                buildingData={buildingData}
+              />
+            </section>
+            ) : null}
+
+            {activeView === "planning" ? (
+            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+              <SectionIntro {...dashboardCopy.layout.planningSection} />
+              <AIInsightsSection insightsData={insightsData} />
+              <AIRiskSection riskData={riskData} />
+              <SustainabilitySimulator selectedBuilding={selectedBuilding} />
+              <AIForecastSection
+                forecastData={forecastData}
+                granularity={forecastGranularity}
+              />
+            </section>
+            ) : null}
+
+            {activeView === "governance" ? (
+            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+              <SectionIntro {...dashboardCopy.layout.governanceSection} />
+              <RankingSection performanceData={performanceData} />
+              <AssumptionsPanel assumptions={assumptions} />
+            </section>
+            ) : null}
+
+            {activeView === "report" ? (
+            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+              <SectionIntro {...dashboardCopy.layout.reportSection} />
+              <ExecutiveReportView
+                data={data}
+                riskData={riskData}
+                insightsData={insightsData}
+                performanceData={performanceData}
+                forecastData={forecastData}
+                seasonalOutlook={seasonalOutlook}
+              />
+            </section>
+            ) : null}
+          </div>
         </div>
       </div>
-
-      <ResourceCharts
-        data={data}
-        trendData={trendData}
-        buildingData={buildingData}
-      />
-
-      <AIInsightsSection insightsData={insightsData} />
-      <AIRiskSection riskData={riskData} />
-      <SustainabilitySimulator selectedBuilding={selectedBuilding} />
-      <AIForecastSection
-        forecastData={forecastData}
-        granularity={forecastGranularity}
-      />
-      <RankingSection performanceData={performanceData} />
-      <AssumptionsPanel assumptions={assumptions} />
     </div>
   );
 }
 
 const styles = {
   page: {
-    padding: "28px",
+    position: "relative",
+    overflow: "hidden",
+    padding: "28px 20px 60px",
     minHeight: "100vh",
     background:
       "radial-gradient(circle at top left, rgba(96,165,250,0.12), transparent 30%), linear-gradient(180deg, #f5f8f7 0%, #eef3f1 100%)",
   },
+  pageScreenshot: {
+    background: "#f4f7f6",
+  },
+  ambientOne: {
+    position: "absolute",
+    width: "380px",
+    height: "380px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(34,197,94,0.16), rgba(34,197,94,0))",
+    top: "-40px",
+    left: "-80px",
+    filter: "blur(10px)",
+  },
+  ambientTwo: {
+    position: "absolute",
+    width: "420px",
+    height: "420px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(59,130,246,0.12), rgba(59,130,246,0))",
+    top: "180px",
+    right: "-120px",
+    filter: "blur(8px)",
+  },
+  ambientThree: {
+    position: "absolute",
+    width: "300px",
+    height: "300px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(16,185,129,0.12), rgba(16,185,129,0))",
+    bottom: "40px",
+    left: "20%",
+    filter: "blur(12px)",
+  },
+  pageInner: {
+    position: "relative",
+    maxWidth: "1400px",
+    margin: "0 auto",
+  },
+  shell: {
+    display: "grid",
+    gridTemplateColumns: "280px minmax(0, 1fr)",
+    gap: "24px",
+  },
+  mainColumn: {
+    minWidth: 0,
+  },
+  mainColumnScreenshot: {
+    maxWidth: "1180px",
+  },
+  mobileTabs: {
+    display: "none",
+    gap: "12px",
+    flexWrap: "wrap",
+    marginBottom: "20px",
+  },
+  mobileTabButton: {
+    padding: "12px 18px",
+    borderRadius: "999px",
+    border: "1px solid #d1ded8",
+    background: "#f6faf8",
+    color: "#35514a",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+  mobileTabButtonActive: {
+    background: "linear-gradient(135deg, #1b7f62, #2563eb)",
+    color: "#ffffff",
+    border: "1px solid transparent",
+    boxShadow: "0 10px 24px rgba(37, 99, 235, 0.18)",
+  },
+  sectionBlock: {
+    marginBottom: "34px",
+  },
+  sectionIntro: {
+    marginBottom: "16px",
+    padding: "0 4px",
+  },
+  sectionKicker: {
+    color: "#1b7f62",
+    fontWeight: "700",
+    fontSize: "12px",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+  },
+  sectionTitle: {
+    margin: "8px 0 6px",
+    color: "#17342d",
+    fontSize: "30px",
+  },
+  sectionSubtitle: {
+    margin: 0,
+    color: "#60756f",
+    lineHeight: 1.6,
+    maxWidth: "800px",
+  },
   twoCol: {
     display: "grid",
-    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "20px",
     marginBottom: "20px",
   },

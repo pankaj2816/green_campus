@@ -28,6 +28,10 @@ export const dashboardCopy = {
       hero: "30px",
       button: "14px",
     },
+    shadows: {
+      card: "0 18px 40px rgba(12, 24, 21, 0.08)",
+      hero: "0 24px 50px rgba(18, 34, 29, 0.08)",
+    },
   },
   global: {
     loadingDashboard: "Loading Dashboard...",
@@ -40,6 +44,18 @@ export const dashboardCopy = {
     subtitle:
       "Monitor utilities, forecast demand, reset or import fresh datasets, and plan around academic occupancy changes with a clearer professional dashboard.",
     buildingPlaceholder: "All Buildings",
+    statusCards: {
+      scope: "Current scope",
+      forecast: "Forecast mode",
+      live: "Workspace mode",
+    },
+    sectionTabs: [
+      { id: "overview", label: "Overview" },
+      { id: "intelligence", label: "Intelligence" },
+      { id: "planning", label: "Planning Studio" },
+      { id: "governance", label: "Governance" },
+      { id: "report", label: "Executive Report" },
+    ],
     forecastOptions: [
       { value: "daily", label: "Daily Forecast" },
       { value: "monthly", label: "Monthly Forecast" },
@@ -53,13 +69,51 @@ export const dashboardCopy = {
     subtitle: "Reset the dataset or import a fresh Excel file.",
     importLabel: "Import Excel",
     importingLabel: "Importing...",
+    exportLabel: "Export Excel",
+    exportingLabel: "Exporting...",
     resetLabel: "Reset Data",
     resettingLabel: "Resetting...",
     resetConfirm:
       "Reset all imported campus resource data? This clears energy, water, waste, and solar records.",
     selectFileAlert: "Please select an Excel file",
+    selectedFilePrefix: "Selected file",
+    uploadSuccess: "Dataset uploaded successfully",
+    exportSuccess: "Dataset exported successfully",
     uploadFailed: "Upload failed",
+    exportFailed: "Export failed",
     resetFailed: "Reset failed",
+  },
+  layout: {
+    primarySection: {
+      kicker: "Campus overview",
+      title: "Operational picture and live controls",
+      subtitle:
+        "Start with the live campus state, then import, reset, or export the current workbook.",
+    },
+    performanceSection: {
+      kicker: "Performance intelligence",
+      title: "Carbon, solar, alerts, and resource flow",
+      subtitle:
+        "Understand where emissions are coming from, how solar is helping, and where the next risks are forming.",
+    },
+    planningSection: {
+      kicker: "AI planning studio",
+      title: "Forecasts, insights, and scenario testing",
+      subtitle:
+        "Use predictive views and simulation tools to shape campus operations before the next spike arrives.",
+    },
+    governanceSection: {
+      kicker: "Governance and reference",
+      title: "Rankings, assumptions, and working logic",
+      subtitle:
+        "Review building-level standing and the settings that control the dashboard calculations.",
+    },
+    reportSection: {
+      kicker: "Executive report",
+      title: "Printable management-ready sustainability summary",
+      subtitle:
+        "Use this view for screenshots, meetings, and a cleaner one-page explanation of campus status.",
+    },
   },
   assumptions: {
     title: "Simple Explanations and Settings",
@@ -141,6 +195,7 @@ export const dashboardCopy = {
     forecastSeries: {
       historical: "Historical",
       forecast: "Forecast",
+      confidence: "Confidence Range",
     },
   },
   carbon: {
@@ -209,10 +264,24 @@ export const dashboardCopy = {
       trend: "Trend Direction",
       growth: "Growth",
       volatility: "Volatility",
+      confidence: "Forecast Range",
+      occupancy: "Occupancy Effect",
       projectedEnergy: "Projected Energy",
+      projectedWindow: "Projected Window",
       projectedCost: "Projected Cost",
       projectedCarbon: "Projected Carbon",
     },
+  },
+  navigation: {
+    title: "Dashboard Views",
+    subtitle: "Switch between focused views instead of scanning one long page.",
+  },
+  presentation: {
+    screenshotMode: "Screenshot Mode",
+    normalMode: "Normal Mode",
+    printReport: "Print Report",
+    reportSubtitle: "Clean layout for screenshots, PDF printing, and stakeholder discussion.",
+    quickSummaryTitle: "Executive Summary",
   },
   alerts: {
     title: "Alert Center",
@@ -293,9 +362,15 @@ export const dashboardCopy = {
   },
   auth: {
     loginTitle: "Green Campus Login",
+    loginSubtitle: "Access live campus sustainability operations, forecasting, and management reporting in one place.",
+    loginButton: "Login",
+    signingInButton: "Signing in...",
     loginInvalid: "Invalid credentials",
     loginFailed: "Login failed",
     registerTitle: "Create Account",
+    registerSubtitle: "Create a workspace account to explore the live campus intelligence dashboard.",
+    registerButton: "Register",
+    registeringButton: "Creating account...",
     registerSuccess: "Registration successful! Redirecting to login...",
     registerDefaultError: "Registration failed",
     registerServerError: "Server error. Please try again.",
@@ -303,5 +378,8 @@ export const dashboardCopy = {
     noAccountText: "Don't have an account?",
     registerPrompt: "Register here",
     alreadyHaveAccountText: "Already have an account?",
+    usernameLabel: "Username",
+    passwordLabel: "Password",
+    authBadge: "Campus Intelligence",
   },
 };

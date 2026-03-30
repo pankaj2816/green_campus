@@ -2,6 +2,8 @@ import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
 
+const { theme } = dashboardCopy;
+
 function formatValue(key, value) {
   if (key === "weights" && typeof value === "object") {
     return Object.entries(value)
@@ -25,7 +27,7 @@ function AssumptionsPanel({ assumptions }) {
   const glossary = assumptions.glossary || [];
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-2">
       <div style={styles.header}>
         <h3 style={{ margin: 0 }}>{dashboardCopy.assumptions.title}</h3>
         <p style={styles.subtext}>{dashboardCopy.assumptions.subtitle}</p>
@@ -72,17 +74,17 @@ function AssumptionsPanel({ assumptions }) {
 
 const styles = {
   container: {
-    background: "#ffffff",
-    padding: "20px",
-    borderRadius: "16px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
+    background: theme.colors.surface,
+    padding: "22px",
+    borderRadius: theme.radius.card,
+    boxShadow: theme.shadows.card,
     marginBottom: "20px",
   },
   header: {
     marginBottom: "16px",
   },
   subtext: {
-    color: "#5f706a",
+    color: theme.colors.secondaryText,
     marginTop: "8px",
   },
   grid: {
@@ -91,9 +93,9 @@ const styles = {
     gap: "16px",
   },
   panel: {
-    background: "#f8fbfa",
-    borderRadius: "12px",
-    padding: "16px",
+    background: theme.colors.softSurface,
+    borderRadius: "18px",
+    padding: "18px",
   },
   list: {
     display: "flex",
@@ -101,9 +103,9 @@ const styles = {
     gap: "10px",
   },
   settingCard: {
-    background: "#ffffff",
+    background: theme.colors.surface,
     borderRadius: "10px",
-    padding: "12px",
+    padding: "14px",
   },
   settingTop: {
     display: "flex",
@@ -112,27 +114,27 @@ const styles = {
     alignItems: "flex-start",
   },
   term: {
-    color: "#27453f",
+    color: theme.colors.primaryText,
     fontWeight: "600",
   },
   value: {
-    color: "#1b7f62",
+    color: theme.colors.accent,
     textAlign: "right",
     fontWeight: "700",
   },
   description: {
     marginBottom: 0,
-    color: "#5f706a",
+    color: theme.colors.secondaryText,
     lineHeight: 1.5,
   },
   glossaryCard: {
-    background: "#ffffff",
+    background: theme.colors.surface,
     borderRadius: "10px",
-    padding: "12px",
+    padding: "14px",
   },
   glossaryText: {
     marginBottom: 0,
-    color: "#5f706a",
+    color: theme.colors.secondaryText,
     lineHeight: 1.5,
   },
 };

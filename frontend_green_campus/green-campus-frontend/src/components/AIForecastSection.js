@@ -3,6 +3,8 @@ import React from "react";
 import AIForecastChart from "./AIForecastChart";
 import { dashboardCopy } from "../config/dashboardConfig";
 
+const { theme } = dashboardCopy;
+
 function ForecastCard({ title, payload, color }) {
   if (!payload) {
     return null;
@@ -16,8 +18,13 @@ function ForecastCard({ title, payload, color }) {
         historicalLabels={payload.historical_labels}
         forecastValues={payload.forecast_values}
         forecastLabels={payload.forecast_labels}
+        forecastLower={payload.forecast_lower}
+        forecastUpper={payload.forecast_upper}
         color={color}
       />
+      <p style={styles.caption}>
+        Baseline: {payload.baseline_mean} | Recent: {payload.recent_mean} | Variability: {payload.variability_score}
+      </p>
     </div>
   );
 }
@@ -28,12 +35,15 @@ function AIForecastSection({ forecastData, granularity }) {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-3">
       <div style={styles.header}>
         <div>
           <h3 style={{ margin: 0 }}>{dashboardCopy.forecast.title}</h3>
           <p style={styles.subtext}>
             {forecastData.horizon_label} {dashboardCopy.forecast.subtitlePrefix} {granularity} {dashboardCopy.forecast.subtitleMiddle} {forecastData.building}.
+          </p>
+          <p style={styles.meta}>
+            Occupancy-aware average for upcoming periods: {Math.round((forecastData.future_occupancy_average || 0) * 100)}%
           </p>
         </div>
       </div>
@@ -50,10 +60,10 @@ function AIForecastSection({ forecastData, granularity }) {
 
 const styles = {
   container: {
-    background: "#ffffff",
-    padding: "20px",
-    borderRadius: "16px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
+    background: theme.colors.surface,
+    padding: "22px",
+    borderRadius: theme.radius.card,
+    boxShadow: theme.shadows.card,
     marginBottom: "20px",
   },
   header: {
@@ -64,7 +74,7 @@ const styles = {
   },
   subtext: {
     marginTop: "8px",
-    color: "#5d6f6a",
+    color: theme.colors.secondaryText,
   },
   grid: {
     display: "grid",
@@ -73,9 +83,20 @@ const styles = {
     marginTop: "15px",
   },
   card: {
-    background: "#f9fafc",
-    padding: "15px",
-    borderRadius: "12px",
+    background: theme.colors.softSurface,
+    padding: "16px",
+    borderRadius: "18px",
+  },
+  caption: {
+    margin: "10px 0 0",
+    color: theme.colors.secondaryText,
+    fontSize: "13px",
+  },
+  meta: {
+    margin: "8px 0 0",
+    color: theme.colors.accent,
+    fontSize: "13px",
+    fontWeight: "600",
   },
 };
 

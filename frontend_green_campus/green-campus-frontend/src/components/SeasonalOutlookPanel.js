@@ -7,7 +7,7 @@ function SeasonalOutlookPanel({ outlook }) {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card stagger-in stagger-in-delay-1">
       <div style={styles.header}>
         <div>
           <h3 style={{ margin: 0 }}>{dashboardCopy.seasonal.title}</h3>

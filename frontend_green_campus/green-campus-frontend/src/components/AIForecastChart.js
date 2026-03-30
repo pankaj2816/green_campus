@@ -7,6 +7,8 @@ function AIForecastChart({
   historicalLabels,
   forecastValues,
   forecastLabels,
+  forecastLower,
+  forecastUpper,
   color = "#2f80ed",
 }) {
   if (!forecastValues || forecastValues.length === 0) {
@@ -27,10 +29,27 @@ function AIForecastChart({
         label: dashboardCopy.chart.forecastSeries.forecast,
         data: [...Array((historicalValues || []).length).fill(null), ...forecastValues],
         borderColor: color,
-        backgroundColor: `${color}33`,
+        backgroundColor: `${color}26`,
         tension: 0.35,
-        fill: true,
         borderDash: [8, 6],
+        fill: false,
+      },
+      {
+        label: dashboardCopy.chart.forecastSeries.confidence,
+        data: [...Array((historicalValues || []).length).fill(null), ...(forecastLower || [])],
+        borderColor: `${color}33`,
+        backgroundColor: "transparent",
+        pointRadius: 0,
+        tension: 0.35,
+      },
+      {
+        label: dashboardCopy.chart.forecastSeries.confidence,
+        data: [...Array((historicalValues || []).length).fill(null), ...(forecastUpper || forecastValues)],
+        borderColor: `${color}22`,
+        backgroundColor: `${color}18`,
+        pointRadius: 0,
+        tension: 0.35,
+        fill: "-1",
       },
     ],
   };
@@ -39,7 +58,12 @@ function AIForecastChart({
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { position: "top" },
+      legend: {
+        position: "top",
+        labels: {
+          filter: (item) => item.text !== dashboardCopy.chart.forecastSeries.confidence || item.datasetIndex === 3,
+        },
+      },
     },
   };
 

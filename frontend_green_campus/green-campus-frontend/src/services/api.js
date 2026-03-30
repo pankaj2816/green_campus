@@ -37,6 +37,15 @@ const handleResponse = async (response) => {
   return data;
 };
 
+const extractErrorMessage = async (response, fallbackMessage) => {
+  try {
+    const data = await response.json();
+    return data.detail || fallbackMessage;
+  } catch (error) {
+    return fallbackMessage;
+  }
+};
+
 export const loginUser = async (username, password) => {
   const formData = new URLSearchParams();
   formData.append("username", username);
@@ -93,6 +102,29 @@ export const resetCampusDataset = async () => {
   });
 
   return handleResponse(response);
+};
+
+export const exportCampusDataset = async () => {
+  const response = await fetch(buildUrl("/admin/export-campus-excel"), {
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error(await extractErrorMessage(response, "Export failed"));
+  }
+
+  const blob = await response.blob();
+  const downloadUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = downloadUrl;
+  link.download = "green_campus_export.xlsx";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(downloadUrl);
+
+  return { message: "Dataset exported successfully" };
 };
 
 export const apiPost = async (endpoint, body = {}) => {

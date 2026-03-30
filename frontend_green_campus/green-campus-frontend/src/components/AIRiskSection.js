@@ -9,7 +9,7 @@ function AIRiskSection({ riskData }) {
   const risk = riskData[0];
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-2">
       <h3 style={{ marginTop: 0 }}>{dashboardCopy.risk.title}</h3>
       <p style={styles.subtext}>{risk.message}</p>
 
@@ -18,9 +18,20 @@ function AIRiskSection({ riskData }) {
         <MetricCard title={dashboardCopy.risk.cards.trend} value={risk.trend_direction} />
         <MetricCard title={dashboardCopy.risk.cards.growth} value={`${risk.growth_percent}%`} />
         <MetricCard title={dashboardCopy.risk.cards.volatility} value={`${risk.volatility_percent}%`} />
+        <MetricCard title={dashboardCopy.risk.cards.confidence} value={`${risk.confidence_band_percent}%`} />
+        <MetricCard title={dashboardCopy.risk.cards.occupancy} value={`${risk.occupancy_impact_percent}%`} />
         <MetricCard title={dashboardCopy.risk.cards.projectedEnergy} value={`${risk.projected_energy} kWh`} />
+        <MetricCard
+          title={dashboardCopy.risk.cards.projectedWindow}
+          value={`${risk.projected_energy_low} - ${risk.projected_energy_high} kWh`}
+        />
         <MetricCard title={dashboardCopy.risk.cards.projectedCost} value={`Rs ${risk.projected_cost}`} />
         <MetricCard title={dashboardCopy.risk.cards.projectedCarbon} value={`${risk.projected_carbon} kg CO2`} />
+      </div>
+
+      <div style={styles.driverCard}>
+        <strong>Primary driver</strong>
+        <p style={styles.driverText}>{risk.primary_driver}</p>
       </div>
     </div>
   );
@@ -73,6 +84,18 @@ const styles = {
     fontSize: "20px",
     fontWeight: "600",
     color: "#15332d",
+  },
+  driverCard: {
+    marginTop: "16px",
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#eff7f2",
+  },
+  driverText: {
+    marginBottom: 0,
+    color: "#35514a",
+    lineHeight: 1.5,
+    marginTop: "8px",
   },
 };
 

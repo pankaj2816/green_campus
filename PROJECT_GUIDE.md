@@ -289,7 +289,8 @@ https://your-backend-name.onrender.com
 4. Import Excel data using the dashboard data controls
 5. Use building filter and forecast selector
 6. Review KPI cards, carbon, solar, trend, risk, insights, and simulator
-7. Reset data when you want a fresh import
+7. Export Excel when you want the current live dataset as a workbook
+8. Reset data when you want a fresh import
 
 ## Sample Excel File
 
@@ -319,11 +320,14 @@ The dashboard now supports both actions:
 
 - `Import Excel`
   Upload a fresh campus dataset from the frontend
+- `Export Excel`
+  Download the current workbook with summary, building performance, and raw energy, water, waste, and solar sheets
 - `Reset Data`
   Clear all solar, energy, water, and waste records before starting again
 
 Backend endpoint:
 
+- `GET /admin/export-campus-excel`
 - `POST /admin/reset-campus-data`
 
 This is useful when:
@@ -545,6 +549,7 @@ Adjust:
 ### Data Management
 
 - import fresh Excel data
+- export the current workbook back to Excel
 - reset all campus resource data
 
 ### Visual UX
@@ -586,6 +591,7 @@ Adjust:
 
 ### Data Management
 
+- `GET /admin/export-campus-excel`
 - `POST /admin/upload-campus-excel`
 - `POST /admin/reset-campus-data`
 

@@ -1,6 +1,8 @@
 import React from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
 
+const { theme } = dashboardCopy;
+
 function Column({ title, items, renderItem, emptyText }) {
   return (
     <div style={styles.column}>
@@ -24,9 +26,16 @@ function AIInsightsSection({ insightsData }) {
   }
 
   return (
-    <div style={styles.container}>
+    <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-1">
       <div style={styles.header}>
-        <h3 style={{ margin: 0 }}>{dashboardCopy.insights.title}</h3>
+        <div>
+          <h3 style={{ margin: 0 }}>{dashboardCopy.insights.title}</h3>
+          {insightsData.peer_context ? (
+            <p style={styles.peerText}>
+              Peer comparison: {insightsData.peer_context.building} is {insightsData.peer_context.delta_percent}% vs peer average net energy.
+            </p>
+          ) : null}
+        </div>
         <span style={styles.scope}>{dashboardCopy.global.scopeLabel}: {insightsData.scope}</span>
       </div>
 
@@ -68,6 +77,9 @@ function AIInsightsSection({ insightsData }) {
                 {item.title} <span style={styles.priority}>{item.priority}</span>
               </strong>
               <p style={styles.message}>{item.message}</p>
+              <p style={styles.savings}>
+                Estimated impact: {item.estimated_savings_kwh} kWh | Rs {item.estimated_savings_rs} | {item.estimated_savings_carbon} kg CO2
+              </p>
             </>
           )}
         />
@@ -78,11 +90,15 @@ function AIInsightsSection({ insightsData }) {
 
 const styles = {
   container: {
-    background: "#ffffff",
-    padding: "20px",
-    borderRadius: "16px",
-    boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
+    background: theme.colors.surface,
+    padding: "22px",
+    borderRadius: theme.radius.card,
+    boxShadow: theme.shadows.card,
     marginBottom: "20px",
+  },
+  peerText: {
+    margin: "8px 0 0",
+    color: theme.colors.secondaryText,
   },
   header: {
     display: "flex",
@@ -93,7 +109,7 @@ const styles = {
     flexWrap: "wrap",
   },
   scope: {
-    color: "#4a615a",
+    color: theme.colors.secondaryText,
     background: "#ecf4f1",
     padding: "8px 12px",
     borderRadius: "999px",
@@ -105,34 +121,34 @@ const styles = {
     gap: "16px",
   },
   column: {
-    background: "#f8fbfa",
-    borderRadius: "14px",
-    padding: "16px",
+    background: theme.colors.softSurface,
+    borderRadius: "18px",
+    padding: "18px",
   },
   columnTitle: {
     marginTop: 0,
     marginBottom: "12px",
-    color: "#16302b",
+    color: theme.colors.primaryText,
   },
   itemCard: {
-    background: "#ffffff",
+    background: theme.colors.surface,
     borderRadius: "12px",
-    padding: "12px",
+    padding: "14px",
     marginBottom: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
   },
   label: {
-    color: "#173a33",
+    color: theme.colors.primaryText,
   },
   metric: {
     fontSize: "20px",
     fontWeight: "700",
     margin: "6px 0",
-    color: "#1f5b4d",
+    color: theme.colors.accent,
   },
   message: {
     margin: "8px 0 0 0",
-    color: "#5b6d67",
+    color: theme.colors.secondaryText,
     lineHeight: 1.5,
   },
   priority: {
@@ -141,8 +157,14 @@ const styles = {
     color: "#b45309",
     marginLeft: "6px",
   },
+  savings: {
+    margin: "10px 0 0",
+    color: theme.colors.accent,
+    fontWeight: "600",
+    lineHeight: 1.5,
+  },
   emptyText: {
-    color: "#6b7f78",
+    color: theme.colors.secondaryText,
     margin: 0,
   },
 };

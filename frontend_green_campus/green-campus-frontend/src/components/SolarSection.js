@@ -5,7 +5,7 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 function SolarSection({ data }) {
   return (
-    <div style={styles.card}>
+    <div style={styles.card} className="premium-card lift-card stagger-in stagger-in-delay-2">
       <div style={styles.header}>
         <h3 style={styles.title}>{dashboardCopy.solar.title}</h3>
         <p style={styles.subtitle}>{dashboardCopy.solar.subtitle}</p>
