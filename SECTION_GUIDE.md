@@ -109,6 +109,11 @@ Simple example:
 
 - if you want one clean page for a meeting or screenshot, use this mode
 
+Important:
+
+- when using `Print Report`, only the detailed executive report should be printed
+- the normal explanation sections are for learning and walkthrough, not for the printed management report
+
 ## 3. Top Hero Section
 
 The top hero section is the command center.
@@ -121,6 +126,19 @@ It shows:
 - data controls
 
 This is where the user starts.
+
+### Campus Pulse
+
+Campus Pulse is a quick sentence-style summary shown near the top of the overview.
+
+It tells the user:
+
+- current Green Index
+- current risk level
+- future occupancy hint
+- one simple explanation line about the present campus state
+
+This is useful because someone can understand the main situation in a few seconds.
 
 ## 4. Data Controls
 
@@ -599,3 +617,21 @@ It is a campus decision-support system that helps:
 - present results professionally
 
 If you want, this document can later be expanded again whenever new features are added.
+
+## 21. What More Can Be Added Later
+
+The project is already strong, but it can become even more advanced.
+
+Good next additions could be:
+
+- weather-aware forecasting
+- holiday and event-aware prediction
+- hostel vs academic block comparison
+- leak suspicion score for water
+- solar underperformance diagnosis
+- monthly management PDF export
+- alert acknowledgement workflow
+- building maintenance suggestion system
+- target-vs-actual sustainability goals
+
+These features would make the platform even more practical for real campus operations.

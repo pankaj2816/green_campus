@@ -15,6 +15,7 @@ import AssumptionsPanel from "../components/AssumptionsPanel";
 import SeasonalOutlookPanel from "../components/SeasonalOutlookPanel";
 import AlertCenter from "../components/AlertCenter";
 import ExecutiveReportView from "../components/ExecutiveReportView";
+import CampusPulseBar from "../components/CampusPulseBar";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle } from "../services/api";
 
@@ -187,6 +188,12 @@ function Dashboard() {
             {activeView === "overview" ? (
             <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
               <SectionIntro {...dashboardCopy.layout.primarySection} />
+              <CampusPulseBar
+                data={data}
+                riskData={riskData}
+                forecastData={forecastData}
+                seasonalOutlook={seasonalOutlook}
+              />
               <SeasonalOutlookPanel outlook={seasonalOutlook} />
               <KPISection data={data} />
             </section>
@@ -233,7 +240,6 @@ function Dashboard() {
 
             {activeView === "report" ? (
             <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-              <SectionIntro {...dashboardCopy.layout.reportSection} />
               <ExecutiveReportView
                 data={data}
                 riskData={riskData}

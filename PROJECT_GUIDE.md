@@ -75,9 +75,11 @@ Main dashboard page:
 The dashboard now works like a professional operations console. It includes:
 
 - command-center header
+- focused dashboard views with sidebar navigation
 - data import and reset controls
 - building filter
 - daily, monthly, yearly, seasonal forecast selector
+- campus pulse summary banner
 - KPI cards
 - seasonal intelligence panel
 - advanced carbon section
@@ -88,6 +90,7 @@ The dashboard now works like a professional operations console. It includes:
 - scenario simulator
 - ranking table
 - assumptions and terminology panel
+- executive report view for screenshot and print use
 
 Main frontend copy/config file:
 
@@ -288,7 +291,7 @@ https://your-backend-name.onrender.com
 3. Register or log in
 4. Import Excel data using the dashboard data controls
 5. Use building filter and forecast selector
-6. Review KPI cards, carbon, solar, trend, risk, insights, and simulator
+6. Review KPI cards, campus pulse, carbon, solar, trend, risk, insights, and simulator
 7. Export Excel when you want the current live dataset as a workbook
 8. Reset data when you want a fresh import
 
@@ -537,14 +540,27 @@ Adjust:
 - monthly forecasting
 - yearly forecasting
 - seasonal forecasting
+- occupancy-aware forecasting
+- forecast confidence range
 - AI risk analysis
 - alert center
 - export-ready day analysis
 - AI anomalies
 - AI opportunities
 - AI recommendations
+- peer comparison insights
+- savings-aware recommendations
 - seasonal intelligence with occupancy assumptions
 - scenario simulator
+
+### Premium UI Additions
+
+- sidebar navigation for focused dashboard views
+- campus pulse summary banner
+- screenshot mode
+- executive report print view
+- animated KPI cards
+- premium login and register screens
 
 ### Data Management
 
