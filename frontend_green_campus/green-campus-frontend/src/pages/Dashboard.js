@@ -44,6 +44,8 @@ function Dashboard() {
   const [forecastGranularity, setForecastGranularity] = useState("monthly");
   const [activeView, setActiveView] = useState("overview");
   const [screenshotMode, setScreenshotMode] = useState(false);
+  const [pendingPrint, setPendingPrint] = useState(false);
+  const [printMode, setPrintMode] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
@@ -89,15 +91,37 @@ function Dashboard() {
     loadAssumptions();
   }, []);
 
+  useEffect(() => {
+    const handleAfterPrint = () => {
+      setPendingPrint(false);
+      setPrintMode(false);
+    };
+
+    window.addEventListener("afterprint", handleAfterPrint);
+    return () => window.removeEventListener("afterprint", handleAfterPrint);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingPrint || activeView !== "report") {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      window.print();
+    }, 450);
+
+    return () => window.clearTimeout(timer);
+  }, [pendingPrint, activeView]);
+
   if (loading && !data) {
     return <h2 style={{ padding: "30px" }}>{dashboardCopy.global.loadingDashboard}</h2>;
   }
 
   const handlePrintReport = () => {
+    setPrintMode(true);
+    setScreenshotMode(true);
     setActiveView("report");
-    setTimeout(() => {
-      window.print();
-    }, 180);
+    setPendingPrint(true);
   };
 
   return (
@@ -113,12 +137,14 @@ function Dashboard() {
       <div style={styles.ambientThree} />
       <div style={styles.pageInner}>
         <div style={styles.shell} className="dashboard-shell">
-          <DashboardSidebar
-            activeView={activeView}
-            setActiveView={setActiveView}
-            selectedBuilding={selectedBuilding}
-            forecastGranularity={forecastGranularity}
-          />
+          {!printMode ? (
+            <DashboardSidebar
+              activeView={activeView}
+              setActiveView={setActiveView}
+              selectedBuilding={selectedBuilding}
+              forecastGranularity={forecastGranularity}
+            />
+          ) : null}
 
           <div
             style={{
@@ -127,32 +153,36 @@ function Dashboard() {
             }}
             className="dashboard-main-column"
           >
-            <DashboardHeader
-              buildings={buildingOptions}
-              selectedBuilding={selectedBuilding}
-              setSelectedBuilding={setSelectedBuilding}
-              refresh={fetchData}
-              forecastGranularity={forecastGranularity}
-              setForecastGranularity={setForecastGranularity}
-              screenshotMode={screenshotMode}
-              setScreenshotMode={setScreenshotMode}
-              onPrintReport={handlePrintReport}
-            />
+            {!printMode ? (
+              <>
+                <DashboardHeader
+                  buildings={buildingOptions}
+                  selectedBuilding={selectedBuilding}
+                  setSelectedBuilding={setSelectedBuilding}
+                  refresh={fetchData}
+                  forecastGranularity={forecastGranularity}
+                  setForecastGranularity={setForecastGranularity}
+                  screenshotMode={screenshotMode}
+                  setScreenshotMode={setScreenshotMode}
+                  onPrintReport={handlePrintReport}
+                />
 
-            <div style={styles.mobileTabs} className="dashboard-mobile-tabs">
-              {dashboardCopy.header.sectionTabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveView(tab.id)}
-                  style={{
-                    ...styles.mobileTabButton,
-                    ...(activeView === tab.id ? styles.mobileTabButtonActive : {}),
-                  }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+                <div style={styles.mobileTabs} className="dashboard-mobile-tabs">
+                  {dashboardCopy.header.sectionTabs.map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveView(tab.id)}
+                      style={{
+                        ...styles.mobileTabButton,
+                        ...(activeView === tab.id ? styles.mobileTabButtonActive : {}),
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : null}
 
             {activeView === "overview" ? (
             <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">

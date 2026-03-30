@@ -9,7 +9,7 @@ function AuthShell({ title, subtitle, children, sideTitle, sideText, badge }) {
     <div style={styles.page} className="app-shell-ambient">
       <div style={styles.grid}>
         <section style={styles.panel} className="premium-card stagger-in">
-          <span style={styles.badge}>{badge}</span>
+      <span style={styles.badge}>{badge}</span>
           <h1 style={styles.title}>{title}</h1>
           <p style={styles.subtitle}>{subtitle}</p>
           {children}
@@ -74,8 +74,8 @@ function Login({ onLogin }) {
       title={dashboardCopy.auth.loginTitle}
       subtitle={dashboardCopy.auth.loginSubtitle}
       badge={dashboardCopy.auth.authBadge}
-      sideTitle="Campus operations, forecasting, and reporting in one workspace"
-      sideText="Use this portal to move from raw utility data to decisions that are easier to explain during meetings, audits, and demos."
+      sideTitle={`${dashboardCopy.branding.appName} for ${dashboardCopy.branding.organization}`}
+      sideText="Use this portal to move from raw utility data to decisions that are easier to explain during meetings, audits, demos, and reviews."
     >
       <label style={styles.field}>
         <span style={styles.label}>{dashboardCopy.auth.usernameLabel}</span>

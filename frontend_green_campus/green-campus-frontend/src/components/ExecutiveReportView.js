@@ -40,6 +40,17 @@ function ExecutiveReportView({
 
   return (
     <section style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-1 print-report-section">
+      <div style={styles.brandRow}>
+        <div style={styles.brandMark}>
+          <strong>{dashboardCopy.branding.logoText}</strong>
+          <span>{dashboardCopy.branding.logoSubtext}</span>
+        </div>
+        <div style={styles.orgMark}>
+          <strong>{dashboardCopy.branding.organization}</strong>
+          <span>{dashboardCopy.branding.tagline}</span>
+        </div>
+      </div>
+
       <div style={styles.header}>
         <div>
           <span style={styles.kicker}>{dashboardCopy.layout.reportSection.kicker}</span>
@@ -145,6 +156,29 @@ const styles = {
     gap: "18px",
     flexWrap: "wrap",
     alignItems: "flex-start",
+  },
+  brandRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "18px",
+    flexWrap: "wrap",
+    marginBottom: "18px",
+  },
+  brandMark: {
+    display: "grid",
+    gap: "4px",
+    padding: "14px 16px",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, #17342d, #255b89)",
+    color: "#ffffff",
+  },
+  orgMark: {
+    display: "grid",
+    gap: "4px",
+    padding: "14px 16px",
+    borderRadius: "18px",
+    background: "#f3f8f6",
+    color: "#17342d",
   },
   kicker: {
     color: "#1b7f62",

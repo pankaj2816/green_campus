@@ -32,6 +32,11 @@ It is used to understand:
 
 This view is best for giving a quick introduction to the current situation.
 
+Simple example:
+
+- if you want to quickly show the current campus condition to someone, open this mode first
+- it gives the fastest overall understanding
+
 ### Intelligence
 
 This view is about deeper performance analysis.
@@ -50,6 +55,10 @@ This view is useful when someone asks:
 - how much is solar helping?
 - are there any warning signs?
 
+Simple example:
+
+- if someone asks why electricity cost is high or whether solar is helping, this is the best mode to open
+
 ### Planning Studio
 
 This is the AI-focused view.
@@ -63,6 +72,10 @@ It contains:
 
 This view helps explain what may happen next and what actions may improve the situation.
 
+Simple example:
+
+- if you want to show how June demand may reduce because students are away, use this mode
+
 ### Governance
 
 This view is for explanation and decision support.
@@ -74,6 +87,10 @@ It contains:
 - terminology and settings
 
 This is useful for teachers, management, sustainability teams, or reviewers who want to understand how the dashboard is working.
+
+Simple example:
+
+- if someone asks how the score is being calculated or which building is best, this is the right mode
 
 ### Executive Report
 
@@ -87,6 +104,10 @@ It is best for:
 - print/PDF style review
 
 It collects the most important information into a simple summary format.
+
+Simple example:
+
+- if you want one clean page for a meeting or screenshot, use this mode
 
 ## 3. Top Hero Section
 
@@ -170,6 +191,10 @@ This is a combined sustainability score.
 Higher is better.
 
 It helps give one overall performance number instead of only separate raw totals.
+
+Simple example:
+
+- if Campus A has a Green Index of 78 and Campus B has 61, Campus A is performing better overall
 
 ## 6. Seasonal Intelligence
 
@@ -314,6 +339,28 @@ It uses:
 
 It also shows a primary driver statement so you can explain **why** the risk is high, medium, or low.
 
+### Confidence Range
+
+Confidence range means the forecast is shown as a likely lower and upper band instead of only one fixed number.
+
+Simple example:
+
+- predicted next-month energy = 42,000 kWh
+- confidence range = 39,000 to 45,000 kWh
+
+This means the system expects the actual result to probably stay around that band.
+
+It is useful because real life is uncertain and the system should not pretend that one exact number is always guaranteed.
+
+### Occupancy Effect
+
+Occupancy effect means future demand changes because campus activity changes.
+
+Simple example:
+
+- if student occupancy is lower in June, energy and water may reduce
+- if full academic activity returns in September, energy may rise again
+
 ## 14. Forecast Studio
 
 This section predicts future values for:
@@ -330,6 +377,51 @@ It supports:
 - yearly
 - seasonal
 
+### What These Forecast Modes Mean
+
+#### Daily Mode
+
+Daily mode predicts near-future day-wise behavior.
+
+Use this when you want to see short-term changes, spikes, or immediate planning needs.
+
+Simple example:
+
+- tomorrow or next week electricity may be slightly higher than recent days
+
+#### Monthly Mode
+
+Monthly mode predicts broader month-wise demand.
+
+Use this for management planning and comparing academic months.
+
+Simple example:
+
+- June may be lower because of vacation
+- September may be higher because campus is fully active again
+
+#### Yearly Mode
+
+Yearly mode gives a long-term high-level trend.
+
+Use this when you want to speak about campus direction rather than short-term operations.
+
+Simple example:
+
+- next year net energy may rise if building usage grows
+
+#### Seasonal Mode
+
+Seasonal mode groups behavior into seasonal patterns such as winter, summer, monsoon, and post-monsoon.
+
+Use this when climate and occupancy both affect the result.
+
+Simple example:
+
+- monsoon may reduce solar generation
+- summer may increase cooling demand
+- vacation months can reduce occupancy at the same time
+
 The current smarter forecast now also includes:
 
 - occupancy-aware adjustment
@@ -339,6 +431,31 @@ The current smarter forecast now also includes:
 - variability score
 
 This makes the forecast easier to trust and explain.
+
+### Baseline Mean
+
+Baseline mean is the average historical level used as a normal reference.
+
+Simple example:
+
+- if monthly energy is usually around 40,000 kWh, that becomes the baseline mean
+
+### Recent Mean
+
+Recent mean is the average of the latest values, so it shows current recent behavior.
+
+Simple example:
+
+- if the last few months are higher than the older average, recent mean may be above baseline mean
+
+### Variability Score
+
+Variability score shows how unstable or changing a resource has been.
+
+Simple example:
+
+- if one month is 20,000 and another is 50,000, variability is high
+- if every month is close to 40,000, variability is low
 
 ## 15. Scenario Simulator
 
@@ -406,6 +523,12 @@ In this project:
 - water weight = 0.3
 - waste weight = 0.2
 
+Simple example:
+
+- energy affects the final score the most because its weight is highest
+- water affects the next most
+- waste affects the least among the three
+
 ### Gross Energy
 
 Total electricity before subtracting solar.
@@ -426,9 +549,21 @@ Carbon linked only to the remaining grid demand.
 
 This means the prediction is not just one number. It gives a likely lower and upper band.
 
+Simple example:
+
+- instead of saying next energy will be exactly 50,000
+- the system says it may stay between 47,000 and 53,000
+
+That is easier to explain honestly in real life.
+
 ### Occupancy Effect
 
 This shows how student/staff campus activity is affecting expected future demand.
+
+Simple example:
+
+- fewer students in hostel means less electricity and water demand
+- full classroom activity means higher demand again
 
 ## 19. Best Way To Explain The Website In A Demo
 

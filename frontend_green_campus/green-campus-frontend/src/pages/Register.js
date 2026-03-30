@@ -34,7 +34,9 @@ function Register() {
       <div style={styles.grid}>
         <aside style={styles.sidePanel} className="premium-card stagger-in stagger-in-delay-1">
           <span style={styles.badge}>{dashboardCopy.auth.authBadge}</span>
-          <h1 style={styles.sideTitle}>Create a guided entry into your campus sustainability workspace</h1>
+          <h1 style={styles.sideTitle}>
+            {dashboardCopy.branding.appName} access for {dashboardCopy.branding.organization}
+          </h1>
           <p style={styles.sideText}>
             New users can access live dashboards, export-ready data views, smart forecasts, and executive reporting in one place.
           </p>

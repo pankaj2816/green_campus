@@ -1,4 +1,12 @@
 export const dashboardCopy = {
+  branding: {
+    appShort: "GC",
+    appName: "Green Campus",
+    organization: "Your College Name",
+    tagline: "Sustainability Intelligence Platform",
+    logoText: "Green Campus",
+    logoSubtext: "College demo edition",
+  },
   theme: {
     colors: {
       primaryText: "#17342d",

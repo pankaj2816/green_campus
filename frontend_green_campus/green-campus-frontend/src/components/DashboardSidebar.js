@@ -2,7 +2,7 @@ import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
 
-const { theme } = dashboardCopy;
+const { theme, branding } = dashboardCopy;
 
 function DashboardSidebar({
   activeView,
@@ -17,15 +17,15 @@ function DashboardSidebar({
   return (
     <aside style={styles.sidebar} className="premium-card sidebar-glow stagger-in">
       <div style={styles.brandBlock}>
-        <div style={styles.brandBadge}>GC</div>
+        <div style={styles.brandBadge}>{branding.appShort}</div>
         <div>
           <div style={styles.brandKicker}>Smart Operations</div>
-          <h2 style={styles.brandTitle}>Green Campus</h2>
+          <h2 style={styles.brandTitle}>{branding.appName}</h2>
         </div>
       </div>
 
       <p style={styles.brandText}>
-        Navigate focused workspaces instead of scanning a single long dashboard.
+        {branding.organization} | {branding.tagline}
       </p>
 
       <div style={styles.navList}>
