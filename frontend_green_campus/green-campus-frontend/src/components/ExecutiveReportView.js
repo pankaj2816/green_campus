@@ -65,7 +65,7 @@ function ExecutiveReportView({
 
       <div style={styles.summaryGrid}>
         <SummaryMetric label="Net Energy" value={formatNumber(data.net_energy, " kWh")} note="After solar support" />
-        <SummaryMetric label="Water" value={formatNumber(data.water, " KL")} note="Current filtered scope" />
+        <SummaryMetric label="Water" value={formatNumber(data.water, " kl")} note="Current filtered scope" />
         <SummaryMetric label="Waste" value={formatNumber(data.waste, " kg")} note="Tracked waste output" />
         <SummaryMetric label="Green Index" value={formatNumber(data.green_index, "%")} note="Higher is better" />
       </div>

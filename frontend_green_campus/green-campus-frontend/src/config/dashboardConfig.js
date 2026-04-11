@@ -2,7 +2,7 @@ export const dashboardCopy = {
   branding: {
     appShort: "GC",
     appName: "Green Campus",
-    organization: "Your College Name",
+    organization: "Manipal Institute of Technology, Karnataka",
     tagline: "Sustainability Intelligence Platform",
     logoText: "Green Campus",
     logoSubtext: "College demo edition",
@@ -190,9 +190,13 @@ export const dashboardCopy = {
     resourceOverviewSubtitle:
       "Side-by-side totals for energy, water, waste, and solar generation.",
     resourceOverviewLabels: ["Energy", "Water", "Waste", "Solar"],
+    resourceOverviewXAxis: "Resource type",
+    resourceOverviewYAxis: "Value (mixed units: kWh / kl / kg)",
     trendTitle: "Energy and Solar Trend",
     trendSubtitle:
       "Monthly energy, solar generation, and remaining grid draw after offset.",
+    trendXAxis: "Month",
+    trendYAxis: "Energy and solar (kWh)",
     trendNoData: "No energy trend data available",
     trendSeries: {
       energy: "Energy",
@@ -320,7 +324,7 @@ export const dashboardCopy = {
       "Energy (kWh)",
       "Solar (kWh)",
       "Net Energy (kWh)",
-      "Water (KL)",
+      "Water (kl)",
       "Waste (kg)",
       "Carbon (kg CO2)",
       "Efficiency",

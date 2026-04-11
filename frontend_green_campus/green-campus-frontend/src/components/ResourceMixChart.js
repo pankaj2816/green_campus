@@ -7,7 +7,7 @@ const { theme } = dashboardCopy;
 
 const resourceItems = [
   { key: "energy", label: "Electricity", color: "#f59e0b", unit: "kWh" },
-  { key: "water", label: "Water", color: "#0ea5e9", unit: "KL" },
+  { key: "water", label: "Water", color: "#0ea5e9", unit: "kl" },
   { key: "waste", label: "Waste", color: "#14b8a6", unit: "kg" },
   { key: "solar", label: "Solar", color: "#84cc16", unit: "kWh" },
 ];

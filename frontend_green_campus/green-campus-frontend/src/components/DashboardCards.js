@@ -67,7 +67,7 @@ export default function DashboardCards({ data }) {
       <Card
         title={dashboardCopy.kpis.water.title}
         value={data.water}
-        suffix="KL"
+        suffix="kl"
         subtitle={dashboardCopy.kpis.water.subtitle}
         accent="#0284c7"
       />

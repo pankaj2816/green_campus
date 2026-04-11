@@ -25,6 +25,20 @@ function ResourceOverview({ data }) {
         display: false,
       },
     },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: dashboardCopy.chart.resourceOverviewXAxis,
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: dashboardCopy.chart.resourceOverviewYAxis,
+        },
+      },
+    },
   };
 
   return (

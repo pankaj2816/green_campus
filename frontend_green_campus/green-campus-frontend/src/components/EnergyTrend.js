@@ -50,6 +50,20 @@ export default function EnergyTrend({ trendData }) {
         position: "top",
       },
     },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: dashboardCopy.chart.trendXAxis,
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: dashboardCopy.chart.trendYAxis,
+        },
+      },
+    },
   };
 
   return (
