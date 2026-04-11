@@ -94,7 +94,7 @@ const styles = {
   },
   layout: {
     display: "grid",
-    gridTemplateColumns: "1.25fr 1fr",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "20px",
     alignItems: "center",
     marginTop: "16px",
@@ -123,23 +123,31 @@ const styles = {
   },
   breakdown: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
     gap: "14px",
   },
   metricCard: {
     background: theme.colors.softSurface,
     borderRadius: "18px",
     padding: "18px",
+    minHeight: "118px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
   },
   metricTitle: {
     color: theme.colors.secondaryText,
     fontSize: theme.fontSizes.cardSubtitle,
+    lineHeight: 1.5,
+    wordBreak: "break-word",
   },
   metricValue: {
     color: theme.colors.primaryText,
     fontSize: theme.fontSizes.metricValue,
     fontWeight: "700",
     marginTop: "6px",
+    lineHeight: 1.25,
+    wordBreak: "break-word",
   },
 };
 
