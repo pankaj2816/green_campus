@@ -12,6 +12,8 @@ router = APIRouter(prefix="/ai", tags=["AI Simulation"])
 
 class SimulationRequest(BaseModel):
     building: str | None = None
+    date_from: str | None = None
+    date_to: str | None = None
     energy_reduction_pct: float = 0
     water_reduction_pct: float = 0
     waste_reduction_pct: float = 0
@@ -28,6 +30,8 @@ def simulate_impact(
         db,
         request.building,
         {
+            "date_from": request.date_from,
+            "date_to": request.date_to,
             "energy_reduction_pct": request.energy_reduction_pct,
             "water_reduction_pct": request.water_reduction_pct,
             "waste_reduction_pct": request.waste_reduction_pct,

@@ -12,7 +12,9 @@ router = APIRouter(prefix="/ai", tags=["Alert Center"])
 @router.get("/alerts/overview")
 def alerts_overview(
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return build_alert_overview(db, building=building)
+    return build_alert_overview(db, building=building, date_from=date_from, date_to=date_to)

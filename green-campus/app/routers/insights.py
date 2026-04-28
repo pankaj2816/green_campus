@@ -15,11 +15,19 @@ router = APIRouter(prefix="/insights", tags=["AI Insights"])
 def get_insights(
     building: str | None = None,
     granularity: str = "monthly",
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    performance = calculate_building_performance(db, building=building)
-    forecast_payload = forecast_resources(db, granularity=granularity, building=building)
+    performance = calculate_building_performance(db, building=building, date_from=date_from, date_to=date_to)
+    forecast_payload = forecast_resources(
+        db,
+        granularity=granularity,
+        building=building,
+        date_from=date_from,
+        date_to=date_to,
+    )
     risk_data = evaluate_resource_risk(forecast_payload)
     return generate_insights(
         db,
@@ -27,4 +35,6 @@ def get_insights(
         forecast_payload=forecast_payload,
         risk_data=risk_data,
         building=building,
+        date_from=date_from,
+        date_to=date_to,
     )

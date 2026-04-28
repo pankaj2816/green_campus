@@ -16,8 +16,10 @@ import SeasonalOutlookPanel from "../components/SeasonalOutlookPanel";
 import AlertCenter from "../components/AlertCenter";
 import ExecutiveReportView from "../components/ExecutiveReportView";
 import CampusPulseBar from "../components/CampusPulseBar";
+import ComparisonSection from "../components/ComparisonSection";
+import OccupancySettingsPanel from "../components/OccupancySettingsPanel";
 import { dashboardCopy } from "../config/dashboardConfig";
-import { fetchAssumptions, fetchDashboardBundle } from "../services/api";
+import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
 function SectionIntro({ kicker, title, subtitle }) {
   return (
@@ -32,6 +34,7 @@ function SectionIntro({ kicker, title, subtitle }) {
 function Dashboard() {
   const [data, setData] = useState(null);
   const [trendData, setTrendData] = useState([]);
+  const [comparisonData, setComparisonData] = useState(null);
   const [buildingData, setBuildingData] = useState([]);
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [performanceData, setPerformanceData] = useState([]);
@@ -43,11 +46,14 @@ function Dashboard() {
   const [alertsData, setAlertsData] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [forecastGranularity, setForecastGranularity] = useState("monthly");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [activeView, setActiveView] = useState("overview");
   const [screenshotMode, setScreenshotMode] = useState(false);
   const [pendingPrint, setPendingPrint] = useState(false);
   const [printMode, setPrintMode] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [settingsData, setSettingsData] = useState(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -56,9 +62,12 @@ function Dashboard() {
       const bundle = await fetchDashboardBundle({
         building: selectedBuilding,
         granularity: forecastGranularity,
+        dateFrom,
+        dateTo,
       });
 
       setData(bundle.summary);
+      setComparisonData(bundle.comparisonData);
       setTrendData(bundle.trendData);
       setBuildingOptions(bundle.buildingOptions);
       setBuildingData(bundle.buildingData);
@@ -73,7 +82,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, [selectedBuilding, forecastGranularity]);
+  }, [selectedBuilding, forecastGranularity, dateFrom, dateTo]);
 
   useEffect(() => {
     fetchData();
@@ -84,6 +93,7 @@ function Dashboard() {
       try {
         const result = await fetchAssumptions();
         setAssumptions(result);
+        setSettingsData(result.settings || null);
       } catch (error) {
         console.error("Assumptions fetch error:", error);
       }
@@ -91,6 +101,20 @@ function Dashboard() {
 
     loadAssumptions();
   }, []);
+
+  const refreshSettings = useCallback(async () => {
+    try {
+      const [assumptionsResult, settingsResult] = await Promise.all([
+        fetchAssumptions(),
+        fetchDashboardSettings(),
+      ]);
+      setAssumptions(assumptionsResult);
+      setSettingsData(settingsResult);
+      fetchData();
+    } catch (error) {
+      console.error("Settings refresh error:", error);
+    }
+  }, [fetchData]);
 
   useEffect(() => {
     const handleAfterPrint = () => {
@@ -163,6 +187,10 @@ function Dashboard() {
                   refresh={fetchData}
                   forecastGranularity={forecastGranularity}
                   setForecastGranularity={setForecastGranularity}
+                  dateFrom={dateFrom}
+                  dateTo={dateTo}
+                  setDateFrom={setDateFrom}
+                  setDateTo={setDateTo}
                   screenshotMode={screenshotMode}
                   setScreenshotMode={setScreenshotMode}
                   onPrintReport={handlePrintReport}
@@ -194,6 +222,7 @@ function Dashboard() {
                 forecastData={forecastData}
                 seasonalOutlook={seasonalOutlook}
               />
+              <ComparisonSection comparisonData={comparisonData} />
               <SeasonalOutlookPanel outlook={seasonalOutlook} />
               <KPISection data={data} />
             </section>
@@ -222,7 +251,11 @@ function Dashboard() {
               <SectionIntro {...dashboardCopy.layout.planningSection} />
               <AIInsightsSection insightsData={insightsData} />
               <AIRiskSection riskData={riskData} />
-              <SustainabilitySimulator selectedBuilding={selectedBuilding} />
+              <SustainabilitySimulator
+                selectedBuilding={selectedBuilding}
+                dateFrom={dateFrom}
+                dateTo={dateTo}
+              />
               <AIForecastSection
                 forecastData={forecastData}
                 granularity={forecastGranularity}
@@ -234,6 +267,7 @@ function Dashboard() {
             <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
               <SectionIntro {...dashboardCopy.layout.governanceSection} />
               <RankingSection performanceData={performanceData} />
+              <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
               <AssumptionsPanel assumptions={assumptions} />
             </section>
             ) : null}

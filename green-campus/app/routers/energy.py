@@ -6,6 +6,7 @@ from app import crud, models, schemas
 from app.database import get_db
 from app.routers.auth import get_current_user
 from app.services.carbon import calculate_carbon
+from app.services.date_filters import apply_date_range
 
 router = APIRouter(prefix="/energy", tags=["Energy"])
 
@@ -28,10 +29,12 @@ def add_energy(
 @router.get("/")
 def get_energy(
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    query = _apply_building_filter(db.query(models.EnergyData), building)
+    query = apply_date_range(_apply_building_filter(db.query(models.EnergyData), building), models.EnergyData, date_from, date_to)
     energy = query.all()
     total_kwh = sum(entry.consumption_kwh for entry in energy)
 
@@ -46,6 +49,8 @@ def get_energy(
 @router.get("/trend")
 def energy_trend(
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
 ):
     energy_query = db.query(
@@ -62,6 +67,9 @@ def energy_trend(
     if building:
         energy_query = energy_query.filter(models.EnergyData.building == building)
         solar_query = solar_query.filter(models.SolarData.building == building)
+
+    energy_query = apply_date_range(energy_query, models.EnergyData, date_from, date_to)
+    solar_query = apply_date_range(solar_query, models.SolarData, date_from, date_to)
 
     energy_rows = energy_query.group_by("year", "month").order_by("year", "month").all()
     solar_rows = solar_query.group_by("year", "month").order_by("year", "month").all()
@@ -88,17 +96,18 @@ def energy_trend(
 
 @router.get("/by-building")
 def energy_by_building(
+    date_from: str | None = None,
+    date_to: str | None = None,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    result = (
+    query = (
         db.query(
             models.EnergyData.building,
             func.sum(models.EnergyData.consumption_kwh).label("total_kwh"),
         )
-        .group_by(models.EnergyData.building)
-        .all()
     )
+    result = apply_date_range(query, models.EnergyData, date_from, date_to).group_by(models.EnergyData.building).all()
 
     return [
         {"building": row.building, "total_kwh": float(row.total_kwh or 0)}
@@ -109,6 +118,8 @@ def energy_by_building(
 @router.get("/monthly")
 def monthly_energy(
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
 ):
     query = db.query(
@@ -119,6 +130,8 @@ def monthly_energy(
 
     if building:
         query = query.filter(models.EnergyData.building == building)
+
+    query = apply_date_range(query, models.EnergyData, date_from, date_to)
 
     result = query.group_by("year", "month").order_by("year", "month").all()
 
@@ -135,6 +148,8 @@ def monthly_energy(
 @router.get("/daily")
 def daily_energy(
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
 ):
     query = db.query(
@@ -146,6 +161,8 @@ def daily_energy(
 
     if building:
         query = query.filter(models.EnergyData.building == building)
+
+    query = apply_date_range(query, models.EnergyData, date_from, date_to)
 
     result = query.group_by("year", "month", "day").order_by("year", "month", "day").all()
 

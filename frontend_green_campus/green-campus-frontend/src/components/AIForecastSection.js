@@ -25,6 +25,9 @@ function ForecastCard({ title, payload, color }) {
       <p style={styles.caption}>
         Baseline: {payload.baseline_mean} | Recent: {payload.recent_mean} | Variability: {payload.variability_score}
       </p>
+      {payload.confidence_reasons?.[0] ? (
+        <p style={styles.reasonText}>{payload.confidence_reasons[0]}</p>
+      ) : null}
     </div>
   );
 }
@@ -97,6 +100,12 @@ const styles = {
     color: theme.colors.accent,
     fontSize: "13px",
     fontWeight: "600",
+  },
+  reasonText: {
+    margin: "10px 0 0",
+    color: "#35514a",
+    fontSize: "12px",
+    lineHeight: 1.5,
   },
 };
 

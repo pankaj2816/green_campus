@@ -78,7 +78,9 @@ The dashboard now works like a professional operations console. It includes:
 - focused dashboard views with sidebar navigation
 - data import and reset controls
 - building filter
+- date-range filter
 - daily, monthly, yearly, seasonal forecast selector
+- current period vs previous period comparison analytics
 - campus pulse summary banner
 - KPI cards
 - seasonal intelligence panel
@@ -88,6 +90,7 @@ The dashboard now works like a professional operations console. It includes:
 - AI insights and risk
 - alert center and export-ready days
 - scenario simulator
+- occupancy and campus-context settings editor
 - ranking table
 - assumptions and terminology panel
 - executive report view for screenshot and print use
@@ -290,10 +293,11 @@ https://your-backend-name.onrender.com
 2. Start frontend
 3. Register or log in
 4. Import Excel data using the dashboard data controls
-5. Use building filter and forecast selector
-6. Review KPI cards, campus pulse, carbon, solar, trend, risk, insights, and simulator
-7. Export Excel when you want the current live dataset as a workbook
-8. Reset data when you want a fresh import
+5. Use building filter, date range filter, and forecast selector
+6. Review KPI cards, campus pulse, comparison analytics, carbon, solar, trend, risk, insights, and simulator
+7. Edit occupancy settings in Governance if you want the planning values to match your campus
+8. Export Excel when you want the current live dataset as a workbook
+9. Reset data when you want a fresh import
 
 ## Sample Excel File
 
@@ -323,6 +327,8 @@ The dashboard now supports both actions:
 
 - `Import Excel`
   Upload a fresh campus dataset from the frontend
+- `Workbook Check`
+  Preview whether the Excel file is ready before import, including sheet names, row counts, and warnings
 - `Export Excel`
   Download the current workbook with summary, building performance, and raw energy, water, waste, and solar sheets
 - `Reset Data`
@@ -338,6 +344,15 @@ This is useful when:
 - you want to remove old campus data
 - you want to test with a new dataset
 - you want a clean dashboard view before re-importing Excel
+
+### Smarter import behavior
+
+The importer is now more flexible.
+
+- `energy` and `water` sheets are required
+- `solar` and `waste` sheets can be missing
+- if water values look like liters instead of `kl`, the importer converts them during upload and shows a warning
+- an empty `waste` sheet is allowed as long as the correct columns exist
 
 ## Frontend Terminology
 
@@ -394,6 +409,48 @@ Higher is better.
 - yearly: strategic view
 - seasonal: climate + campus-cycle view
 
+### Date Range Filter
+
+You can now choose a `from` and `to` date in the header.
+
+This changes:
+
+- dashboard summary
+- KPI cards
+- trends
+- comparison analytics
+- alerts
+- insights
+- forecasts
+- seasonal outlook
+- simulator
+
+Use this when you want to answer questions like:
+
+- how did April compare with March?
+- what happened only during summer break?
+- how did one semester perform?
+
+### Comparison Analytics
+
+The dashboard now compares the selected period with the immediately previous period of the same length.
+
+Simple example:
+
+- if you select `2024-04-01` to `2024-06-30`
+- the system compares it against the three months just before that
+
+It shows change in:
+
+- net energy
+- water
+- waste
+- carbon
+- Green Index
+- estimated energy cost
+
+This helps explain whether performance is improving or worsening over time.
+
 ### Seasonal Intelligence
 
 An occupancy-aware planning layer. Example:
@@ -438,6 +495,10 @@ Other calculation files:
   Occupancy-aware seasonal logic
 - `app\routers\dashboard.py`
   Summary metrics returned to frontend
+- `app\services\date_filters.py`
+  Shared date-window logic
+- `app\services\settings_service.py`
+  Saved occupancy and campus planning values
 
 ## If You Want To Change Calculations
 
@@ -542,16 +603,22 @@ Adjust:
 - seasonal forecasting
 - occupancy-aware forecasting
 - forecast confidence range
+- confidence explanation text
 - AI risk analysis
 - alert center
 - export-ready day analysis
 - AI anomalies
 - AI opportunities
 - AI recommendations
+- impact-ranked recommendations
 - peer comparison insights
 - savings-aware recommendations
 - seasonal intelligence with occupancy assumptions
 - scenario simulator
+- comparison analytics across date windows
+- editable occupancy and campus context settings
+- workbook validation before import
+- optional solar/waste sheet support during import
 
 ### Premium UI Additions
 
@@ -588,6 +655,7 @@ Adjust:
 - `GET /dashboard/summary`
 - `GET /dashboard/all-buildings`
 - `GET /dashboard/building-performance`
+- `GET /dashboard/comparison`
 
 ### Energy
 
@@ -608,12 +676,15 @@ Adjust:
 ### Data Management
 
 - `GET /admin/export-campus-excel`
+- `POST /admin/validate-campus-excel`
 - `POST /admin/upload-campus-excel`
 - `POST /admin/reset-campus-data`
 
 ### Metadata
 
 - `GET /meta/assumptions`
+- `GET /meta/settings`
+- `POST /meta/settings`
 
 ## Frontend Components You Will Most Likely Edit Later
 
@@ -622,15 +693,19 @@ Adjust:
 - `src\pages\Dashboard.js`
   Main page assembly
 - `src\components\DashboardHeader.js`
-  Hero header, filters, data controls
+  Hero header, filters, date range, and data controls
 - `src\components\CarbonFootprintDial.js`
   Advanced carbon section
+- `src\components\ComparisonSection.js`
+  Previous-period comparison cards
 - `src\components\ResourceMixChart.js`
   Doughnut chart
 - `src\components\SeasonalOutlookPanel.js`
   Occupancy-aware planning panel
 - `src\components\SustainabilitySimulator.js`
   What-if simulation UI
+- `src\components\OccupancySettingsPanel.js`
+  Occupancy and campus context editor
 - `src\components\AssumptionsPanel.js`
   Visible assumptions and glossary
 

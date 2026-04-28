@@ -10,6 +10,14 @@ router = APIRouter(prefix="/ai", tags=["AI Forecast"])
 def resource_forecast(
     granularity: str = "monthly",
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
 ):
-    return forecast_resources(db, granularity=granularity, building=building)
+    return forecast_resources(
+        db,
+        granularity=granularity,
+        building=building,
+        date_from=date_from,
+        date_to=date_to,
+    )

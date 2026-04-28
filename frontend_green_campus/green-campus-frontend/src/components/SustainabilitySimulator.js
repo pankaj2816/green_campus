@@ -19,7 +19,7 @@ function Metric({ title, value }) {
   );
 }
 
-function SustainabilitySimulator({ selectedBuilding }) {
+function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
   const [inputs, setInputs] = useState(defaultInputs);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -37,6 +37,8 @@ function SustainabilitySimulator({ selectedBuilding }) {
     try {
       const data = await runSimulation({
         building: selectedBuilding || null,
+        date_from: dateFrom || null,
+        date_to: dateTo || null,
         ...inputs,
       });
       setResult(data);

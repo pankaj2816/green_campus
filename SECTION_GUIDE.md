@@ -122,6 +122,7 @@ It shows:
 
 - selected building scope
 - selected forecast mode
+- selected date range
 - workspace state
 - data controls
 
@@ -168,6 +169,19 @@ It is useful for:
 
 This clears energy, water, waste, and solar records from the current dataset.
 
+### Workbook Check
+
+Before import, the dashboard now checks the Excel file structure.
+
+It can show:
+
+- which sheets are present
+- how many rows each sheet has
+- whether required columns are missing
+- whether water values looked like liters and were converted to `kl`
+
+This makes uploads safer and easier to explain.
+
 Use this before importing a fresh dataset if you want a clean start.
 
 ## 5. KPI Cards
@@ -209,6 +223,28 @@ This is a combined sustainability score.
 Higher is better.
 
 It helps give one overall performance number instead of only separate raw totals.
+
+## 5A. Comparison Analytics
+
+This is a new section near the overview.
+
+It compares the selected date window with the immediately previous period of the same length.
+
+Example:
+
+- if you choose April to June
+- the system compares it with January to March
+
+It shows whether these have gone up or down:
+
+- net energy
+- water
+- waste
+- carbon
+- Green Index
+- energy cost
+
+This is very useful in demos because it answers not only “what is happening now?” but also “is this better or worse than before?”
 
 Simple example:
 
@@ -370,6 +406,15 @@ This means the system expects the actual result to probably stay around that ban
 
 It is useful because real life is uncertain and the system should not pretend that one exact number is always guaranteed.
 
+### Confidence Explanation
+
+The forecast now also gives a short reason for why the confidence band is narrow or wide.
+
+Simple example:
+
+- if past months are very stable, the range stays narrow
+- if past months change a lot, the range becomes wider
+
 ### Occupancy Effect
 
 Occupancy effect means future demand changes because campus activity changes.
@@ -523,6 +568,16 @@ This section is very helpful when someone asks:
 - how are you calculating these numbers?
 - why is this score high or low?
 
+It also now connects to editable settings for:
+
+- monthly occupancy
+- student population
+- hostel population
+- built-up area
+- monthly energy budget
+
+This means the dashboard can be adjusted to your real campus planning conditions.
+
 ## 18. Important Terms In Simple Language
 
 ### Benchmark
@@ -583,6 +638,18 @@ Simple example:
 - fewer students in hostel means less electricity and water demand
 - full classroom activity means higher demand again
 
+### Date Range Filter
+
+This lets you focus only on a chosen time period.
+
+Simple example:
+
+- show only one semester
+- show only summer break
+- show only the latest quarter
+
+The selected date range changes summary cards, comparison cards, trends, alerts, forecasts, and simulation.
+
 ## 19. Best Way To Explain The Website In A Demo
 
 Use this order:
@@ -590,15 +657,16 @@ Use this order:
 1. Login
 2. Overview
 3. KPI cards
-4. Seasonal intelligence
-5. Carbon and solar
-6. Alert center and charts
-7. AI insights and risk
-8. Forecast studio
-9. Scenario simulator
-10. Governance
-11. Executive report
-12. Import/export/reset
+4. Comparison analytics
+5. Seasonal intelligence
+6. Carbon and solar
+7. Alert center and charts
+8. AI insights and risk
+9. Forecast studio
+10. Scenario simulator
+11. Governance
+12. Executive report
+13. Import/export/reset
 
 This order is easy for a listener to follow.
 

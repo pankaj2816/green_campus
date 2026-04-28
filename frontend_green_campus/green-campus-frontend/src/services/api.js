@@ -95,6 +95,19 @@ export const uploadCampusDataset = async (file) => {
   return handleResponse(response);
 };
 
+export const validateCampusDataset = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(buildUrl("/admin/validate-campus-excel"), {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: formData,
+  });
+
+  return handleResponse(response);
+};
+
 export const resetCampusDataset = async () => {
   const response = await fetch(buildUrl("/admin/reset-campus-data"), {
     method: "POST",
@@ -139,11 +152,17 @@ export const apiPost = async (endpoint, body = {}) => {
   return handleResponse(response);
 };
 
-export const fetchDashboardBundle = async ({ building, granularity }) => {
-  const params = { building };
+export const fetchDashboardBundle = async ({
+  building,
+  granularity,
+  dateFrom,
+  dateTo,
+}) => {
+  const params = { building, date_from: dateFrom, date_to: dateTo };
 
   const [
     summary,
+    comparisonData,
     trendData,
     buildingOptions,
     buildingData,
@@ -155,9 +174,10 @@ export const fetchDashboardBundle = async ({ building, granularity }) => {
     alertsData,
   ] = await Promise.all([
     apiGet("/dashboard/summary", params),
+    apiGet("/dashboard/comparison", params),
     apiGet("/energy/trend", params),
     apiGet("/dashboard/all-buildings"),
-    apiGet("/energy/by-building"),
+    apiGet("/energy/by-building", params),
     apiGet("/dashboard/building-performance", params),
     apiGet("/ai/risk/energy", { ...params, granularity }),
     apiGet("/ai/forecast/resources", { ...params, granularity }),
@@ -168,6 +188,7 @@ export const fetchDashboardBundle = async ({ building, granularity }) => {
 
   return {
     summary,
+    comparisonData,
     trendData,
     buildingOptions,
     buildingData,
@@ -181,5 +202,7 @@ export const fetchDashboardBundle = async ({ building, granularity }) => {
 };
 
 export const fetchAssumptions = async () => apiGet("/meta/assumptions");
+export const fetchDashboardSettings = async () => apiGet("/meta/settings");
+export const saveDashboardSettings = async (payload) => apiPost("/meta/settings", payload);
 
 export const runSimulation = async (payload) => apiPost("/ai/simulate/impact", payload);

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models import EnergyData, SolarData, WasteData, WaterData
 from app.services.carbon import calculate_carbon
+from app.services.date_filters import apply_date_range
 from app.services.metrics_config import (
     ANOMALY_THRESHOLD_PERCENT,
     ENERGY_COST_PER_KWH,
@@ -15,11 +16,31 @@ def _filter_query(query, model, building: str | None):
     return query
 
 
-def _resource_totals(db: Session, building: str | None):
-    energy_records = _filter_query(db.query(EnergyData), EnergyData, building).order_by(EnergyData.timestamp).all()
-    water_records = _filter_query(db.query(WaterData), WaterData, building).order_by(WaterData.timestamp).all()
-    waste_records = _filter_query(db.query(WasteData), WasteData, building).order_by(WasteData.timestamp).all()
-    solar_records = _filter_query(db.query(SolarData), SolarData, building).order_by(SolarData.timestamp).all()
+def _resource_totals(db: Session, building: str | None, date_from: str | None = None, date_to: str | None = None):
+    energy_records = apply_date_range(
+        _filter_query(db.query(EnergyData), EnergyData, building).order_by(EnergyData.timestamp),
+        EnergyData,
+        date_from,
+        date_to,
+    ).all()
+    water_records = apply_date_range(
+        _filter_query(db.query(WaterData), WaterData, building).order_by(WaterData.timestamp),
+        WaterData,
+        date_from,
+        date_to,
+    ).all()
+    waste_records = apply_date_range(
+        _filter_query(db.query(WasteData), WasteData, building).order_by(WasteData.timestamp),
+        WasteData,
+        date_from,
+        date_to,
+    ).all()
+    solar_records = apply_date_range(
+        _filter_query(db.query(SolarData), SolarData, building).order_by(SolarData.timestamp),
+        SolarData,
+        date_from,
+        date_to,
+    ).all()
 
     return {
         "energy": [record.consumption_kwh for record in energy_records],
@@ -49,6 +70,7 @@ def _anomaly_card(resource_name: str, values, unit: str):
         "severity": severity,
         "type": anomaly_type,
         "deviation_percent": round(deviation, 2),
+        "impact_score": round(min(abs(deviation) * 1.6, 100), 1),
         "message": (
             f"{resource_name.title()} shows a {round(deviation, 2)}% {anomaly_type} "
             f"versus its recent operating baseline. Latest reading: {round(latest, 2)} {unit}."
@@ -95,12 +117,14 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
             "title": "Solar Offset",
             "metric": round(solar_ratio, 2),
             "unit": "%",
+            "impact_score": round(min(solar_ratio * 1.2, 100), 1),
             "message": f"Solar currently offsets {round(solar_ratio, 2)}% of gross electricity demand.",
         })
         opportunities.append({
             "title": "Carbon Footprint",
             "metric": round(calculate_carbon(net_energy), 2),
             "unit": "kg CO2",
+            "impact_score": round(min((calculate_carbon(net_energy) / 1000) * 8, 100), 1),
             "message": "Reducing net grid energy will create the strongest near-term carbon benefit.",
         })
 
@@ -113,6 +137,7 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
             "title": "Peak Forecast Window",
             "metric": round(peak_energy, 2),
             "unit": "kWh",
+            "impact_score": round(min((peak_energy / 1000) * 10, 100), 1),
             "message": f"Prepare operations around the heaviest projected energy period. Uncertainty buffer: {peak_buffer} kWh.",
         })
 
@@ -121,6 +146,7 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
             "title": "Peer Efficiency Gap",
             "metric": peer_context["delta_percent"],
             "unit": "%",
+            "impact_score": round(min(peer_context["delta_percent"] * 1.8, 100), 1),
             "message": f"{peer_context['building']} is using more net energy than peer buildings on average, which creates a targeted optimization opportunity.",
         })
 
@@ -128,7 +154,8 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
         opportunities.append({
             "title": "Water Use",
             "metric": round(water_total, 2),
-            "unit": "KL",
+            "unit": "kl",
+            "impact_score": round(min((water_total / 100) * 2, 100), 1),
             "message": "Water efficiency improvements can be targeted through leak detection and fixture scheduling.",
         })
 
@@ -137,6 +164,7 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
             "title": "Waste Load",
             "metric": round(waste_total, 2),
             "unit": "kg",
+            "impact_score": round(min((waste_total / 100) * 2.5, 100), 1),
             "message": "Waste segregation and collection planning remain visible operational improvement areas.",
         })
 
@@ -145,6 +173,7 @@ def _opportunity_cards(totals, forecast_payload, peer_context=None):
             "title": "Energy Cost Exposure",
             "metric": round(net_energy * ENERGY_COST_PER_KWH, 2),
             "unit": "Rs",
+            "impact_score": round(min(((net_energy * ENERGY_COST_PER_KWH) / 10000) * 4, 100), 1),
             "message": "This is the estimated electricity spend implied by current net energy consumption.",
         })
 
@@ -165,6 +194,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Shift Non-Critical Loads",
             "priority": "high",
+            "effort": "medium",
             "message": "Move flexible electrical loads toward solar-rich hours to reduce grid dependence and carbon intensity.",
             "estimated_savings_kwh": estimated_kwh,
             "estimated_savings_rs": round(estimated_kwh * ENERGY_COST_PER_KWH, 2),
@@ -175,6 +205,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Leak and Fixture Audit",
             "priority": "medium",
+            "effort": "medium",
             "message": "Track daily water baselines building by building and flag abrupt consumption jumps for inspection.",
             "estimated_savings_kwh": 0,
             "estimated_savings_rs": round(water_total * 0.02, 2),
@@ -185,6 +216,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Smart Segregation Plan",
             "priority": "medium",
+            "effort": "low",
             "message": "Combine waste hotspots with awareness drives and collection scheduling to reduce landfill load.",
             "estimated_savings_kwh": 0,
             "estimated_savings_rs": round(waste_total * 0.4, 2),
@@ -195,6 +227,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Investigate Latest Anomalies",
             "priority": "high",
+            "effort": "low",
             "message": "Recent deviations indicate operations or equipment behavior changed enough to justify manual review.",
             "estimated_savings_kwh": round(net_energy * 0.03, 2),
             "estimated_savings_rs": round(net_energy * 0.03 * ENERGY_COST_PER_KWH, 2),
@@ -206,6 +239,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Close Peer Performance Gap",
             "priority": "high",
+            "effort": "medium",
             "message": "This building is materially above peer net-energy behavior, so targeted control tuning should be prioritized.",
             "estimated_savings_kwh": peer_gap_kwh,
             "estimated_savings_rs": round(peer_gap_kwh * ENERGY_COST_PER_KWH, 2),
@@ -216,12 +250,27 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         recs.append({
             "title": "Peak Demand Response",
             "priority": "high",
+            "effort": "high",
             "message": "Forecasted growth risk is high, so prepare peak-shaving actions and occupancy-aware controls.",
             "estimated_savings_kwh": round(risk_data[0]["projected_energy"] * 0.05, 2),
             "estimated_savings_rs": round(risk_data[0]["projected_energy"] * 0.05 * ENERGY_COST_PER_KWH, 2),
             "estimated_savings_carbon": round(calculate_carbon(risk_data[0]["projected_energy"] * 0.05), 2),
         })
 
+    for item in recs:
+        item["impact_score"] = round(
+            min(
+                (
+                    float(item.get("estimated_savings_kwh", 0) or 0) * 0.02
+                    + float(item.get("estimated_savings_rs", 0) or 0) / 1000
+                    + float(item.get("estimated_savings_carbon", 0) or 0) * 0.04
+                ),
+                100,
+            ),
+            1,
+        )
+
+    recs.sort(key=lambda item: item["impact_score"], reverse=True)
     return recs
 
 
@@ -231,13 +280,15 @@ def generate_insights(
     forecast_payload=None,
     risk_data=None,
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
 ):
-    totals = _resource_totals(db, building)
+    totals = _resource_totals(db, building, date_from, date_to)
 
     anomalies = []
     resource_definitions = [
         ("energy", totals["energy"], "kWh"),
-        ("water", totals["water"], "KL"),
+        ("water", totals["water"], "kl"),
         ("waste", totals["waste"], "kg"),
         ("solar", totals["solar"], "kWh"),
     ]
@@ -266,6 +317,8 @@ def generate_insights(
 
     return {
         "scope": building or "Campus",
+        "date_from": date_from,
+        "date_to": date_to,
         "headline_insights": insights,
         "anomalies": anomalies,
         "opportunities": opportunities,

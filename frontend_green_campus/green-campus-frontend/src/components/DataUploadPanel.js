@@ -4,6 +4,7 @@ import {
   exportCampusDataset,
   resetCampusDataset,
   uploadCampusDataset,
+  validateCampusDataset,
 } from "../services/api";
 import { dashboardCopy } from "../config/dashboardConfig";
 
@@ -12,6 +13,31 @@ function DataUploadPanel({ onUploadSuccess }) {
   const [loading, setLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [validation, setValidation] = useState(null);
+
+  const handleFileChange = async (nextFile) => {
+    setFile(nextFile);
+    setValidation(null);
+
+    if (!nextFile) {
+      return;
+    }
+
+    setValidating(true);
+    try {
+      const result = await validateCampusDataset(nextFile);
+      setValidation(result);
+    } catch (error) {
+      setValidation({
+        ready: false,
+        warnings: [error.message || dashboardCopy.dataControls.validationNotReady],
+        sheet_summaries: [],
+      });
+    } finally {
+      setValidating(false);
+    }
+  };
 
   const handleUpload = async () => {
     if (!file) {
@@ -24,6 +50,7 @@ function DataUploadPanel({ onUploadSuccess }) {
     try {
       const data = await uploadCampusDataset(file);
       alert(data.message || dashboardCopy.dataControls.uploadSuccess);
+      setValidation(data.validation || validation);
       onUploadSuccess();
     } catch (error) {
       console.error(error);
@@ -79,7 +106,7 @@ function DataUploadPanel({ onUploadSuccess }) {
         <input
           type="file"
           accept=".xlsx"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => handleFileChange(e.target.files[0])}
           style={styles.hiddenInput}
         />
         <span style={styles.filePickerLabel}>{dashboardCopy.dataControls.importLabel}</span>
@@ -90,8 +117,47 @@ function DataUploadPanel({ onUploadSuccess }) {
         </span>
       </label>
 
+      <div style={styles.validationCard}>
+        <strong style={styles.validationTitle}>{dashboardCopy.dataControls.validationTitle}</strong>
+        <span style={styles.validationText}>
+          {validating
+            ? dashboardCopy.dataControls.validationChecking
+            : validation
+              ? validation.ready
+                ? dashboardCopy.dataControls.validationReady
+                : dashboardCopy.dataControls.validationNotReady
+              : dashboardCopy.dataControls.validationPending}
+        </span>
+
+        {validation?.sheet_summaries?.length > 0 ? (
+          <div style={styles.summaryGrid}>
+            {validation.sheet_summaries.map((item) => (
+              <div key={item.sheet} style={styles.summaryItem}>
+                <strong>{item.sheet}</strong>
+                <span>
+                  {item.rows} {dashboardCopy.dataControls.rowsLabel}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
+        {validation?.warnings?.length > 0 ? (
+          <div style={styles.warningList}>
+            <strong>{dashboardCopy.dataControls.warningsTitle}</strong>
+            {validation.warnings.map((warning) => (
+              <span key={warning}>{warning}</span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+
       <div style={styles.actions}>
-        <button onClick={handleUpload} style={styles.primaryButton} disabled={loading}>
+        <button
+          onClick={handleUpload}
+          style={styles.primaryButton}
+          disabled={loading || validating || (validation && validation.ready === false)}
+        >
           {loading
             ? dashboardCopy.dataControls.importingLabel
             : dashboardCopy.dataControls.importLabel}
@@ -161,6 +227,42 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
     gap: "10px",
+  },
+  validationCard: {
+    display: "grid",
+    gap: "8px",
+    padding: "12px 14px",
+    background: "#f8fbfa",
+    borderRadius: "14px",
+    border: "1px solid #deebe6",
+  },
+  validationTitle: {
+    color: "#17342d",
+    fontSize: "13px",
+  },
+  validationText: {
+    color: "#60756f",
+    fontSize: "13px",
+  },
+  summaryGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(90px, 1fr))",
+    gap: "8px",
+  },
+  summaryItem: {
+    background: "#ffffff",
+    borderRadius: "10px",
+    padding: "8px 10px",
+    display: "grid",
+    gap: "2px",
+    color: "#35514a",
+    fontSize: "12px",
+  },
+  warningList: {
+    display: "grid",
+    gap: "4px",
+    color: "#8a3d45",
+    fontSize: "12px",
   },
   primaryButton: {
     padding: "11px 14px",

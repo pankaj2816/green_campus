@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.services.carbon import calculate_carbon
+from app.services.date_filters import apply_date_range
 from app.services.metrics_config import (
     ENERGY_BENCHMARK,
     ENERGY_COST_PER_KWH,
@@ -17,11 +18,43 @@ def _apply_filter(query, model, building: str | None):
     return query
 
 
-def _totals(db: Session, building: str | None):
-    energy = sum(entry.consumption_kwh for entry in _apply_filter(db.query(models.EnergyData), models.EnergyData, building).all())
-    water = sum(entry.consumption_kl for entry in _apply_filter(db.query(models.WaterData), models.WaterData, building).all())
-    waste = sum(entry.quantity_kg for entry in _apply_filter(db.query(models.WasteData), models.WasteData, building).all())
-    solar = sum(entry.solar_kwh for entry in _apply_filter(db.query(models.SolarData), models.SolarData, building).all())
+def _totals(db: Session, building: str | None, date_from: str | None = None, date_to: str | None = None):
+    energy = sum(
+        entry.consumption_kwh
+        for entry in apply_date_range(
+            _apply_filter(db.query(models.EnergyData), models.EnergyData, building),
+            models.EnergyData,
+            date_from,
+            date_to,
+        ).all()
+    )
+    water = sum(
+        entry.consumption_kl
+        for entry in apply_date_range(
+            _apply_filter(db.query(models.WaterData), models.WaterData, building),
+            models.WaterData,
+            date_from,
+            date_to,
+        ).all()
+    )
+    waste = sum(
+        entry.quantity_kg
+        for entry in apply_date_range(
+            _apply_filter(db.query(models.WasteData), models.WasteData, building),
+            models.WasteData,
+            date_from,
+            date_to,
+        ).all()
+    )
+    solar = sum(
+        entry.solar_kwh
+        for entry in apply_date_range(
+            _apply_filter(db.query(models.SolarData), models.SolarData, building),
+            models.SolarData,
+            date_from,
+            date_to,
+        ).all()
+    )
 
     return {
         "energy": float(energy),
@@ -44,7 +77,7 @@ def _green_index(net_energy: float, water: float, waste: float):
 
 
 def simulate_sustainability_impact(db: Session, building: str | None, inputs: dict):
-    baseline = _totals(db, building)
+    baseline = _totals(db, building, inputs.get("date_from"), inputs.get("date_to"))
 
     energy_reduction_pct = float(inputs.get("energy_reduction_pct", 0) or 0)
     water_reduction_pct = float(inputs.get("water_reduction_pct", 0) or 0)

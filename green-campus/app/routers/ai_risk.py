@@ -11,10 +11,18 @@ router = APIRouter(prefix="/ai", tags=["AI Risk"])
 def energy_risk(
     granularity: str = "monthly",
     building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
     db: Session = Depends(get_db),
 ):
 
-    forecast_data = forecast_resources(db, granularity=granularity, building=building)
+    forecast_data = forecast_resources(
+        db,
+        granularity=granularity,
+        building=building,
+        date_from=date_from,
+        date_to=date_to,
+    )
 
     risk_results = evaluate_resource_risk(forecast_data)
 

@@ -56,6 +56,7 @@ export const dashboardCopy = {
       scope: "Current scope",
       forecast: "Forecast mode",
       live: "Workspace mode",
+      period: "Date window",
     },
     sectionTabs: [
       { id: "overview", label: "Overview" },
@@ -70,6 +71,9 @@ export const dashboardCopy = {
       { value: "yearly", label: "Yearly Forecast" },
       { value: "seasonal", label: "Seasonal Forecast" },
     ],
+    dateFromLabel: "From",
+    dateToLabel: "To",
+    clearDatesLabel: "Clear Dates",
     logoutLabel: "Logout",
   },
   dataControls: {
@@ -90,6 +94,13 @@ export const dashboardCopy = {
     uploadFailed: "Upload failed",
     exportFailed: "Export failed",
     resetFailed: "Reset failed",
+    validationTitle: "Workbook Check",
+    validationReady: "Workbook is ready to import.",
+    validationNotReady: "Workbook needs fixes before import.",
+    validationPending: "Select a workbook to preview sheet structure.",
+    validationChecking: "Checking workbook...",
+    rowsLabel: "rows",
+    warningsTitle: "Warnings",
   },
   layout: {
     primarySection: {
@@ -304,6 +315,19 @@ export const dashboardCopy = {
     noExportDays: "No export-ready days were detected in the current filtered data.",
     noAlerts: "No important alerts are active right now.",
   },
+  comparison: {
+    title: "Comparison Analytics",
+    subtitle: "Compare the selected period with the immediately previous period of the same length.",
+    noPrevious: "Choose both from/to dates to unlock previous-period comparison.",
+    cards: {
+      netEnergy: "Net Energy Change",
+      water: "Water Change",
+      waste: "Waste Change",
+      carbon: "Carbon Change",
+      greenIndex: "Green Index Change",
+      cost: "Energy Cost Change",
+    },
+  },
   forecast: {
     title: "AI Forecast Studio",
     subtitlePrefix: "using",
@@ -371,6 +395,19 @@ export const dashboardCopy = {
       scope: "Scope",
     },
     failed: "Simulation failed",
+  },
+  occupancy: {
+    title: "Occupancy and Campus Context",
+    subtitle: "Edit the monthly activity assumptions and core campus planning values used by forecasts and benchmark-style metrics.",
+    saveLabel: "Save Settings",
+    savingLabel: "Saving...",
+    savedLabel: "Settings saved",
+    context: {
+      student_population: "Student population",
+      hostel_population: "Hostel population",
+      built_up_area_sqm: "Built-up area (sqm)",
+      monthly_energy_budget_rs: "Monthly energy budget (Rs)",
+    },
   },
   auth: {
     loginTitle: "Green Campus Login",

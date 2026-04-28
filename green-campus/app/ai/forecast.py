@@ -5,7 +5,9 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.models import EnergyData, SolarData, WasteData, WaterData
+from app.services.date_filters import apply_date_range
 from app.services.metrics_config import ACADEMIC_OCCUPANCY_FACTORS
+from app.services.settings_service import get_dashboard_settings
 
 
 GRANULARITY_CONFIG = {
@@ -31,7 +33,6 @@ def normalize_granularity(granularity: str | None) -> str:
 
 def get_season(dt: datetime) -> str:
     month = dt.month
-
     if month in (12, 1, 2):
         return "Winter"
     if month in (3, 4, 5):
@@ -41,7 +42,7 @@ def get_season(dt: datetime) -> str:
     return "Post-Monsoon"
 
 
-def _season_occupancy_factor(season: str) -> float:
+def _season_occupancy_factor(season: str, occupancy_factors: dict) -> float:
     season_months = {
         "Winter": [12, 1, 2],
         "Summer": [3, 4, 5],
@@ -49,7 +50,7 @@ def _season_occupancy_factor(season: str) -> float:
         "Post-Monsoon": [10, 11],
     }
     months = season_months.get(season, [1])
-    return sum(ACADEMIC_OCCUPANCY_FACTORS.get(month, 1.0) for month in months) / len(months)
+    return sum(occupancy_factors.get(month, 1.0) for month in months) / len(months)
 
 
 def aggregate_records(records, field_name: str, granularity: str):
@@ -58,7 +59,6 @@ def aggregate_records(records, field_name: str, granularity: str):
 
     for record in records:
         timestamp = record.timestamp
-
         if granularity == "daily":
             key = timestamp.date()
             sort_key = key
@@ -88,11 +88,9 @@ def aggregate_records(records, field_name: str, granularity: str):
         grouped[(sort_key, label, cycle_key)] += float(getattr(record, field_name, 0) or 0)
 
     ordered = sorted(grouped.items(), key=lambda item: item[0][0])
-
     labels = [item[0][1] for item in ordered]
     values = [round(item[1], 2) for item in ordered]
     cycle_keys = [item[0][2] for item in ordered]
-
     return labels, values, cycle_keys, cycle_meta
 
 
@@ -108,19 +106,18 @@ def _stddev(values):
     return math.sqrt(variance)
 
 
-def _future_points(latest_timestamp: datetime | None, granularity: str, periods: int):
+def _future_points(latest_timestamp: datetime | None, granularity: str, periods: int, occupancy_factors: dict):
     if latest_timestamp is None:
         latest_timestamp = datetime.now()
 
     points = []
-
     if granularity == "daily":
         for offset in range(1, periods + 1):
             current = latest_timestamp + timedelta(days=offset)
             points.append({
                 "label": current.strftime("%d %b"),
                 "cycle_key": current.weekday(),
-                "occupancy_factor": ACADEMIC_OCCUPANCY_FACTORS.get(current.month, 1.0),
+                "occupancy_factor": occupancy_factors.get(current.month, 1.0),
             })
         return points
 
@@ -133,12 +130,12 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
             points.append({
                 "label": current.strftime("%b %Y"),
                 "cycle_key": month,
-                "occupancy_factor": ACADEMIC_OCCUPANCY_FACTORS.get(month, 1.0),
+                "occupancy_factor": occupancy_factors.get(month, 1.0),
             })
         return points
 
     if granularity == "yearly":
-        avg_occupancy = _mean(list(ACADEMIC_OCCUPANCY_FACTORS.values()))
+        avg_occupancy = _mean(list(occupancy_factors.values()))
         for offset in range(1, periods + 1):
             year = latest_timestamp.year + offset
             points.append({
@@ -150,7 +147,6 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
 
     current_season = get_season(latest_timestamp)
     current_index = SEASON_ORDER.index(current_season)
-
     for offset in range(1, periods + 1):
         season_index = current_index + offset
         season = SEASON_ORDER[season_index % len(SEASON_ORDER)]
@@ -158,30 +154,31 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
         points.append({
             "label": f"{season} {year}",
             "cycle_key": season,
-            "occupancy_factor": _season_occupancy_factor(season),
+            "occupancy_factor": _season_occupancy_factor(season, occupancy_factors),
         })
 
     return points
 
 
-def build_resource_payload(records, field_name: str, granularity: str, periods: int):
+def build_resource_payload(records, field_name: str, granularity: str, periods: int, occupancy_factors: dict):
     historical_labels, historical_values, cycle_keys, cycle_meta = aggregate_records(records, field_name, granularity)
     latest_timestamp = records[-1].timestamp if records else None
-    future_points = _future_points(latest_timestamp, granularity, periods)
+    future_points = _future_points(latest_timestamp, granularity, periods, occupancy_factors)
 
     cycle_buckets = defaultdict(list)
     for value, cycle_key in zip(historical_values, cycle_keys):
         cycle_buckets[cycle_key].append(float(value))
 
     cycle_means = [_mean(bucket) for bucket in cycle_buckets.values() if bucket]
-
     global_mean = _mean(historical_values)
-    average_occupancy = _mean(list(ACADEMIC_OCCUPANCY_FACTORS.values())) or 1.0
+    average_occupancy = _mean(list(occupancy_factors.values())) or 1.0
+
     forecast_values = []
     lower_bounds = []
     upper_bounds = []
     forecast_labels = []
-    occupancy_factors = []
+    occupancy_points = []
+    confidence_reasons = []
 
     for point in future_points:
         cycle_key = point["cycle_key"]
@@ -195,11 +192,20 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         lower_bound = max(round(adjusted_forecast - variability, 2), 0)
         upper_bound = max(round(adjusted_forecast + variability, 2), adjusted_forecast)
 
+        confidence_band = upper_bound - lower_bound
+        if confidence_band <= max(adjusted_forecast * 0.12, 20):
+            confidence_reason = "Stable history for this cycle keeps the confidence range narrow."
+        elif confidence_band <= max(adjusted_forecast * 0.24, 40):
+            confidence_reason = "Moderate variation exists in similar past periods, so the range stays mid-width."
+        else:
+            confidence_reason = "High variation in similar periods widens the confidence range, so treat this forecast as more uncertain."
+
         forecast_labels.append(point["label"])
         forecast_values.append(adjusted_forecast)
         lower_bounds.append(lower_bound)
         upper_bounds.append(upper_bound)
-        occupancy_factors.append(round(occupancy_factor, 2))
+        occupancy_points.append(round(occupancy_factor, 2))
+        confidence_reasons.append(confidence_reason)
 
     recent_slice = historical_values[-6:] if historical_values else []
     baseline_mean = round(_mean(historical_values), 2) if historical_values else 0.0
@@ -213,43 +219,50 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         "forecast_values": forecast_values,
         "forecast_lower": lower_bounds,
         "forecast_upper": upper_bounds,
-        "occupancy_factors": occupancy_factors,
+        "occupancy_factors": occupancy_points,
         "baseline_mean": baseline_mean,
         "recent_mean": recent_mean,
         "variability_score": round(_stddev(historical_values), 2) if historical_values else 0.0,
         "seasonality_strength": seasonality_strength,
+        "confidence_reasons": confidence_reasons,
     }
 
 
-def forecast_resources(db: Session, granularity: str = "monthly", building: str | None = None):
+def _filtered_query(db: Session, model, building: str | None, date_from: str | None, date_to: str | None):
+    query = db.query(model).order_by(model.timestamp)
+    if building:
+        query = query.filter(model.building == building)
+    return apply_date_range(query, model, date_from, date_to)
+
+
+def forecast_resources(
+    db: Session,
+    granularity: str = "monthly",
+    building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+):
     granularity = normalize_granularity(granularity)
     periods = GRANULARITY_CONFIG[granularity]["periods"]
+    settings = get_dashboard_settings(db)
+    occupancy_factors = settings["academic_occupancy_factors"] or ACADEMIC_OCCUPANCY_FACTORS
 
-    energy_query = db.query(EnergyData).order_by(EnergyData.timestamp)
-    water_query = db.query(WaterData).order_by(WaterData.timestamp)
-    waste_query = db.query(WasteData).order_by(WasteData.timestamp)
-    solar_query = db.query(SolarData).order_by(SolarData.timestamp)
+    energy_data = _filtered_query(db, EnergyData, building, date_from, date_to).all()
+    water_data = _filtered_query(db, WaterData, building, date_from, date_to).all()
+    waste_data = _filtered_query(db, WasteData, building, date_from, date_to).all()
+    solar_data = _filtered_query(db, SolarData, building, date_from, date_to).all()
 
-    if building:
-        energy_query = energy_query.filter(EnergyData.building == building)
-        water_query = water_query.filter(WaterData.building == building)
-        waste_query = waste_query.filter(WasteData.building == building)
-        solar_query = solar_query.filter(SolarData.building == building)
-
-    energy_data = energy_query.all()
-    water_data = water_query.all()
-    waste_data = waste_query.all()
-    solar_data = solar_query.all()
-
-    energy_payload = build_resource_payload(energy_data, "consumption_kwh", granularity, periods)
-    water_payload = build_resource_payload(water_data, "consumption_kl", granularity, periods)
-    waste_payload = build_resource_payload(waste_data, "quantity_kg", granularity, periods)
-    solar_payload = build_resource_payload(solar_data, "solar_kwh", granularity, periods)
+    energy_payload = build_resource_payload(energy_data, "consumption_kwh", granularity, periods, occupancy_factors)
+    water_payload = build_resource_payload(water_data, "consumption_kl", granularity, periods, occupancy_factors)
+    waste_payload = build_resource_payload(waste_data, "quantity_kg", granularity, periods, occupancy_factors)
+    solar_payload = build_resource_payload(solar_data, "solar_kwh", granularity, periods, occupancy_factors)
 
     avg_future_occupancy = _mean(energy_payload.get("occupancy_factors", []))
-    payload = {
+    return {
         "granularity": granularity,
         "building": building or "Campus",
+        "date_from": date_from,
+        "date_to": date_to,
         "horizon_label": GRANULARITY_CONFIG[granularity]["default_label"],
         "future_occupancy_average": round(avg_future_occupancy, 2) if avg_future_occupancy else 0.0,
         "energy": energy_payload,
@@ -257,5 +270,3 @@ def forecast_resources(db: Session, granularity: str = "monthly", building: str 
         "waste": waste_payload,
         "solar": solar_payload,
     }
-
-    return payload

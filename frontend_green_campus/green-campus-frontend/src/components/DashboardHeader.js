@@ -13,6 +13,10 @@ function DashboardHeader({
   refresh,
   forecastGranularity,
   setForecastGranularity,
+  dateFrom,
+  dateTo,
+  setDateFrom,
+  setDateTo,
   screenshotMode,
   setScreenshotMode,
   onPrintReport,
@@ -48,6 +52,14 @@ function DashboardHeader({
             label={dashboardCopy.header.statusCards.live}
             value="Live operations view"
           />
+          <StatusCard
+            label={dashboardCopy.header.statusCards.period}
+            value={
+              dateFrom && dateTo
+                ? `${dateFrom} to ${dateTo}`
+                : "All imported data"
+            }
+          />
         </div>
 
         <div style={styles.filters}>
@@ -75,6 +87,33 @@ function DashboardHeader({
               </option>
             ))}
           </select>
+
+          <label style={styles.dateField}>
+            <span style={styles.dateLabel}>{dashboardCopy.header.dateFromLabel}</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              style={styles.dateInput}
+            />
+          </label>
+
+          <label style={styles.dateField}>
+            <span style={styles.dateLabel}>{dashboardCopy.header.dateToLabel}</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              style={styles.dateInput}
+            />
+          </label>
+
+          <button onClick={() => {
+            setDateFrom("");
+            setDateTo("");
+          }} style={styles.ghostBtn}>
+            {dashboardCopy.header.clearDatesLabel}
+          </button>
 
           <button onClick={handleLogout} style={styles.logoutBtn}>
             {dashboardCopy.header.logoutLabel}
@@ -181,6 +220,24 @@ const styles = {
   dropdown: {
     padding: "12px 14px",
     minWidth: "180px",
+    borderRadius: theme.radius.button,
+    border: "1px solid #cedcd7",
+    background: theme.colors.surface,
+  },
+  dateField: {
+    display: "grid",
+    gap: "4px",
+    minWidth: "150px",
+  },
+  dateLabel: {
+    color: theme.colors.secondaryText,
+    fontSize: "11px",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+  dateInput: {
+    padding: "12px 14px",
     borderRadius: theme.radius.button,
     border: "1px solid #cedcd7",
     background: theme.colors.surface,
