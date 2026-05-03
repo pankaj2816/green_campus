@@ -33,11 +33,18 @@ function useAnimatedNumber(value) {
   return displayValue;
 }
 
-function Card({ title, value, suffix = "", subtitle, accent }) {
+function Card({ title, value, suffix = "", subtitle, accent, featured = false }) {
   const animatedValue = useAnimatedNumber(value);
 
   return (
-    <div style={{ ...styles.card, borderTop: `6px solid ${accent}` }} className="premium-card lift-card stagger-in">
+    <div
+      style={{
+        ...styles.card,
+        ...(featured ? styles.cardFeatured : {}),
+        borderTop: `6px solid ${accent}`,
+      }}
+      className="premium-card lift-card stagger-in"
+    >
       <div style={styles.cardTitle}>{title}</div>
       <div style={styles.cardValue}>
         {animatedValue.toLocaleString(undefined, {
@@ -63,6 +70,7 @@ export default function DashboardCards({ data }) {
         suffix="kWh"
         subtitle={dashboardCopy.kpis.grossEnergy.subtitle}
         accent="#f59e0b"
+        featured
       />
       <Card
         title={dashboardCopy.kpis.water.title}
@@ -91,6 +99,7 @@ export default function DashboardCards({ data }) {
         suffix="kWh"
         subtitle={dashboardCopy.kpis.net.subtitle}
         accent="#2563eb"
+        featured
       />
       <Card
         title={dashboardCopy.kpis.greenIndex.title}
@@ -98,6 +107,7 @@ export default function DashboardCards({ data }) {
         suffix="%"
         subtitle={dashboardCopy.kpis.greenIndex.subtitle}
         accent="#1b7f62"
+        featured
       />
     </div>
   );
@@ -106,7 +116,7 @@ export default function DashboardCards({ data }) {
 const styles = {
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
     gap: "18px",
     marginBottom: "24px",
   },
@@ -115,6 +125,10 @@ const styles = {
     borderRadius: theme.radius.card,
     padding: "18px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
+  },
+  cardFeatured: {
+    background: "linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%)",
+    boxShadow: "0 20px 44px rgba(12, 24, 21, 0.11)",
   },
   cardTitle: {
     color: theme.colors.secondaryText,

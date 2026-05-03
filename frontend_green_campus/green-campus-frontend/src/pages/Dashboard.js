@@ -191,6 +191,9 @@ function Dashboard() {
                   dateTo={dateTo}
                   setDateFrom={setDateFrom}
                   setDateTo={setDateTo}
+                  comparisonData={comparisonData}
+                  riskData={riskData}
+                  insightsData={insightsData}
                   screenshotMode={screenshotMode}
                   setScreenshotMode={setScreenshotMode}
                   onPrintReport={handlePrintReport}
@@ -221,6 +224,7 @@ function Dashboard() {
                 riskData={riskData}
                 forecastData={forecastData}
                 seasonalOutlook={seasonalOutlook}
+                insightsData={insightsData}
               />
               <ComparisonSection comparisonData={comparisonData} />
               <SeasonalOutlookPanel outlook={seasonalOutlook} />

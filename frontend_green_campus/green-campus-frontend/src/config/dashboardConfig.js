@@ -74,6 +74,12 @@ export const dashboardCopy = {
     dateFromLabel: "From",
     dateToLabel: "To",
     clearDatesLabel: "Clear Dates",
+    quickRangeLabel: "Quick ranges",
+    quickRanges: [
+      { id: "all", label: "All Data" },
+      { id: "last180", label: "Last 180 Days" },
+      { id: "ay2024", label: "AY 2024-25" },
+    ],
     logoutLabel: "Logout",
   },
   dataControls: {
@@ -319,6 +325,9 @@ export const dashboardCopy = {
     title: "Comparison Analytics",
     subtitle: "Compare the selected period with the immediately previous period of the same length.",
     noPrevious: "Choose both from/to dates to unlock previous-period comparison.",
+    statusGood: "Improving",
+    statusWatch: "Needs attention",
+    statusFlat: "Stable",
     cards: {
       netEnergy: "Net Energy Change",
       water: "Water Change",
@@ -326,6 +335,17 @@ export const dashboardCopy = {
       carbon: "Carbon Change",
       greenIndex: "Green Index Change",
       cost: "Energy Cost Change",
+    },
+  },
+  pulse: {
+    title: "Campus Pulse",
+    signalTitle: "Signal Summary",
+    cards: {
+      scope: "Scope",
+      risk: "Risk",
+      occupancy: "Forecast Occupancy",
+      opportunity: "Top Opportunity",
+      action: "Next Action",
     },
   },
   forecast: {

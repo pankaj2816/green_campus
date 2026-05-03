@@ -24,10 +24,23 @@ function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "" }) 
         : change < 0
           ? styles.good
           : styles.bad;
+  const statusLabel =
+    change === 0
+      ? dashboardCopy.comparison.statusFlat
+      : positiveIsGood
+        ? change > 0
+          ? dashboardCopy.comparison.statusGood
+          : dashboardCopy.comparison.statusWatch
+        : change < 0
+          ? dashboardCopy.comparison.statusGood
+          : dashboardCopy.comparison.statusWatch;
 
   return (
     <div style={{ ...styles.card, ...tone }}>
-      <div style={styles.cardTitle}>{title}</div>
+      <div style={styles.cardHeader}>
+        <div style={styles.cardTitle}>{title}</div>
+        <span style={{ ...styles.statusBadge, ...tone }}>{statusLabel}</span>
+      </div>
       <div style={styles.changeValue}>{formatChange(metric.change, suffix)}</div>
       <div style={styles.metaRow}>
         <span>Current: {metric.current?.toLocaleString?.() ?? metric.current}{suffix}</span>
@@ -121,6 +134,12 @@ const styles = {
     border: "1px solid #deebe6",
     background: "#f8fbfa",
   },
+  cardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "10px",
+    alignItems: "center",
+  },
   good: {
     borderColor: "#b7e1ce",
     background: "#f1fbf5",
@@ -136,6 +155,13 @@ const styles = {
   cardTitle: {
     color: "#60756f",
     fontSize: "13px",
+  },
+  statusBadge: {
+    padding: "6px 10px",
+    borderRadius: "999px",
+    fontSize: "11px",
+    fontWeight: "700",
+    color: "#17342d",
   },
   changeValue: {
     color: "#17342d",

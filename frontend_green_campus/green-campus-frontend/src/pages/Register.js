@@ -30,9 +30,13 @@ function Register() {
   };
 
   return (
-    <div style={styles.page} className="app-shell-ambient">
-      <div style={styles.grid}>
-        <aside style={styles.sidePanel} className="premium-card stagger-in stagger-in-delay-1">
+    <div style={styles.page} className="app-shell-ambient auth-page-shell">
+      <div style={styles.grid} className="auth-page-grid">
+        <aside
+          style={styles.sidePanel}
+          className="premium-card stagger-in stagger-in-delay-1 auth-side-panel"
+        >
+          <div style={styles.sideGlow} />
           <span style={styles.badge}>{dashboardCopy.auth.authBadge}</span>
           <h1 style={styles.sideTitle}>
             {dashboardCopy.branding.appName} access for {dashboardCopy.branding.organization}
@@ -47,9 +51,19 @@ function Register() {
             <Feature title="Explain" text="Open plain-language sections that help non-technical users understand the data." />
             <Feature title="Present" text="Use screenshot mode and executive report view during demos or reviews." />
           </div>
+
+          <div style={styles.infoRail} className="auth-info-rail">
+            <InfoStat label="Onboarding Path" value="Create account and start with Excel import" />
+            <InfoStat label="Ideal Users" value="Facilities, sustainability teams, reviewers" />
+            <InfoStat label="Output" value="Insights, alerts, comparison, executive views" />
+          </div>
         </aside>
 
-        <section style={styles.panel} className="premium-card stagger-in stagger-in-delay-2">
+        <section
+          style={styles.panel}
+          className="premium-card stagger-in stagger-in-delay-2 auth-main-panel"
+        >
+          <div style={styles.panelGlow} />
           <h2 style={styles.title}>{dashboardCopy.auth.registerTitle}</h2>
           <p style={styles.subtitle}>{dashboardCopy.auth.registerSubtitle}</p>
 
@@ -101,6 +115,15 @@ function Feature({ title, text }) {
   );
 }
 
+function InfoStat({ label, value }) {
+  return (
+    <div style={styles.infoStat}>
+      <span style={styles.infoLabel}>{label}</span>
+      <strong style={styles.infoValue}>{value}</strong>
+    </div>
+  );
+}
+
 const styles = {
   page: {
     minHeight: "100vh",
@@ -117,11 +140,22 @@ const styles = {
     gap: "24px",
   },
   sidePanel: {
+    position: "relative",
+    overflow: "hidden",
     background: "linear-gradient(160deg, #17342d 0%, #1d4f43 55%, #255b89 100%)",
     color: "#f5fbf8",
     borderRadius: "28px",
     padding: "30px",
     boxShadow: "0 24px 46px rgba(14, 30, 26, 0.14)",
+  },
+  sideGlow: {
+    position: "absolute",
+    left: "-52px",
+    bottom: "-52px",
+    width: "220px",
+    height: "220px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(110,231,183,0.22), rgba(110,231,183,0))",
   },
   badge: {
     display: "inline-flex",
@@ -156,6 +190,7 @@ const styles = {
     padding: "16px",
     display: "grid",
     gap: "8px",
+    border: "1px solid rgba(255,255,255,0.08)",
   },
   featureTitle: {
     color: "#ffffff",
@@ -165,11 +200,22 @@ const styles = {
     lineHeight: 1.55,
   },
   panel: {
+    position: "relative",
     background: "rgba(255,255,255,0.92)",
     backdropFilter: "blur(12px)",
     borderRadius: "28px",
     padding: "30px",
     boxShadow: "0 24px 46px rgba(14, 30, 26, 0.10)",
+  },
+  panelGlow: {
+    position: "absolute",
+    right: "-38px",
+    top: "-30px",
+    width: "170px",
+    height: "170px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(34,197,94,0.12), rgba(34,197,94,0))",
+    pointerEvents: "none",
   },
   title: {
     margin: 0,
@@ -222,6 +268,32 @@ const styles = {
     color: "#145ca8",
     cursor: "pointer",
     fontWeight: "700",
+  },
+  infoRail: {
+    position: "relative",
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "12px",
+    marginTop: "20px",
+  },
+  infoStat: {
+    display: "grid",
+    gap: "6px",
+    padding: "14px",
+    borderRadius: "18px",
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  },
+  infoLabel: {
+    color: "rgba(245,251,248,0.66)",
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+  },
+  infoValue: {
+    color: "#f5fbf8",
+    fontSize: "15px",
+    lineHeight: 1.5,
   },
 };
 

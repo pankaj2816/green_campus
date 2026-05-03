@@ -6,20 +6,30 @@ import { loginUser } from "../services/api";
 
 function AuthShell({ title, subtitle, children, sideTitle, sideText, badge }) {
   return (
-    <div style={styles.page} className="app-shell-ambient">
-      <div style={styles.grid}>
-        <section style={styles.panel} className="premium-card stagger-in">
-      <span style={styles.badge}>{badge}</span>
+    <div style={styles.page} className="app-shell-ambient auth-page-shell">
+      <div style={styles.grid} className="auth-page-grid">
+        <section style={styles.panel} className="premium-card stagger-in auth-main-panel">
+          <div style={styles.panelGlow} />
+          <span style={styles.badge}>{badge}</span>
           <h1 style={styles.title}>{title}</h1>
           <p style={styles.subtitle}>{subtitle}</p>
           {children}
         </section>
 
-        <aside style={styles.sidePanel} className="premium-card stagger-in stagger-in-delay-2">
+        <aside
+          style={styles.sidePanel}
+          className="premium-card stagger-in stagger-in-delay-2 auth-side-panel"
+        >
           <div style={styles.sideGlow} />
           <span style={styles.sideKicker}>Live Platform</span>
           <h2 style={styles.sideTitle}>{sideTitle}</h2>
           <p style={styles.sideText}>{sideText}</p>
+
+          <div style={styles.infoRail} className="auth-info-rail">
+            <InfoStat label="Workspace Style" value="Mission control layout" />
+            <InfoStat label="Best For" value="Demos, reviews, campus operations" />
+            <InfoStat label="Data Flow" value="Import, forecast, compare, report" />
+          </div>
 
           <div style={styles.sideList}>
             <Feature text="Building-wise sustainability visibility" />
@@ -36,8 +46,17 @@ function AuthShell({ title, subtitle, children, sideTitle, sideText, badge }) {
 function Feature({ text }) {
   return (
     <div style={styles.feature}>
-      <span style={styles.featureDot} />
+      <span style={styles.featureTag}>AI</span>
       <span>{text}</span>
+    </div>
+  );
+}
+
+function InfoStat({ label, value }) {
+  return (
+    <div style={styles.infoStat}>
+      <span style={styles.infoLabel}>{label}</span>
+      <strong style={styles.infoValue}>{value}</strong>
     </div>
   );
 }
@@ -136,11 +155,22 @@ const styles = {
     alignItems: "stretch",
   },
   panel: {
+    position: "relative",
     background: "rgba(255,255,255,0.92)",
     backdropFilter: "blur(12px)",
     borderRadius: "28px",
     padding: "30px",
     boxShadow: "0 24px 46px rgba(14, 30, 26, 0.10)",
+  },
+  panelGlow: {
+    position: "absolute",
+    right: "-36px",
+    bottom: "-40px",
+    width: "180px",
+    height: "180px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(59,130,246,0.12), rgba(59,130,246,0))",
+    pointerEvents: "none",
   },
   badge: {
     display: "inline-flex",
@@ -243,6 +273,32 @@ const styles = {
     lineHeight: 1.7,
     maxWidth: "520px",
   },
+  infoRail: {
+    position: "relative",
+    display: "grid",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "12px",
+    marginTop: "24px",
+  },
+  infoStat: {
+    display: "grid",
+    gap: "6px",
+    padding: "14px",
+    borderRadius: "18px",
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.08)",
+  },
+  infoLabel: {
+    color: "rgba(245,251,248,0.66)",
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+  },
+  infoValue: {
+    color: "#f5fbf8",
+    fontSize: "15px",
+    lineHeight: 1.5,
+  },
   sideList: {
     position: "relative",
     display: "grid",
@@ -256,13 +312,18 @@ const styles = {
     padding: "14px",
     borderRadius: "18px",
     background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(255,255,255,0.08)",
   },
-  featureDot: {
-    width: "10px",
-    height: "10px",
+  featureTag: {
+    minWidth: "32px",
+    padding: "4px 8px",
     borderRadius: "999px",
-    background: "#6ee7b7",
-    display: "inline-block",
+    background: "rgba(110, 231, 183, 0.18)",
+    color: "#9ff3d1",
+    fontSize: "11px",
+    fontWeight: "700",
+    textAlign: "center",
+    letterSpacing: "0.04em",
   },
 };
 

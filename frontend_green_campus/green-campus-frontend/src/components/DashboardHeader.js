@@ -6,6 +6,28 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
 
+function getRangePreset(presetId) {
+  if (presetId === "all") {
+    return { from: "", to: "" };
+  }
+
+  if (presetId === "last180") {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 179);
+    return {
+      from: start.toISOString().slice(0, 10),
+      to: end.toISOString().slice(0, 10),
+    };
+  }
+
+  if (presetId === "ay2024") {
+    return { from: "2024-04-01", to: "2025-03-31" };
+  }
+
+  return null;
+}
+
 function DashboardHeader({
   buildings,
   selectedBuilding,
@@ -20,20 +42,57 @@ function DashboardHeader({
   screenshotMode,
   setScreenshotMode,
   onPrintReport,
+  comparisonData,
+  riskData,
+  insightsData,
 }) {
   const navigate = useNavigate();
+  const primaryRisk = riskData?.[0];
+  const topRecommendation = insightsData?.recommendations?.[0];
+  const comparisonDelta = comparisonData?.delta?.net_energy;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
 
+  const handlePreset = (presetId) => {
+    const preset = getRangePreset(presetId);
+    if (!preset) {
+      return;
+    }
+    setDateFrom(preset.from);
+    setDateTo(preset.to);
+  };
+
   return (
-    <div style={styles.hero}>
+    <div style={styles.hero} className="hero-command-sticky">
       <div style={styles.heroText}>
         <span style={styles.kicker}>{dashboardCopy.header.kicker}</span>
         <h1 style={styles.title}>{dashboardCopy.header.title}</h1>
         <p style={styles.subtitle}>{dashboardCopy.header.subtitle}</p>
+
+        <div style={styles.commandBrief}>
+          <InsightCard
+            label="Priority Risk"
+            value={primaryRisk ? primaryRisk.risk_level : "Stable"}
+            note={primaryRisk?.primary_driver || primaryRisk?.message || "No major risk signal is active right now."}
+          />
+          <InsightCard
+            label="Best Next Action"
+            value={topRecommendation?.title || "Review dashboard"}
+            note={topRecommendation?.message || "Use the filtered views below to identify the next operational move."}
+          />
+          <InsightCard
+            label="Change Signal"
+            value={
+              comparisonDelta?.change === undefined
+                ? "Pick a period"
+                : `${comparisonDelta.change > 0 ? "+" : ""}${comparisonDelta.change.toLocaleString(undefined, { maximumFractionDigits: 0 })} kWh`
+            }
+            note="Current selection compared with the previous equal-length period."
+          />
+        </div>
 
         <div style={styles.statusGrid}>
           <StatusCard
@@ -60,6 +119,21 @@ function DashboardHeader({
                 : "All imported data"
             }
           />
+        </div>
+
+        <div style={styles.quickRangeRow}>
+          <span style={styles.quickRangeLabel}>{dashboardCopy.header.quickRangeLabel}</span>
+          <div style={styles.quickRangeButtons}>
+            {dashboardCopy.header.quickRanges.map((range) => (
+              <button
+                key={range.id}
+                onClick={() => handlePreset(range.id)}
+                style={styles.rangeChip}
+              >
+                {range.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div style={styles.filters}>
@@ -150,6 +224,16 @@ function StatusCard({ label, value }) {
   );
 }
 
+function InsightCard({ label, value, note }) {
+  return (
+    <div style={styles.insightCard}>
+      <span style={styles.insightLabel}>{label}</span>
+      <strong style={styles.insightValue}>{value}</strong>
+      <span style={styles.insightNote}>{note}</span>
+    </div>
+  );
+}
+
 const styles = {
   hero: {
     display: "grid",
@@ -186,6 +270,36 @@ const styles = {
     maxWidth: "700px",
     lineHeight: 1.6,
   },
+  commandBrief: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "12px",
+    marginTop: "22px",
+  },
+  insightCard: {
+    background: "rgba(255,255,255,0.68)",
+    border: "1px solid rgba(173, 198, 192, 0.5)",
+    borderRadius: "18px",
+    padding: "14px 16px",
+    display: "grid",
+    gap: "6px",
+  },
+  insightLabel: {
+    color: theme.colors.secondaryText,
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    fontWeight: "700",
+  },
+  insightValue: {
+    color: theme.colors.primaryText,
+    fontSize: "18px",
+  },
+  insightNote: {
+    color: theme.colors.secondaryText,
+    fontSize: "12px",
+    lineHeight: 1.5,
+  },
   statusGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
@@ -210,6 +324,32 @@ const styles = {
   statusValue: {
     color: theme.colors.primaryText,
     fontSize: "16px",
+  },
+  quickRangeRow: {
+    display: "grid",
+    gap: "8px",
+    marginTop: "18px",
+  },
+  quickRangeLabel: {
+    color: theme.colors.secondaryText,
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    fontWeight: "700",
+  },
+  quickRangeButtons: {
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+  },
+  rangeChip: {
+    padding: "10px 14px",
+    borderRadius: "999px",
+    border: "1px solid rgba(122, 164, 152, 0.38)",
+    background: "rgba(255,255,255,0.78)",
+    color: theme.colors.primaryText,
+    fontWeight: "600",
+    cursor: "pointer",
   },
   filters: {
     display: "flex",

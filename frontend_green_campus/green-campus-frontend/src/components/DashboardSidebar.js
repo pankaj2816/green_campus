@@ -3,6 +3,13 @@ import React from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme, branding } = dashboardCopy;
+const navIcons = {
+  overview: "OV",
+  intelligence: "IN",
+  planning: "PL",
+  governance: "GV",
+  report: "RP",
+};
 
 function DashboardSidebar({
   activeView,
@@ -39,8 +46,16 @@ function DashboardSidebar({
             }}
             className={`lift-card stagger-in stagger-in-delay-${Math.min(index + 1, 3)}`}
           >
-            <span style={styles.navIndex}>{String(index + 1).padStart(2, "0")}</span>
-            <span style={styles.navLabel}>{tab.label}</span>
+            <span style={styles.navLeading}>
+              <span style={styles.navIcon}>{navIcons[tab.id] || String(index + 1).padStart(2, "0")}</span>
+              <span style={styles.navIndex}>{String(index + 1).padStart(2, "0")}</span>
+            </span>
+            <span style={styles.navTextBlock}>
+              <span style={styles.navLabel}>{tab.label}</span>
+              <span style={styles.navCaption}>
+                {tab.id === activeView ? "Current workspace" : "Open section"}
+              </span>
+            </span>
           </button>
         ))}
       </div>
@@ -126,15 +141,39 @@ const styles = {
     border: "1px solid rgba(122, 203, 171, 0.36)",
     boxShadow: "0 16px 24px rgba(7, 17, 15, 0.18)",
   },
-  navIndex: {
-    minWidth: "34px",
-    color: "rgba(237, 250, 244, 0.65)",
-    fontSize: "12px",
+  navLeading: {
+    display: "grid",
+    gap: "6px",
+    justifyItems: "center",
+    minWidth: "44px",
+  },
+  navIcon: {
+    width: "34px",
+    height: "34px",
+    borderRadius: "12px",
+    display: "grid",
+    placeItems: "center",
+    background: "rgba(255,255,255,0.08)",
+    fontSize: "11px",
+    fontWeight: "800",
     letterSpacing: "0.08em",
+  },
+  navIndex: {
+    color: "rgba(237, 250, 244, 0.65)",
+    fontSize: "10px",
+    letterSpacing: "0.08em",
+  },
+  navTextBlock: {
+    display: "grid",
+    gap: "4px",
   },
   navLabel: {
     fontWeight: "700",
     fontSize: "15px",
+  },
+  navCaption: {
+    color: "rgba(237, 250, 244, 0.62)",
+    fontSize: "12px",
   },
   contextCard: {
     marginTop: "16px",
