@@ -8,7 +8,7 @@ function formatChange(value, suffix = "") {
   return `${sign}${numericValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}${suffix}`;
 }
 
-function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "" }) {
+function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "", onOpenDetail }) {
   if (!metric) {
     return null;
   }
@@ -36,7 +36,24 @@ function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "" }) 
           : dashboardCopy.comparison.statusWatch;
 
   return (
-    <div style={{ ...styles.card, ...tone }}>
+    <button
+      type="button"
+      style={{ ...styles.card, ...tone }}
+      onClick={() =>
+        onOpenDetail?.({
+          title,
+          category: "Comparison Insight",
+          summary: `${title} changed by ${formatChange(metric.change, suffix)} compared with the previous equal-length period.`,
+          points: [
+            `Current value: ${metric.current}${suffix}`,
+            `Previous value: ${metric.previous}${suffix}`,
+            metric.change_percent === null || metric.change_percent === undefined
+              ? "Percentage change is unavailable because the previous period had no baseline value."
+              : `${formatChange(metric.change_percent, "%")} compared with the previous period.`,
+          ],
+        })
+      }
+    >
       <div style={styles.cardHeader}>
         <div style={styles.cardTitle}>{title}</div>
         <span style={{ ...styles.statusBadge, ...tone }}>{statusLabel}</span>
@@ -51,11 +68,11 @@ function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "" }) 
           ? "No baseline percent available"
           : `${formatChange(metric.change_percent, "%")} vs previous period`}
       </div>
-    </div>
+    </button>
   );
 }
 
-export default function ComparisonSection({ comparisonData }) {
+export default function ComparisonSection({ comparisonData, onOpenDetail }) {
   if (!comparisonData?.previous) {
     return (
       <div style={styles.emptyCard} className="premium-card lift-card stagger-in">
@@ -79,12 +96,12 @@ export default function ComparisonSection({ comparisonData }) {
       </p>
 
       <div style={styles.grid}>
-        <ComparisonCard title={dashboardCopy.comparison.cards.netEnergy} metric={delta.net_energy} suffix=" kWh" />
-        <ComparisonCard title={dashboardCopy.comparison.cards.water} metric={delta.water} suffix=" kl" />
-        <ComparisonCard title={dashboardCopy.comparison.cards.waste} metric={delta.waste} suffix=" kg" />
-        <ComparisonCard title={dashboardCopy.comparison.cards.carbon} metric={delta.carbon} suffix=" kg CO2" />
-        <ComparisonCard title={dashboardCopy.comparison.cards.greenIndex} metric={delta.green_index} positiveIsGood suffix=" pts" />
-        <ComparisonCard title={dashboardCopy.comparison.cards.cost} metric={delta.monthly_energy_cost_rs} suffix=" Rs" />
+        <ComparisonCard title={dashboardCopy.comparison.cards.netEnergy} metric={delta.net_energy} suffix=" kWh" onOpenDetail={onOpenDetail} />
+        <ComparisonCard title={dashboardCopy.comparison.cards.water} metric={delta.water} suffix=" kl" onOpenDetail={onOpenDetail} />
+        <ComparisonCard title={dashboardCopy.comparison.cards.waste} metric={delta.waste} suffix=" kg" onOpenDetail={onOpenDetail} />
+        <ComparisonCard title={dashboardCopy.comparison.cards.carbon} metric={delta.carbon} suffix=" kg CO2" onOpenDetail={onOpenDetail} />
+        <ComparisonCard title={dashboardCopy.comparison.cards.greenIndex} metric={delta.green_index} positiveIsGood suffix=" pts" onOpenDetail={onOpenDetail} />
+        <ComparisonCard title={dashboardCopy.comparison.cards.cost} metric={delta.monthly_energy_cost_rs} suffix=" Rs" onOpenDetail={onOpenDetail} />
       </div>
     </div>
   );
@@ -133,6 +150,9 @@ const styles = {
     padding: "16px",
     border: "1px solid #deebe6",
     background: "#f8fbfa",
+    textAlign: "left",
+    cursor: "pointer",
+    width: "100%",
   },
   cardHeader: {
     display: "flex",

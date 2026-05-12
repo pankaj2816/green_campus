@@ -21,6 +21,8 @@ def get_assumptions(db: Session = Depends(get_db)):
 class SettingsRequest(BaseModel):
     academic_occupancy_factors: dict | None = None
     campus_context: dict | None = None
+    sustainability_goals: dict | None = None
+    action_tracker: dict | None = None
 
 
 @router.get("/settings")
@@ -42,5 +44,7 @@ def update_settings(
         {
             "academic_occupancy_factors": request.academic_occupancy_factors or {},
             "campus_context": request.campus_context or {},
+            "sustainability_goals": request.sustainability_goals or {},
+            "action_tracker": request.action_tracker or {},
         },
     )

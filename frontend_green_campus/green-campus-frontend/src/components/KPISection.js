@@ -1,7 +1,7 @@
 import React from "react";
 import DashboardCards from "./DashboardCards";
 
-function KPISection({ data }) {
+function KPISection({ data, onOpenDetail }) {
   return (
     <div style={styles.wrapper}>
       <div style={styles.header}>
@@ -13,7 +13,7 @@ function KPISection({ data }) {
           Start here for the fastest read of demand, solar coverage, remaining grid use, and overall sustainability score.
         </p>
       </div>
-      <DashboardCards data={data} />
+      <DashboardCards data={data} onOpenDetail={onOpenDetail} />
     </div>
   );
 }

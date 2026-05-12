@@ -16,6 +16,13 @@ DEFAULT_SETTINGS = {
         "built_up_area_sqm": 125000,
         "monthly_energy_budget_rs": 2500000,
     },
+    "sustainability_goals": {
+        "green_index_target": 88,
+        "solar_offset_target_percent": 18,
+        "water_per_student_target_kl": 0.22,
+        "monthly_energy_cost_target_rs": 1800000,
+    },
+    "action_tracker": {},
 }
 
 
@@ -42,6 +49,14 @@ def get_dashboard_settings(db: Session):
             **DEFAULT_SETTINGS["campus_context"],
             **data.get("campus_context", {}),
         },
+        "sustainability_goals": {
+            **DEFAULT_SETTINGS["sustainability_goals"],
+            **data.get("sustainability_goals", {}),
+        },
+        "action_tracker": {
+            **DEFAULT_SETTINGS["action_tracker"],
+            **data.get("action_tracker", {}),
+        },
     }
     return merged
 
@@ -56,6 +71,14 @@ def save_dashboard_settings(db: Session, settings_payload: dict):
         "campus_context": {
             **current["campus_context"],
             **settings_payload.get("campus_context", {}),
+        },
+        "sustainability_goals": {
+            **current["sustainability_goals"],
+            **settings_payload.get("sustainability_goals", {}),
+        },
+        "action_tracker": {
+            **current["action_tracker"],
+            **settings_payload.get("action_tracker", {}),
         },
     }
 

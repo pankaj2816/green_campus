@@ -76,12 +76,16 @@ The dashboard now works like a professional operations console. It includes:
 
 - command-center header
 - focused dashboard views with sidebar navigation
+- section-based main workspace + support rail layout
 - data import and reset controls
 - building filter
 - date-range filter
 - daily, monthly, yearly, seasonal forecast selector
 - current period vs previous period comparison analytics
 - campus pulse summary banner
+- strategic goal tracking board
+- action tracker for AI recommendations
+- click-to-open detail drawer for deeper explanations
 - KPI cards
 - seasonal intelligence panel
 - advanced carbon section
@@ -295,9 +299,11 @@ https://your-backend-name.onrender.com
 4. Import Excel data using the dashboard data controls
 5. Use building filter, date range filter, and forecast selector
 6. Review KPI cards, campus pulse, comparison analytics, carbon, solar, trend, risk, insights, and simulator
-7. Edit occupancy settings in Governance if you want the planning values to match your campus
-8. Export Excel when you want the current live dataset as a workbook
-9. Reset data when you want a fresh import
+7. Set sustainability goals in Overview and track progress against them
+8. Update action status for AI recommendations so the dashboard also reflects execution
+9. Edit occupancy settings in Governance if you want the planning values to match your campus
+10. Export Excel when you want the current live dataset as a workbook
+11. Reset data when you want a fresh import
 
 ## Sample Excel File
 
@@ -450,6 +456,47 @@ It shows change in:
 - estimated energy cost
 
 This helps explain whether performance is improving or worsening over time.
+
+### Strategic Goal Tracking
+
+The overview now includes a goal board.
+
+It lets you set simple targets for:
+
+- Green Index
+- solar offset
+- water per student
+- monthly energy cost
+
+The dashboard then shows how close the current scope is to each target.
+
+This is useful when you want to move from “what happened?” to “are we meeting the plan?”
+
+### Action Board
+
+The action board lets you track what happens after AI recommendations are shown.
+
+Each recommendation can be marked as:
+
+- suggested
+- planned
+- in progress
+- completed
+
+This makes the dashboard more useful for real operational follow-up.
+
+### Detail Drawer
+
+Many cards can now be clicked to open a detail drawer.
+
+This drawer gives:
+
+- a plain-language explanation
+- current value context
+- why the metric matters
+- next interpretation points
+
+This improves usability because the dashboard can stay visually clean while still explaining itself when needed.
 
 ### Seasonal Intelligence
 
@@ -613,6 +660,9 @@ Adjust:
 - impact-ranked recommendations
 - peer comparison insights
 - savings-aware recommendations
+- strategic goal tracking with progress bars
+- recommendation action tracker
+- click-to-open detail drawer
 - seasonal intelligence with occupancy assumptions
 - scenario simulator
 - comparison analytics across date windows
@@ -624,6 +674,9 @@ Adjust:
 
 - sidebar navigation for focused dashboard views
 - campus pulse summary banner
+- section-based workspace layout
+- strategic goals side rail
+- action tracker side rail
 - screenshot mode
 - executive report print view
 - animated KPI cards

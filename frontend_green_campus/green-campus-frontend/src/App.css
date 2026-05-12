@@ -195,6 +195,10 @@
     top: auto;
   }
 
+  .dashboard-main-column [style*="grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr)"] {
+    grid-template-columns: 1fr !important;
+  }
+
   .dashboard-mobile-tabs {
     display: flex !important;
   }
@@ -233,6 +237,10 @@
   .dashboard-mobile-tabs {
     overflow-x: auto;
     padding-bottom: 4px;
+  }
+
+  .dashboard-main-column [style*="grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr)"] {
+    gap: 14px !important;
   }
 
   .auth-page-shell {

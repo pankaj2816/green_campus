@@ -348,6 +348,17 @@ export const dashboardCopy = {
       action: "Next Action",
     },
   },
+  goals: {
+    kicker: "Strategic Goals",
+    title: "Target Progress Board",
+    subtitle: "Set simple sustainability targets and track whether the current campus scope is moving in the right direction.",
+  },
+  actions: {
+    kicker: "Action Board",
+    title: "Recommendation Workflow",
+    subtitle: "Turn AI recommendations into tracked actions so the dashboard supports follow-through, not just observation.",
+    empty: "No recommendations are available for the current scope yet.",
+  },
   forecast: {
     title: "AI Forecast Studio",
     subtitlePrefix: "using",

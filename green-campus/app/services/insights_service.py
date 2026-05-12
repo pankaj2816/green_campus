@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+import re
 
 from app.models import EnergyData, SolarData, WasteData, WaterData
 from app.services.carbon import calculate_carbon
@@ -258,6 +259,7 @@ def _recommendations(totals, anomalies, risk_data, peer_context=None):
         })
 
     for item in recs:
+        item["action_key"] = re.sub(r"[^a-z0-9]+", "_", item["title"].strip().lower()).strip("_")
         item["impact_score"] = round(
             min(
                 (

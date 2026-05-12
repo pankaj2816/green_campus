@@ -33,17 +33,19 @@ function useAnimatedNumber(value) {
   return displayValue;
 }
 
-function Card({ title, value, suffix = "", subtitle, accent, featured = false }) {
+function Card({ title, value, suffix = "", subtitle, accent, featured = false, onOpenDetail }) {
   const animatedValue = useAnimatedNumber(value);
 
   return (
-    <div
+    <button
+      type="button"
       style={{
         ...styles.card,
         ...(featured ? styles.cardFeatured : {}),
         borderTop: `6px solid ${accent}`,
       }}
       className="premium-card lift-card stagger-in"
+      onClick={onOpenDetail}
     >
       <div style={styles.cardTitle}>{title}</div>
       <div style={styles.cardValue}>
@@ -54,11 +56,11 @@ function Card({ title, value, suffix = "", subtitle, accent, featured = false })
         {suffix}
       </div>
       <div style={styles.cardSubtitle}>{subtitle}</div>
-    </div>
+    </button>
   );
 }
 
-export default function DashboardCards({ data }) {
+export default function DashboardCards({ data, onOpenDetail }) {
   const solarImpact =
     data.energy > 0 ? ((data.solar / data.energy) * 100).toFixed(1) : 0;
 
@@ -71,6 +73,17 @@ export default function DashboardCards({ data }) {
         subtitle={dashboardCopy.kpis.grossEnergy.subtitle}
         accent="#f59e0b"
         featured
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.grossEnergy.title,
+            category: "KPI",
+            summary: "Gross energy shows the full electricity demand before solar contribution is removed.",
+            points: [
+              `Current gross energy: ${data.energy} kWh`,
+              "Use this to understand total demand pressure on the campus.",
+            ],
+          })
+        }
       />
       <Card
         title={dashboardCopy.kpis.water.title}
@@ -78,6 +91,17 @@ export default function DashboardCards({ data }) {
         suffix="kl"
         subtitle={dashboardCopy.kpis.water.subtitle}
         accent="#0284c7"
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.water.title,
+            category: "KPI",
+            summary: "Water consumption shows the total imported water usage for the current filtered scope.",
+            points: [
+              `Current water consumption: ${data.water} kl`,
+              `Water per student: ${data.water_per_student_kl ?? "N/A"} kl`,
+            ],
+          })
+        }
       />
       <Card
         title={dashboardCopy.kpis.waste.title}
@@ -85,6 +109,17 @@ export default function DashboardCards({ data }) {
         suffix="kg"
         subtitle={dashboardCopy.kpis.waste.subtitle}
         accent="#14b8a6"
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.waste.title,
+            category: "KPI",
+            summary: "Waste generated shows the total tracked waste load for the selected data window.",
+            points: [
+              `Current waste load: ${data.waste} kg`,
+              `Waste per student: ${data.waste_per_student_kg ?? "N/A"} kg`,
+            ],
+          })
+        }
       />
       <Card
         title={dashboardCopy.kpis.solar.title}
@@ -92,6 +127,17 @@ export default function DashboardCards({ data }) {
         suffix="kWh"
         subtitle={`${solarImpact}% ${dashboardCopy.kpis.solar.subtitleSuffix}`}
         accent="#84cc16"
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.solar.title,
+            category: "KPI",
+            summary: "Solar generated shows how much on-campus renewable generation is helping cover campus demand.",
+            points: [
+              `Current solar generation: ${data.solar} kWh`,
+              `Solar offset: ${solarImpact}% of gross energy`,
+            ],
+          })
+        }
       />
       <Card
         title={dashboardCopy.kpis.net.title}
@@ -100,6 +146,17 @@ export default function DashboardCards({ data }) {
         subtitle={dashboardCopy.kpis.net.subtitle}
         accent="#2563eb"
         featured
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.net.title,
+            category: "KPI",
+            summary: "Net grid energy is the electricity still required after solar generation offsets gross demand.",
+            points: [
+              `Current net energy: ${data.net_energy} kWh`,
+              `Estimated monthly cost: Rs ${data.monthly_energy_cost_rs ?? "N/A"}`,
+            ],
+          })
+        }
       />
       <Card
         title={dashboardCopy.kpis.greenIndex.title}
@@ -108,6 +165,17 @@ export default function DashboardCards({ data }) {
         subtitle={dashboardCopy.kpis.greenIndex.subtitle}
         accent="#1b7f62"
         featured
+        onOpenDetail={() =>
+          onOpenDetail?.({
+            title: dashboardCopy.kpis.greenIndex.title,
+            category: "KPI",
+            summary: "Green Index is the dashboard’s combined sustainability score across energy, water, and waste behavior.",
+            points: [
+              `Current Green Index: ${data.green_index}%`,
+              "Higher values are better because they indicate more efficient overall campus behavior.",
+            ],
+          })
+        }
       />
     </div>
   );
@@ -125,6 +193,12 @@ const styles = {
     borderRadius: theme.radius.card,
     padding: "18px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
+    borderLeft: "none",
+    borderRight: "none",
+    borderBottom: "none",
+    width: "100%",
+    textAlign: "left",
+    cursor: "pointer",
   },
   cardFeatured: {
     background: "linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%)",

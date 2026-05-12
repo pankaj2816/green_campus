@@ -4,7 +4,7 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
 
-function AlertCenter({ alertsData }) {
+function AlertCenter({ alertsData, onOpenDetail }) {
   if (!alertsData) {
     return null;
   }
@@ -25,10 +25,25 @@ function AlertCenter({ alertsData }) {
         <div style={styles.panel}>
           {(alertsData.alerts || []).length > 0 ? (
             alertsData.alerts.map((alert, index) => (
-              <div key={index} style={{ ...styles.alertCard, borderLeft: `6px solid ${levelColor(alert.level)}` }}>
+              <button
+                type="button"
+                key={index}
+                style={{ ...styles.alertCard, borderLeft: `6px solid ${levelColor(alert.level)}` }}
+                onClick={() =>
+                  onOpenDetail?.({
+                    title: alert.title,
+                    category: "Campus Alert",
+                    summary: alert.message,
+                    points: [
+                      `Severity: ${alert.level}`,
+                      "Use this alert to prioritize investigation or operational review.",
+                    ],
+                  })
+                }
+              >
                 <strong>{alert.title}</strong>
                 <p style={styles.cardText}>{alert.message}</p>
-              </div>
+              </button>
             ))
           ) : (
             <p>{dashboardCopy.alerts.noAlerts}</p>
@@ -45,10 +60,25 @@ function AlertCenter({ alertsData }) {
 
           {alertsData.export_ready_days?.length > 0 ? (
             alertsData.export_ready_days.map((item) => (
-              <div key={item.date} style={styles.exportCard}>
+              <button
+                type="button"
+                key={item.date}
+                style={styles.exportCard}
+                onClick={() =>
+                  onOpenDetail?.({
+                    title: `Export-ready day: ${item.date}`,
+                    category: "Solar Export Window",
+                    summary: `${item.surplus_kwh} kWh of potential solar surplus was detected for this day.`,
+                    points: [
+                      "This indicates solar generation may exceed campus demand for part of the day.",
+                      "Use this for export planning, battery planning, or load-shifting decisions.",
+                    ],
+                  })
+                }
+              >
                 <strong>{item.date}</strong>
                 <span>{item.surplus_kwh} kWh surplus</span>
-              </div>
+              </button>
             ))
           ) : (
             <p>{dashboardCopy.alerts.noExportDays}</p>
@@ -107,6 +137,12 @@ const styles = {
     borderRadius: "12px",
     padding: "14px",
     marginBottom: "10px",
+    width: "100%",
+    textAlign: "left",
+    borderTop: "none",
+    borderRight: "none",
+    borderBottom: "none",
+    cursor: "pointer",
   },
   cardText: {
     marginBottom: 0,
@@ -130,6 +166,10 @@ const styles = {
     borderRadius: "12px",
     padding: "14px",
     marginBottom: "10px",
+    width: "100%",
+    border: "none",
+    cursor: "pointer",
+    textAlign: "left",
   },
 };
 

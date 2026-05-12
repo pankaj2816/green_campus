@@ -18,6 +18,9 @@ import ExecutiveReportView from "../components/ExecutiveReportView";
 import CampusPulseBar from "../components/CampusPulseBar";
 import ComparisonSection from "../components/ComparisonSection";
 import OccupancySettingsPanel from "../components/OccupancySettingsPanel";
+import StrategicGoalsPanel from "../components/StrategicGoalsPanel";
+import ActionTrackerPanel from "../components/ActionTrackerPanel";
+import InsightDetailDrawer from "../components/InsightDetailDrawer";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
@@ -52,6 +55,7 @@ function Dashboard() {
   const [screenshotMode, setScreenshotMode] = useState(false);
   const [pendingPrint, setPendingPrint] = useState(false);
   const [printMode, setPrintMode] = useState(false);
+  const [selectedDetail, setSelectedDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [settingsData, setSettingsData] = useState(null);
 
@@ -217,63 +221,98 @@ function Dashboard() {
             ) : null}
 
             {activeView === "overview" ? (
-            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-              <SectionIntro {...dashboardCopy.layout.primarySection} />
-              <CampusPulseBar
-                data={data}
-                riskData={riskData}
-                forecastData={forecastData}
-                seasonalOutlook={seasonalOutlook}
-                insightsData={insightsData}
-              />
-              <ComparisonSection comparisonData={comparisonData} />
-              <SeasonalOutlookPanel outlook={seasonalOutlook} />
-              <KPISection data={data} />
-            </section>
+              <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+                <SectionIntro {...dashboardCopy.layout.primarySection} />
+                <div style={styles.workspaceShell}>
+                  <div style={styles.workspaceMain}>
+                    <CampusPulseBar
+                      data={data}
+                      riskData={riskData}
+                      forecastData={forecastData}
+                      seasonalOutlook={seasonalOutlook}
+                      insightsData={insightsData}
+                    />
+                    <ComparisonSection comparisonData={comparisonData} onOpenDetail={setSelectedDetail} />
+                    <KPISection data={data} onOpenDetail={setSelectedDetail} />
+                    <SeasonalOutlookPanel outlook={seasonalOutlook} />
+                  </div>
+                  <div style={styles.workspaceRail}>
+                    <StrategicGoalsPanel
+                      summaryData={data}
+                      settings={settingsData}
+                      onSaved={refreshSettings}
+                      onOpenDetail={setSelectedDetail}
+                    />
+                    <ActionTrackerPanel
+                      recommendations={insightsData?.recommendations}
+                      settings={settingsData}
+                      onSaved={refreshSettings}
+                      onOpenDetail={setSelectedDetail}
+                    />
+                  </div>
+                </div>
+              </section>
             ) : null}
 
             {activeView === "intelligence" ? (
-            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-              <SectionIntro {...dashboardCopy.layout.performanceSection} />
-              <AlertCenter alertsData={alertsData} />
+              <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+                <SectionIntro {...dashboardCopy.layout.performanceSection} />
+                <div style={styles.workspaceShell}>
+                  <div style={styles.workspaceMain}>
+                    <div style={styles.twoCol}>
+                      <CarbonFootprintDial data={data} />
+                      <SolarSection data={data} />
+                    </div>
 
-              <div style={styles.twoCol}>
-                <CarbonFootprintDial data={data} />
-                <SolarSection data={data} />
-              </div>
-
-              <ResourceCharts
-                data={data}
-                trendData={trendData}
-                buildingData={buildingData}
-              />
-            </section>
+                    <ResourceCharts
+                      data={data}
+                      trendData={trendData}
+                      buildingData={buildingData}
+                    />
+                  </div>
+                  <div style={styles.workspaceRail}>
+                    <AlertCenter alertsData={alertsData} onOpenDetail={setSelectedDetail} />
+                  </div>
+                </div>
+              </section>
             ) : null}
 
             {activeView === "planning" ? (
-            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-              <SectionIntro {...dashboardCopy.layout.planningSection} />
-              <AIInsightsSection insightsData={insightsData} />
-              <AIRiskSection riskData={riskData} />
-              <SustainabilitySimulator
-                selectedBuilding={selectedBuilding}
-                dateFrom={dateFrom}
-                dateTo={dateTo}
-              />
-              <AIForecastSection
-                forecastData={forecastData}
-                granularity={forecastGranularity}
-              />
-            </section>
+              <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+                <SectionIntro {...dashboardCopy.layout.planningSection} />
+                <div style={styles.workspaceShell}>
+                  <div style={styles.workspaceMain}>
+                    <AIForecastSection
+                      forecastData={forecastData}
+                      granularity={forecastGranularity}
+                    />
+                    <SustainabilitySimulator
+                      selectedBuilding={selectedBuilding}
+                      dateFrom={dateFrom}
+                      dateTo={dateTo}
+                    />
+                  </div>
+                  <div style={styles.workspaceRail}>
+                    <AIRiskSection riskData={riskData} />
+                    <AIInsightsSection insightsData={insightsData} onOpenDetail={setSelectedDetail} />
+                  </div>
+                </div>
+              </section>
             ) : null}
 
             {activeView === "governance" ? (
-            <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-              <SectionIntro {...dashboardCopy.layout.governanceSection} />
-              <RankingSection performanceData={performanceData} />
-              <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
-              <AssumptionsPanel assumptions={assumptions} />
-            </section>
+              <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
+                <SectionIntro {...dashboardCopy.layout.governanceSection} />
+                <div style={styles.workspaceShell}>
+                  <div style={styles.workspaceMain}>
+                    <RankingSection performanceData={performanceData} />
+                    <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
+                  </div>
+                  <div style={styles.workspaceRail}>
+                    <AssumptionsPanel assumptions={assumptions} />
+                  </div>
+                </div>
+              </section>
             ) : null}
 
             {activeView === "report" ? (
@@ -291,6 +330,7 @@ function Dashboard() {
           </div>
         </div>
       </div>
+      <InsightDetailDrawer detail={selectedDetail} onClose={() => setSelectedDetail(null)} />
     </div>
   );
 }
@@ -376,6 +416,23 @@ const styles = {
   },
   sectionBlock: {
     marginBottom: "34px",
+  },
+  workspaceShell: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.45fr) minmax(320px, 0.95fr)",
+    gap: "20px",
+    alignItems: "start",
+  },
+  workspaceMain: {
+    minWidth: 0,
+    display: "grid",
+    gap: "18px",
+  },
+  workspaceRail: {
+    minWidth: 0,
+    display: "grid",
+    gap: "18px",
+    alignSelf: "start",
   },
   sectionIntro: {
     marginBottom: "16px",

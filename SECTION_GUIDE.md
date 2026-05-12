@@ -32,6 +32,11 @@ It is used to understand:
 
 This view is best for giving a quick introduction to the current situation.
 
+It now has a clearer layout:
+
+- a main workspace for pulse, comparison, KPI cards, and seasonal reading
+- a support rail for goals and action tracking
+
 Simple example:
 
 - if you want to quickly show the current campus condition to someone, open this mode first
@@ -59,6 +64,11 @@ Simple example:
 
 - if someone asks why electricity cost is high or whether solar is helping, this is the best mode to open
 
+This view now feels more focused because:
+
+- the main workspace shows carbon, solar, and trend analysis
+- the support rail highlights alerts and attention points
+
 ### Planning Studio
 
 This is the AI-focused view.
@@ -76,6 +86,11 @@ Simple example:
 
 - if you want to show how June demand may reduce because students are away, use this mode
 
+This view now separates:
+
+- main planning tools like forecast and simulation
+- support intelligence like AI risk and recommendation panels
+
 ### Governance
 
 This view is for explanation and decision support.
@@ -91,6 +106,12 @@ This is useful for teachers, management, sustainability teams, or reviewers who 
 Simple example:
 
 - if someone asks how the score is being calculated or which building is best, this is the right mode
+
+This view now separates:
+
+- editable operational settings
+- ranking and explanation panels
+- assumption and terminology help
 
 ### Executive Report
 
@@ -140,6 +161,63 @@ It tells the user:
 - one simple explanation line about the present campus state
 
 This is useful because someone can understand the main situation in a few seconds.
+
+### Strategic Goal Tracking
+
+This is the goal board shown in the overview side rail.
+
+It lets you set clear targets like:
+
+- Green Index target
+- solar offset target
+- water per student target
+- monthly energy cost target
+
+Why it is useful:
+
+- it helps define what success should look like
+- it shows whether the current scope is on track or needs attention
+- it turns the dashboard into a planning tool, not only a monitoring screen
+
+Simple example:
+
+- if the Green Index target is `88` and the current value is `82`, the goal card shows that more improvement is still needed
+
+### Action Board
+
+This is the recommendation workflow panel.
+
+It lets a team mark each AI recommendation as:
+
+- suggested
+- planned
+- in progress
+- completed
+
+Why it is useful:
+
+- it helps teams follow up on actions
+- it connects dashboard insight to real operational work
+
+Simple example:
+
+- if the system suggests “Shift Non-Critical Loads”, the team can mark it as `planned` and later update it to `completed`
+
+### Detail Drawer
+
+Many cards can now be clicked.
+
+When clicked, a detail drawer opens from the side and explains:
+
+- what the item means
+- why it matters
+- how to read the value
+- short points that are easy to explain to others
+
+Why it is useful:
+
+- the dashboard stays clean
+- deeper explanation is available only when needed
 
 ## 4. Data Controls
 

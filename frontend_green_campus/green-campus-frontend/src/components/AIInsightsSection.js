@@ -3,15 +3,20 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
 
-function Column({ title, items, renderItem, emptyText }) {
+function Column({ title, items, renderItem, emptyText, onOpenDetail }) {
   return (
     <div style={styles.column}>
       <h4 style={styles.columnTitle}>{title}</h4>
       {items && items.length > 0 ? (
         items.map((item, index) => (
-          <div key={`${title}-${index}`} style={styles.itemCard}>
+          <button
+            type="button"
+            key={`${title}-${index}`}
+            style={styles.itemCard}
+            onClick={() => onOpenDetail?.(item)}
+          >
             {renderItem(item)}
-          </div>
+          </button>
         ))
       ) : (
         <p style={styles.emptyText}>{emptyText}</p>
@@ -20,7 +25,7 @@ function Column({ title, items, renderItem, emptyText }) {
   );
 }
 
-function AIInsightsSection({ insightsData }) {
+function AIInsightsSection({ insightsData, onOpenDetail }) {
   if (!insightsData) {
     return null;
   }
@@ -44,6 +49,18 @@ function AIInsightsSection({ insightsData }) {
           title={dashboardCopy.insights.anomaliesTitle}
           items={insightsData.anomalies}
           emptyText={dashboardCopy.insights.anomaliesEmpty}
+          onOpenDetail={(item) =>
+            onOpenDetail?.({
+              title: `${item.resource} anomaly`,
+              category: "AI anomaly",
+              summary: item.message,
+              points: [
+                `Severity: ${item.severity}`,
+                `Deviation: ${item.deviation_percent}%`,
+                `Impact score: ${item.impact_score}`,
+              ],
+            })
+          }
           renderItem={(item) => (
             <>
               <strong style={styles.label}>{item.resource}</strong>
@@ -56,6 +73,18 @@ function AIInsightsSection({ insightsData }) {
           title={dashboardCopy.insights.opportunitiesTitle}
           items={insightsData.opportunities}
           emptyText={dashboardCopy.insights.opportunitiesEmpty}
+          onOpenDetail={(item) =>
+            onOpenDetail?.({
+              title: item.title,
+              category: "Opportunity",
+              summary: item.message,
+              points: [
+                `Metric: ${item.metric} ${item.unit}`,
+                `Impact score: ${item.impact_score}`,
+                "Use this opportunity to decide where the next improvement effort should focus.",
+              ],
+            })
+          }
           renderItem={(item) => (
             <>
               <strong style={styles.label}>{item.title}</strong>
@@ -71,6 +100,19 @@ function AIInsightsSection({ insightsData }) {
           title={dashboardCopy.insights.recommendationsTitle}
           items={insightsData.recommendations}
           emptyText={dashboardCopy.insights.recommendationsEmpty}
+          onOpenDetail={(item) =>
+            onOpenDetail?.({
+              title: item.title,
+              category: "Recommendation",
+              summary: item.message,
+              points: [
+                `Priority: ${item.priority}`,
+                `Estimated savings: ${item.estimated_savings_kwh} kWh`,
+                `Estimated cost effect: Rs ${item.estimated_savings_rs}`,
+                `Estimated carbon effect: ${item.estimated_savings_carbon} kg CO2`,
+              ],
+            })
+          }
           renderItem={(item) => (
             <>
               <strong style={styles.label}>
@@ -136,6 +178,10 @@ const styles = {
     padding: "14px",
     marginBottom: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
+    border: "none",
+    width: "100%",
+    textAlign: "left",
+    cursor: "pointer",
   },
   label: {
     color: theme.colors.primaryText,

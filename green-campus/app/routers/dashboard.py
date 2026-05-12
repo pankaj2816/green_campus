@@ -74,6 +74,7 @@ def _summary_payload(
 
     monthly_energy_cost = (net_energy / months_covered) * 8.0
     energy_budget_variance = monthly_energy_cost - context["monthly_energy_budget_rs"]
+    solar_offset_percent = round((total_solar / total_energy) * 100, 2) if total_energy else 0
 
     return {
         "scope": building or "Campus",
@@ -99,7 +100,76 @@ def _summary_payload(
         "monthly_energy_budget_rs": round(context["monthly_energy_budget_rs"], 2),
         "energy_budget_variance_rs": round(energy_budget_variance, 2),
         "occupancy_average": round(occupancy_average, 2),
+        "solar_offset_percent": solar_offset_percent,
     }
+
+
+def _goal_progress_payload(summary_payload: dict, settings: dict):
+    goals = settings.get("sustainability_goals", {})
+    goal_definitions = [
+        {
+            "key": "green_index_target",
+            "label": "Green Index",
+            "current": float(summary_payload.get("green_index", 0) or 0),
+            "target": float(goals.get("green_index_target", 0) or 0),
+            "unit": "%",
+            "higher_is_better": True,
+        },
+        {
+            "key": "solar_offset_target_percent",
+            "label": "Solar Offset",
+            "current": float(summary_payload.get("solar_offset_percent", 0) or 0),
+            "target": float(goals.get("solar_offset_target_percent", 0) or 0),
+            "unit": "%",
+            "higher_is_better": True,
+        },
+        {
+            "key": "water_per_student_target_kl",
+            "label": "Water Per Student",
+            "current": float(summary_payload.get("water_per_student_kl", 0) or 0),
+            "target": float(goals.get("water_per_student_target_kl", 0) or 0),
+            "unit": "kl",
+            "higher_is_better": False,
+        },
+        {
+            "key": "monthly_energy_cost_target_rs",
+            "label": "Monthly Energy Cost",
+            "current": float(summary_payload.get("monthly_energy_cost_rs", 0) or 0),
+            "target": float(goals.get("monthly_energy_cost_target_rs", 0) or 0),
+            "unit": "Rs",
+            "higher_is_better": False,
+        },
+    ]
+
+    goal_progress = []
+    for goal in goal_definitions:
+        target = goal["target"]
+        current = goal["current"]
+        higher_is_better = goal["higher_is_better"]
+        if target <= 0:
+            completion = 0
+            status = "not_set"
+        elif higher_is_better:
+            completion = min((current / target) * 100, 100)
+            status = "on_track" if current >= target else "watch"
+        else:
+            completion = 100 if current <= 0 else min((target / current) * 100, 100)
+            status = "on_track" if current <= target else "watch"
+
+        variance = round(current - target, 2)
+        goal_progress.append({
+            "key": goal["key"],
+            "label": goal["label"],
+            "current": round(current, 2),
+            "target": round(target, 2),
+            "unit": goal["unit"],
+            "completion_percent": round(completion, 1),
+            "variance": variance,
+            "higher_is_better": higher_is_better,
+            "status": status,
+        })
+
+    return goal_progress
 
 
 def calculate_building_performance(
@@ -253,7 +323,12 @@ def get_summary(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
-    return _summary_payload(db, building=building, date_from=date_from, date_to=date_to)
+    summary = _summary_payload(db, building=building, date_from=date_from, date_to=date_to)
+    settings = get_dashboard_settings(db)
+    summary["goal_progress"] = _goal_progress_payload(summary, settings)
+    summary["sustainability_goals"] = settings.get("sustainability_goals", {})
+    summary["action_tracker"] = settings.get("action_tracker", {})
+    return summary
 
 
 @router.get("/comparison")
