@@ -1,5 +1,6 @@
 import React from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 
 const { theme } = dashboardCopy;
 
@@ -34,7 +35,14 @@ function AIInsightsSection({ insightsData, onOpenDetail }) {
     <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-1">
       <div style={styles.header}>
         <div>
-          <h3 style={{ margin: 0 }}>{dashboardCopy.insights.title}</h3>
+          <h3 style={{ margin: 0 }}>
+            {dashboardCopy.insights.title}
+            <InfoHint
+              title="What AI Insights means"
+              text="This section turns raw numbers into plain-language anomaly notes, opportunities, and recommended actions so the dashboard is easier to explain."
+              width={310}
+            />
+          </h3>
           {insightsData.peer_context ? (
             <p style={styles.peerText}>
               Peer comparison: {insightsData.peer_context.building} is {insightsData.peer_context.delta_percent}% vs peer average net energy.

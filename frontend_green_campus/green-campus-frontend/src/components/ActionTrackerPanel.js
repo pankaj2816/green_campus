@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 import { saveDashboardSettings } from "../services/api";
 
 const statuses = [
@@ -60,7 +61,14 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
       <div style={styles.header}>
         <div>
           <span style={styles.kicker}>{dashboardCopy.actions.kicker}</span>
-          <h3 style={styles.title}>{dashboardCopy.actions.title}</h3>
+          <h3 style={styles.title}>
+            {dashboardCopy.actions.title}
+            <InfoHint
+              title="What Action Board means"
+              text="This section helps the team move from recommendation to execution. Use it to mark whether an action is only suggested, already planned, in progress, or completed."
+              width={320}
+            />
+          </h3>
           <p style={styles.subtitle}>{dashboardCopy.actions.subtitle}</p>
         </div>
       </div>

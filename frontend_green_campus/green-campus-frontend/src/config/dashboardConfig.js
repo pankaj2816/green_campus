@@ -7,6 +7,10 @@ export const dashboardCopy = {
     logoText: "Green Campus",
     logoSubtext: "College demo edition",
   },
+  resources: {
+    simpleGuidePdf: "/docs/green-campus-simple-guide.pdf",
+    simpleGuideLabel: "Simple Guide PDF",
+  },
   theme: {
     colors: {
       primaryText: "#17342d",
@@ -114,30 +118,40 @@ export const dashboardCopy = {
       title: "Operational picture and live controls",
       subtitle:
         "Start with the live campus state, then import, reset, or export the current workbook.",
+      helpText:
+        "Overview is the best place to understand the current campus situation quickly. It combines status, comparison, key metrics, and seasonal planning in one guided view.",
     },
     performanceSection: {
       kicker: "Performance intelligence",
       title: "Carbon, solar, alerts, and resource flow",
       subtitle:
         "Understand where emissions are coming from, how solar is helping, and where the next risks are forming.",
+      helpText:
+        "Intelligence focuses on deeper performance reading. Use it when you want to explain where resources are being used, what alerts are active, and how carbon and solar are behaving.",
     },
     planningSection: {
       kicker: "AI planning studio",
       title: "Forecasts, insights, and scenario testing",
       subtitle:
         "Use predictive views and simulation tools to shape campus operations before the next spike arrives.",
+      helpText:
+        "Planning Studio is for future-oriented decisions. It helps you understand forecasts, risk, recommendations, and what may happen if you change energy, water, waste, or solar behavior.",
     },
     governanceSection: {
       kicker: "Governance and reference",
       title: "Rankings, assumptions, and working logic",
       subtitle:
         "Review building-level standing and the settings that control the dashboard calculations.",
+      helpText:
+        "Governance explains how the system is working. It is the right place to edit assumptions, review formulas, and understand why the dashboard is giving a certain result.",
     },
     reportSection: {
       kicker: "Executive report",
       title: "Printable management-ready sustainability summary",
       subtitle:
         "Use this view for screenshots, meetings, and a cleaner one-page explanation of campus status.",
+      helpText:
+        "Executive Report is the presentation-friendly view. Use it for meetings, screenshots, print, and simple management discussion instead of raw dashboard exploration.",
     },
   },
   assumptions: {

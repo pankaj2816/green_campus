@@ -1,6 +1,7 @@
 import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 
 function formatNumber(value, suffix = "") {
   if (value === undefined || value === null) {
@@ -54,7 +55,14 @@ function ExecutiveReportView({
       <div style={styles.header}>
         <div>
           <span style={styles.kicker}>{dashboardCopy.layout.reportSection.kicker}</span>
-          <h2 style={styles.title}>{dashboardCopy.layout.reportSection.title}</h2>
+          <h2 style={styles.title}>
+            {dashboardCopy.layout.reportSection.title}
+            <InfoHint
+              title="What Executive Report means"
+              text="This view is the clean management summary. Use it for meetings, screenshots, and print instead of exploring the full operational dashboard."
+              width={300}
+            />
+          </h2>
           <p style={styles.subtitle}>{dashboardCopy.presentation.reportSubtitle}</p>
         </div>
         <div style={styles.scopeCard}>

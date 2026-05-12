@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 import { saveDashboardSettings } from "../services/api";
 
 const { theme } = dashboardCopy;
@@ -94,7 +95,14 @@ export default function AssumptionsPanel({ assumptions, settings, onSaved }) {
 
       <div style={styles.grid}>
         <div style={styles.panel}>
-          <h4>{dashboardCopy.assumptions.settingsTitle}</h4>
+          <h4>
+            {dashboardCopy.assumptions.settingsTitle}
+            <InfoHint
+              title="What current settings means"
+              text="These are the live values the dashboard uses while calculating carbon, estimated cost, benchmarks, alert sensitivity, and some score logic."
+              width={320}
+            />
+          </h4>
           <p style={styles.panelHint}>
             You can now change the most important live calculation parameters here. These values affect dashboard outputs like carbon, estimated cost, Green Index, and anomaly sensitivity.
           </p>
@@ -184,7 +192,14 @@ export default function AssumptionsPanel({ assumptions, settings, onSaved }) {
         </div>
 
         <div style={styles.panel}>
-          <h4>{dashboardCopy.assumptions.formulasTitle}</h4>
+          <h4>
+            {dashboardCopy.assumptions.formulasTitle}
+            <InfoHint
+              title="Why formulas are shown"
+              text="This section explains the simple formulas behind major dashboard values so a user can understand the logic without opening backend code."
+              width={320}
+            />
+          </h4>
           <div style={styles.list}>
             {formulas.map((item) => (
               <div key={item.term} style={styles.formulaCard}>

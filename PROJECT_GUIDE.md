@@ -86,6 +86,8 @@ The dashboard now works like a professional operations console. It includes:
 - strategic goal tracking board
 - action tracker for AI recommendations
 - click-to-open detail drawer for deeper explanations
+- built-in simple guide PDF access from the sidebar
+- hover/click help badges for complex headings
 - KPI cards
 - seasonal intelligence panel
 - advanced carbon section

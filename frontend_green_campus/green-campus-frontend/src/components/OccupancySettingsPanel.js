@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 import { saveDashboardSettings } from "../services/api";
 
 const monthLabels = [
@@ -54,7 +55,14 @@ export default function OccupancySettingsPanel({ settings, onSaved }) {
 
   return (
     <div style={styles.card} className="premium-card lift-card stagger-in">
-      <h3 style={styles.title}>{dashboardCopy.occupancy.title}</h3>
+      <h3 style={styles.title}>
+        {dashboardCopy.occupancy.title}
+        <InfoHint
+          title="What Occupancy and Campus Context means"
+          text="These settings tell the dashboard how active the campus is expected to be in each month and what planning context should be used for forecasts and per-student style metrics."
+          width={330}
+        />
+      </h3>
       <p style={styles.subtitle}>{dashboardCopy.occupancy.subtitle}</p>
 
       <div style={styles.helperBox}>

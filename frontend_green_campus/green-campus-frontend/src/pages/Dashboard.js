@@ -21,14 +21,18 @@ import OccupancySettingsPanel from "../components/OccupancySettingsPanel";
 import StrategicGoalsPanel from "../components/StrategicGoalsPanel";
 import ActionTrackerPanel from "../components/ActionTrackerPanel";
 import InsightDetailDrawer from "../components/InsightDetailDrawer";
+import InfoHint from "../components/InfoHint";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
-function SectionIntro({ kicker, title, subtitle }) {
+function SectionIntro({ kicker, title, subtitle, helpText }) {
   return (
     <div style={styles.sectionIntro}>
       <span style={styles.sectionKicker}>{kicker}</span>
-      <h2 style={styles.sectionTitle}>{title}</h2>
+      <h2 style={styles.sectionTitle}>
+        {title}
+        {helpText ? <InfoHint title={title} text={helpText} width={320} /> : null}
+      </h2>
       <p style={styles.sectionSubtitle}>{subtitle}</p>
     </div>
   );

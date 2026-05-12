@@ -1,6 +1,7 @@
 import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 
 const { theme, branding } = dashboardCopy;
 const navIcons = {
@@ -70,6 +71,28 @@ function DashboardSidebar({
       <div style={styles.contextCard}>
         <span style={styles.contextLabel}>Forecast Mode</span>
         <strong style={styles.contextValue}>{currentForecast}</strong>
+      </div>
+
+      <div style={styles.guideCard}>
+        <div style={styles.guideTop}>
+          <strong style={styles.guideTitle}>{dashboardCopy.resources.simpleGuideLabel}</strong>
+          <InfoHint
+            title="Why this PDF is useful"
+            text="Open this guide when you want a simple explanation of important terms, formulas, and dashboard sections without reading the code."
+            width={260}
+          />
+        </div>
+        <span style={styles.guideText}>
+          Open a simple term-and-formula guide directly from the dashboard.
+        </span>
+        <a
+          href={dashboardCopy.resources.simpleGuidePdf}
+          target="_blank"
+          rel="noreferrer"
+          style={styles.guideLink}
+        >
+          Open PDF
+        </a>
       </div>
     </aside>
   );
@@ -194,6 +217,41 @@ const styles = {
     marginTop: "8px",
     color: "#ffffff",
     fontSize: theme.fontSizes.heroSubtitle,
+  },
+  guideCard: {
+    marginTop: "16px",
+    padding: "16px",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, rgba(37,99,235,0.18), rgba(46,162,111,0.14))",
+    border: "1px solid rgba(147, 197, 185, 0.18)",
+    color: "#ffffff",
+    display: "grid",
+    gap: "8px",
+  },
+  guideTop: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "10px",
+  },
+  guideTitle: {
+    color: "#ffffff",
+  },
+  guideText: {
+    color: "rgba(237, 250, 244, 0.82)",
+    fontSize: "13px",
+    lineHeight: 1.55,
+  },
+  guideLink: {
+    display: "inline-flex",
+    alignSelf: "start",
+    padding: "10px 14px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.14)",
+    border: "1px solid rgba(255,255,255,0.18)",
+    color: "#ffffff",
+    textDecoration: "none",
+    fontWeight: "700",
   },
 };
 

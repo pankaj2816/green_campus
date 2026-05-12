@@ -1,5 +1,6 @@
 import React from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
+import InfoHint from "./InfoHint";
 
 function AIRiskSection({ riskData }) {
   if (!riskData || riskData.length === 0) {
@@ -10,7 +11,14 @@ function AIRiskSection({ riskData }) {
 
   return (
     <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-2">
-      <h3 style={{ marginTop: 0 }}>{dashboardCopy.risk.title}</h3>
+      <h3 style={{ marginTop: 0 }}>
+        {dashboardCopy.risk.title}
+        <InfoHint
+          title="What AI Risk Engine means"
+          text="This section estimates whether future campus demand looks low, medium, or high risk based on forecast growth, variability, uncertainty, and occupancy effect."
+          width={320}
+        />
+      </h3>
       <p style={styles.subtext}>{risk.message}</p>
 
       <div style={styles.grid}>

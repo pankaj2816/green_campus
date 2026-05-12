@@ -19,6 +19,13 @@ The goal is to help a campus understand current performance and make better deci
 
 The dashboard is now divided into focused views so the user does not have to scan one very long page.
 
+The UI now also includes:
+
+- a built-in PDF guide in the sidebar
+- small help badges beside important headings
+
+These are meant to help non-technical users understand the page without searching elsewhere.
+
 ### Overview
 
 This is the first operational view.

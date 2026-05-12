@@ -1,6 +1,7 @@
 import React from "react";
 
 import EnergyTrend from "./EnergyTrend";
+import InfoHint from "./InfoHint";
 import ResourceMixChart from "./ResourceMixChart";
 import ResourceOverview from "./ResourceOverview";
 
@@ -10,7 +11,14 @@ function ResourceCharts({ data, trendData }) {
       <div style={styles.header}>
         <div>
           <span style={styles.kicker}>Visual Storyboard</span>
-          <h3 style={styles.title}>Resource flow and trend interpretation</h3>
+          <h3 style={styles.title}>
+            Resource flow and trend interpretation
+            <InfoHint
+              title="What this section shows"
+              text="This section helps you explain what resource is dominating the current picture and how energy, solar, and net grid dependence are changing over time."
+              width={300}
+            />
+          </h3>
         </div>
         <p style={styles.text}>
           Use these views to explain which resource is dominating the current picture and how grid dependence shifts over time.
