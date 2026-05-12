@@ -145,6 +145,7 @@ export const dashboardCopy = {
     subtitle:
       "This section explains the numbers in plain language and shows the settings that drive the dashboard.",
     settingsTitle: "Current Settings",
+    formulasTitle: "How The Dashboard Calculates Values",
     glossaryTitle: "What These Terms Mean",
   },
   assumptionsLabels: {
@@ -356,7 +357,7 @@ export const dashboardCopy = {
   actions: {
     kicker: "Action Board",
     title: "Recommendation Workflow",
-    subtitle: "Turn AI recommendations into tracked actions so the dashboard supports follow-through, not just observation.",
+    subtitle: "Turn AI recommendations into tracked actions so the dashboard supports follow-through, not just observation. This helps teams see what should happen next and what outcomes to expect.",
     empty: "No recommendations are available for the current scope yet.",
   },
   forecast: {

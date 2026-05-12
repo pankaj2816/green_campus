@@ -95,6 +95,7 @@ The dashboard now works like a professional operations console. It includes:
 - alert center and export-ready days
 - scenario simulator
 - occupancy and campus-context settings editor
+- editable runtime parameter editor in Governance
 - ranking table
 - assumptions and terminology panel
 - executive report view for screenshot and print use
@@ -302,8 +303,9 @@ https://your-backend-name.onrender.com
 7. Set sustainability goals in Overview and track progress against them
 8. Update action status for AI recommendations so the dashboard also reflects execution
 9. Edit occupancy settings in Governance if you want the planning values to match your campus
-10. Export Excel when you want the current live dataset as a workbook
-11. Reset data when you want a fresh import
+10. Edit runtime parameters like carbon factor, energy cost, benchmarks, thresholds, and Green Index weights directly in Governance
+11. Export Excel when you want the current live dataset as a workbook
+12. Reset data when you want a fresh import
 
 ## Sample Excel File
 
@@ -510,6 +512,46 @@ An occupancy-aware planning layer. Example:
 
 A what-if tool that shows how percentage changes in energy, water, waste, and solar affect carbon, cost, and green index.
 
+### Editable Runtime Parameters
+
+The Governance view now includes a live parameter editor.
+
+You can change values like:
+
+- carbon per electricity unit
+- electricity cost per unit
+- energy benchmark
+- water benchmark
+- waste benchmark
+- anomaly thresholds
+- Green Index weights
+
+These changes now affect live dashboard calculations, so you do not need to edit code just to test a different energy-cost or carbon-factor assumption.
+
+### Occupancy Meanings
+
+The occupancy panel now explains what the monthly values mean:
+
+- `1.0` = normal or full campus activity
+- `0.9` = slightly reduced activity
+- `0.5` = partial activity or vacation period
+- `0.2` = very low campus activity
+
+These are activity multipliers, not exact percentages.
+
+### Formula Explanations
+
+The Governance panel now also explains how the dashboard calculates:
+
+- net energy
+- export to grid
+- carbon footprint
+- gross carbon
+- Green Index
+- monthly energy cost
+
+This makes the dashboard easier to explain without opening the backend code.
+
 ## Where Calculations Live
 
 The first file to edit for formula updates is:
@@ -667,6 +709,8 @@ Adjust:
 - scenario simulator
 - comparison analytics across date windows
 - editable occupancy and campus context settings
+- editable runtime metric parameters
+- formula explanation cards in Governance
 - workbook validation before import
 - optional solar/waste sheet support during import
 

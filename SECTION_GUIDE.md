@@ -194,6 +194,13 @@ It lets a team mark each AI recommendation as:
 - in progress
 - completed
 
+What each status means:
+
+- `Suggested` means the dashboard is proposing the action but nobody has started it yet
+- `Planned` means the team has accepted the idea and should assign owner/time next
+- `In Progress` means implementation is underway and later comparisons should start reflecting it
+- `Completed` means the work is finished and future KPI/comparison views should be checked for proof of impact
+
 Why it is useful:
 
 - it helps teams follow up on actions
@@ -645,6 +652,29 @@ This section is very helpful when someone asks:
 
 - how are you calculating these numbers?
 - why is this score high or low?
+
+The Governance view now also lets you directly edit the most important live parameters.
+
+Examples:
+
+- carbon factor
+- electricity cost per unit
+- energy, water, and waste benchmarks
+- anomaly thresholds
+- Green Index weights
+
+So a user does not have to change backend code just to test a different assumption.
+
+The same section now also explains monthly occupancy values in simple language.
+
+Simple examples:
+
+- `1.0` means normal/full activity
+- `0.9` means slightly reduced activity
+- `0.5` means partial activity or vacation period
+- `0.2` means very low activity
+
+These values are activity multipliers, not exact percentages.
 
 It also now connects to editable settings for:
 

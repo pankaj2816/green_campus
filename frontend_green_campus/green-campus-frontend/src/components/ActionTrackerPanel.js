@@ -65,6 +65,25 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
         </div>
       </div>
 
+      <div style={styles.legendBox}>
+        <div style={styles.legendItem}>
+          <strong>Suggested</strong>
+          <span>The system is recommending this action but nothing has started yet.</span>
+        </div>
+        <div style={styles.legendItem}>
+          <strong>Planned</strong>
+          <span>The team has decided to do it and should assign ownership or timeline next.</span>
+        </div>
+        <div style={styles.legendItem}>
+          <strong>In Progress</strong>
+          <span>The action is being implemented, so future charts and comparisons may start improving.</span>
+        </div>
+        <div style={styles.legendItem}>
+          <strong>Completed</strong>
+          <span>The action is finished. Later period comparisons should be checked to confirm the expected benefit.</span>
+        </div>
+      </div>
+
       <div style={styles.list}>
         {items.length > 0 ? (
           items.map((item) => {
@@ -97,6 +116,15 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
                   <p style={styles.rowText}>{item.message}</p>
                   <div style={styles.impactText}>
                     Impact {item.impact_score} | {item.estimated_savings_kwh} kWh | Rs {item.estimated_savings_rs}
+                  </div>
+                  <div style={styles.expectationText}>
+                    {item.currentStatus === "completed"
+                      ? "Expected outcome: this change should begin reducing future energy, cost, or carbon in later comparisons."
+                      : item.currentStatus === "in_progress"
+                        ? "Expected outcome: implementation is underway, so watch the next comparison window and alerts."
+                        : item.currentStatus === "planned"
+                          ? "Expected outcome: assign responsibility and timeline so the idea becomes an operational change."
+                          : "Expected outcome: review this suggestion and decide whether it should become a planned action."}
                   </div>
                 </button>
 
@@ -164,6 +192,23 @@ const styles = {
     display: "grid",
     gap: "12px",
   },
+  legendBox: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "10px",
+    marginBottom: "14px",
+  },
+  legendItem: {
+    background: "#f7fbf9",
+    border: "1px solid #deebe6",
+    borderRadius: "16px",
+    padding: "12px 14px",
+    display: "grid",
+    gap: "4px",
+    color: "#60756f",
+    fontSize: "13px",
+    lineHeight: 1.5,
+  },
   row: {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1fr) 160px",
@@ -204,6 +249,12 @@ const styles = {
     color: "#1b7f62",
     fontSize: "13px",
     fontWeight: "600",
+  },
+  expectationText: {
+    marginTop: "10px",
+    color: "#35514a",
+    fontSize: "12px",
+    lineHeight: 1.5,
   },
   select: {
     padding: "12px 14px",

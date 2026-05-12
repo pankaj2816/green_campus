@@ -8,10 +8,7 @@ from app.routers.auth import get_current_user
 from app.services.carbon import calculate_carbon
 from app.services.date_filters import apply_date_range, previous_period_range
 from app.services.metrics_config import (
-    ENERGY_BENCHMARK,
-    GREEN_INDEX_WEIGHTS,
-    WASTE_BENCHMARK,
-    WATER_BENCHMARK,
+    get_runtime_constants,
 )
 from app.services.settings_service import get_dashboard_settings
 
@@ -39,6 +36,13 @@ def _summary_payload(
     settings = get_dashboard_settings(db)
     context = settings["campus_context"]
     occupancy_map = settings["academic_occupancy_factors"]
+    constants = get_runtime_constants(settings)
+    emission_factor = constants["emission_factor_kg_per_kwh"]
+    energy_benchmark = constants["energy_benchmark"]
+    water_benchmark = constants["water_benchmark"]
+    waste_benchmark = constants["waste_benchmark"]
+    green_index_weights = constants["weights"]
+    energy_cost_per_kwh = constants["energy_cost_per_kwh"]
 
     energy_rows = _resource_query(db, models.EnergyData, building, date_from, date_to).all()
     water_rows = _resource_query(db, models.WaterData, building, date_from, date_to).all()
@@ -60,19 +64,19 @@ def _summary_payload(
 
     active_population = max(round(context["student_population"] * occupancy_average), 1)
     net_energy = max(total_energy - total_solar, 0)
-    carbon = calculate_carbon(net_energy)
+    carbon = calculate_carbon(net_energy, emission_factor)
 
-    energy_score = min(net_energy / ENERGY_BENCHMARK, 1)
-    water_score = min(total_water / WATER_BENCHMARK, 1)
-    waste_score = min(total_waste / WASTE_BENCHMARK, 1)
+    energy_score = min(net_energy / energy_benchmark, 1) if energy_benchmark else 0
+    water_score = min(total_water / water_benchmark, 1) if water_benchmark else 0
+    waste_score = min(total_waste / waste_benchmark, 1) if waste_benchmark else 0
     efficiency_score = (
-        (GREEN_INDEX_WEIGHTS["energy"] * energy_score) +
-        (GREEN_INDEX_WEIGHTS["water"] * water_score) +
-        (GREEN_INDEX_WEIGHTS["waste"] * waste_score)
+        (green_index_weights["energy"] * energy_score) +
+        (green_index_weights["water"] * water_score) +
+        (green_index_weights["waste"] * waste_score)
     )
     green_index = round((1 - efficiency_score) * 100, 2)
 
-    monthly_energy_cost = (net_energy / months_covered) * 8.0
+    monthly_energy_cost = (net_energy / months_covered) * energy_cost_per_kwh
     energy_budget_variance = monthly_energy_cost - context["monthly_energy_budget_rs"]
     solar_offset_percent = round((total_solar / total_energy) * 100, 2) if total_energy else 0
 
@@ -85,8 +89,8 @@ def _summary_payload(
         "water": round(total_water, 2),
         "waste": round(total_waste, 2),
         "carbon": round(carbon, 2),
-        "gross_carbon": round(calculate_carbon(total_energy), 2),
-        "solar_avoided_carbon": round(calculate_carbon(min(total_solar, total_energy)), 2),
+        "gross_carbon": round(calculate_carbon(total_energy, emission_factor), 2),
+        "solar_avoided_carbon": round(calculate_carbon(min(total_solar, total_energy), emission_factor), 2),
         "green_index": green_index,
         "date_from": date_from,
         "date_to": date_to,
@@ -178,6 +182,11 @@ def calculate_building_performance(
     date_from: str | None = None,
     date_to: str | None = None,
 ):
+    settings = get_dashboard_settings(db)
+    constants = get_runtime_constants(settings)
+    weights = constants["weights"]
+    emission_factor = constants["emission_factor_kg_per_kwh"]
+
     energy_query = apply_date_range(
         _apply_building_filter(
             db.query(
@@ -267,9 +276,9 @@ def calculate_building_performance(
         norm_water = values["water"] / max_water
         norm_waste = values["waste"] / max_waste
         score = (
-            (GREEN_INDEX_WEIGHTS["energy"] * norm_energy) +
-            (GREEN_INDEX_WEIGHTS["water"] * norm_water) +
-            (GREEN_INDEX_WEIGHTS["waste"] * norm_waste)
+            (weights["energy"] * norm_energy) +
+            (weights["water"] * norm_water) +
+            (weights["waste"] * norm_waste)
         )
 
         results.append({
@@ -279,7 +288,7 @@ def calculate_building_performance(
             "net_energy": round(values["net_energy"], 2),
             "water": round(values["water"], 2),
             "waste": round(values["waste"], 2),
-            "carbon": round(calculate_carbon(values["net_energy"]), 2),
+            "carbon": round(calculate_carbon(values["net_energy"], emission_factor), 2),
             "efficiency_score": round(score, 3),
         })
 

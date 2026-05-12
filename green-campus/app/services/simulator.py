@@ -4,12 +4,9 @@ from app import models
 from app.services.carbon import calculate_carbon
 from app.services.date_filters import apply_date_range
 from app.services.metrics_config import (
-    ENERGY_BENCHMARK,
-    ENERGY_COST_PER_KWH,
-    GREEN_INDEX_WEIGHTS,
-    WASTE_BENCHMARK,
-    WATER_BENCHMARK,
+    get_runtime_constants,
 )
+from app.services.settings_service import get_dashboard_settings
 
 
 def _apply_filter(query, model, building: str | None):
@@ -64,19 +61,21 @@ def _totals(db: Session, building: str | None, date_from: str | None = None, dat
     }
 
 
-def _green_index(net_energy: float, water: float, waste: float):
-    energy_score = min(net_energy / ENERGY_BENCHMARK, 1)
-    water_score = min(water / WATER_BENCHMARK, 1)
-    waste_score = min(waste / WASTE_BENCHMARK, 1)
+def _green_index(net_energy: float, water: float, waste: float, constants: dict):
+    energy_score = min(net_energy / constants["energy_benchmark"], 1) if constants["energy_benchmark"] else 0
+    water_score = min(water / constants["water_benchmark"], 1) if constants["water_benchmark"] else 0
+    waste_score = min(waste / constants["waste_benchmark"], 1) if constants["waste_benchmark"] else 0
     efficiency_score = (
-        (GREEN_INDEX_WEIGHTS["energy"] * energy_score) +
-        (GREEN_INDEX_WEIGHTS["water"] * water_score) +
-        (GREEN_INDEX_WEIGHTS["waste"] * waste_score)
+        (constants["weights"]["energy"] * energy_score) +
+        (constants["weights"]["water"] * water_score) +
+        (constants["weights"]["waste"] * waste_score)
     )
     return round((1 - efficiency_score) * 100, 2)
 
 
 def simulate_sustainability_impact(db: Session, building: str | None, inputs: dict):
+    settings = get_dashboard_settings(db)
+    constants = get_runtime_constants(settings)
     baseline = _totals(db, building, inputs.get("date_from"), inputs.get("date_to"))
 
     energy_reduction_pct = float(inputs.get("energy_reduction_pct", 0) or 0)
@@ -94,10 +93,10 @@ def simulate_sustainability_impact(db: Session, building: str | None, inputs: di
     baseline_net_energy = max(baseline["energy"] - baseline["solar"], 0)
     projected_net_energy = max(projected["energy"] - projected["solar"], 0)
 
-    baseline_carbon = calculate_carbon(baseline_net_energy)
-    projected_carbon = calculate_carbon(projected_net_energy)
-    baseline_cost = baseline_net_energy * ENERGY_COST_PER_KWH
-    projected_cost = projected_net_energy * ENERGY_COST_PER_KWH
+    baseline_carbon = calculate_carbon(baseline_net_energy, constants["emission_factor_kg_per_kwh"])
+    projected_carbon = calculate_carbon(projected_net_energy, constants["emission_factor_kg_per_kwh"])
+    baseline_cost = baseline_net_energy * constants["energy_cost_per_kwh"]
+    projected_cost = projected_net_energy * constants["energy_cost_per_kwh"]
 
     return {
         "scope": building or "Campus",
@@ -112,21 +111,21 @@ def simulate_sustainability_impact(db: Session, building: str | None, inputs: di
             "net_energy": round(baseline_net_energy, 2),
             "carbon": round(baseline_carbon, 2),
             "energy_cost": round(baseline_cost, 2),
-            "green_index": _green_index(baseline_net_energy, baseline["water"], baseline["waste"]),
+            "green_index": _green_index(baseline_net_energy, baseline["water"], baseline["waste"], constants),
         },
         "projected": {
             **{key: round(value, 2) for key, value in projected.items()},
             "net_energy": round(projected_net_energy, 2),
             "carbon": round(projected_carbon, 2),
             "energy_cost": round(projected_cost, 2),
-            "green_index": _green_index(projected_net_energy, projected["water"], projected["waste"]),
+            "green_index": _green_index(projected_net_energy, projected["water"], projected["waste"], constants),
         },
         "impact": {
             "carbon_saved": round(baseline_carbon - projected_carbon, 2),
             "cost_saved": round(baseline_cost - projected_cost, 2),
             "green_index_gain": round(
-                _green_index(projected_net_energy, projected["water"], projected["waste"]) -
-                _green_index(baseline_net_energy, baseline["water"], baseline["waste"]),
+                _green_index(projected_net_energy, projected["water"], projected["waste"], constants) -
+                _green_index(baseline_net_energy, baseline["water"], baseline["waste"], constants),
                 2,
             ),
         },

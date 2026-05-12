@@ -23,6 +23,7 @@ DEFAULT_SETTINGS = {
         "monthly_energy_cost_target_rs": 1800000,
     },
     "action_tracker": {},
+    "metric_overrides": {},
 }
 
 
@@ -57,6 +58,10 @@ def get_dashboard_settings(db: Session):
             **DEFAULT_SETTINGS["action_tracker"],
             **data.get("action_tracker", {}),
         },
+        "metric_overrides": {
+            **DEFAULT_SETTINGS["metric_overrides"],
+            **data.get("metric_overrides", {}),
+        },
     }
     return merged
 
@@ -79,6 +84,10 @@ def save_dashboard_settings(db: Session, settings_payload: dict):
         "action_tracker": {
             **current["action_tracker"],
             **settings_payload.get("action_tracker", {}),
+        },
+        "metric_overrides": {
+            **current["metric_overrides"],
+            **settings_payload.get("metric_overrides", {}),
         },
     }
 

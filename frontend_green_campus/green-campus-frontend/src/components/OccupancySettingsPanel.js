@@ -57,10 +57,40 @@ export default function OccupancySettingsPanel({ settings, onSaved }) {
       <h3 style={styles.title}>{dashboardCopy.occupancy.title}</h3>
       <p style={styles.subtitle}>{dashboardCopy.occupancy.subtitle}</p>
 
+      <div style={styles.helperBox}>
+        <strong style={styles.helperTitle}>How to read these occupancy values</strong>
+        <div style={styles.helperGrid}>
+          <div style={styles.helperItem}>
+            <span style={styles.helperValue}>1.0</span>
+            <span style={styles.helperText}>Full or normal campus activity</span>
+          </div>
+          <div style={styles.helperItem}>
+            <span style={styles.helperValue}>0.9</span>
+            <span style={styles.helperText}>Slightly reduced activity</span>
+          </div>
+          <div style={styles.helperItem}>
+            <span style={styles.helperValue}>0.5</span>
+            <span style={styles.helperText}>Partial activity or vacation period</span>
+          </div>
+          <div style={styles.helperItem}>
+            <span style={styles.helperValue}>0.2</span>
+            <span style={styles.helperText}>Very low campus activity</span>
+          </div>
+        </div>
+        <p style={styles.helperNote}>
+          These values are activity multipliers, not exact percentages. Lower values tell the forecast that the campus is less active, so future energy and water demand may reduce.
+        </p>
+      </div>
+
       <div style={styles.monthGrid}>
         {monthLabels.map((month) => (
           <label key={month.key} style={styles.monthField}>
-            <span style={styles.monthLabel}>{month.label}</span>
+            <span
+              style={styles.monthLabel}
+              title={`Set the expected activity level for ${month.label}. 1 means normal, values below 1 mean reduced activity.`}
+            >
+              {month.label}
+            </span>
             <input
               type="number"
               min="0"
@@ -130,6 +160,45 @@ const styles = {
     gridTemplateColumns: "repeat(auto-fit, minmax(92px, 1fr))",
     gap: "10px",
     marginTop: "18px",
+  },
+  helperBox: {
+    marginTop: "16px",
+    padding: "16px",
+    borderRadius: "18px",
+    background: "#f7fbf9",
+    border: "1px solid #dbe8e2",
+  },
+  helperTitle: {
+    color: "#17342d",
+    display: "block",
+    marginBottom: "10px",
+  },
+  helperGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+    gap: "10px",
+  },
+  helperItem: {
+    display: "grid",
+    gap: "4px",
+    background: "#ffffff",
+    border: "1px solid #e2ece8",
+    borderRadius: "14px",
+    padding: "12px",
+  },
+  helperValue: {
+    color: "#1b7f62",
+    fontWeight: "800",
+  },
+  helperText: {
+    color: "#60756f",
+    fontSize: "13px",
+    lineHeight: 1.45,
+  },
+  helperNote: {
+    margin: "12px 0 0",
+    color: "#60756f",
+    lineHeight: 1.55,
   },
   monthField: {
     display: "grid",

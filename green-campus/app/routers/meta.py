@@ -13,8 +13,9 @@ router = APIRouter(prefix="/meta", tags=["Metadata"])
 
 @router.get("/assumptions")
 def get_assumptions(db: Session = Depends(get_db)):
-    payload = get_assumptions_payload()
-    payload["settings"] = get_dashboard_settings(db)
+    settings = get_dashboard_settings(db)
+    payload = get_assumptions_payload(settings)
+    payload["settings"] = settings
     return payload
 
 
@@ -23,6 +24,7 @@ class SettingsRequest(BaseModel):
     campus_context: dict | None = None
     sustainability_goals: dict | None = None
     action_tracker: dict | None = None
+    metric_overrides: dict | None = None
 
 
 @router.get("/settings")
@@ -46,5 +48,6 @@ def update_settings(
             "campus_context": request.campus_context or {},
             "sustainability_goals": request.sustainability_goals or {},
             "action_tracker": request.action_tracker or {},
+            "metric_overrides": request.metric_overrides or {},
         },
     )

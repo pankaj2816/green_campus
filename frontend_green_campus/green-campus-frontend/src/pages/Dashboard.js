@@ -309,7 +309,7 @@ function Dashboard() {
                     <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
                   </div>
                   <div style={styles.workspaceRail}>
-                    <AssumptionsPanel assumptions={assumptions} />
+                    <AssumptionsPanel assumptions={assumptions} settings={settingsData} onSaved={refreshSettings} />
                   </div>
                 </div>
               </section>
