@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Green Campus Real-World Implementation Guide</title>
+  <style>
+    :root {
+      --bg: #f3f7f5;
+      --surface: #ffffff;
+      --surface-soft: #f8fbfa;
+      --text: #17342d;
+      --muted: #5e736d;
+      --accent: #1b7f62;
+      --accent-blue: #2559c5;
+      --border: #d9e5e0;
+      --shadow: 0 18px 40px rgba(12, 24, 21, 0.08);
+      --warn: #c06a07;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 22%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .page {
+      width: min(1200px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero,
+    .section,
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8fcfa 0%, #eff7f3 54%, #eef2ff 100%);
+    }
+
+    .hero-kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 12px 0 8px;
+      font-size: 44px;
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .summary-grid,
+    .cost-grid,
+    .phase-grid,
+    .integration-grid,
+    .hardware-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 24px;
+    }
+
+    .summary-card,
+    .mini-card,
+    .phase-card,
+    .integration-card {
+      background: rgba(255, 255, 255, 0.86);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .summary-card strong,
+    .mini-card strong,
+    .phase-card strong,
+    .integration-card strong {
+      display: block;
+      font-size: 17px;
+      margin-bottom: 8px;
+    }
+
+    .section {
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 22px;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .hardware-grid,
+    .phase-grid,
+    .integration-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .cost-table th,
+    .cost-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .cost-table th {
+      background: #f7fbf9;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .cost-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e9f7f1;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .callout {
+      padding: 22px 24px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fffdf8 0%, #fff7ea 100%);
+    }
+
+    .callout strong {
+      color: var(--warn);
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    ul {
+      margin: 10px 0 0 20px;
+      padding: 0;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    .source-list {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .source-list a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .source-list a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      background: #eef5f2;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1200px);
+      }
+
+      .hero,
+      .section,
+      .callout {
+        border-radius: 22px;
+      }
+
+      .hero,
+      .section {
+        padding: 22px 18px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <span class="hero-kicker">Green Campus Real Deployment Plan</span>
+      <h1>Hardware, cost, and real-world integration guide</h1>
+      <p>
+        This document explains what you would need if you move the current Green Campus demo into a real campus installation.
+        It covers hardware, rough India-focused cost ranges, deployment phases, and exactly how those devices would connect to the existing FastAPI + React project.
+      </p>
+
+      <div class="summary-grid">
+        <div class="summary-card">
+          <span class="badge">Fastest path</span>
+          <strong>Phase 1 pilot</strong>
+          <div>Use existing meters, 2–4 smart energy meters, 1 edge gateway, and manual water/solar import where needed.</div>
+        </div>
+        <div class="summary-card">
+          <span class="badge">Best ROI</span>
+          <strong>Submeter high-value buildings first</strong>
+          <div>Start with hostels, library, labs, admin, and main solar feed instead of instrumenting the full campus immediately.</div>
+        </div>
+        <div class="summary-card">
+          <span class="badge">Architecture</span>
+          <strong>Edge → API → dashboard</strong>
+          <div>Hardware sends readings to an edge collector, the collector posts telemetry to the backend, and the dashboard uses the same summary logic it already has.</div>
+        </div>
+        <div class="summary-card">
+          <span class="badge">Budget band</span>
+          <strong>₹70k to ₹6L+</strong>
+          <div>Pilot deployments can stay under ₹1L. A serious multi-building rollout becomes a few lakh depending on sensor density and water instrumentation.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1. What hardware would be needed</h2>
+      <p class="section-intro">
+        The current project is software-ready for analysis, forecasting, comparison, and reporting, but it still depends mainly on imported Excel data. For real-time use, we need a data collection layer.
+      </p>
+
+      <div class="hardware-grid">
+        <div class="mini-card">
+          <strong>A. Electricity metering</strong>
+          <div>Install RS485 / Modbus energy meters on each selected building incomer, main LT panel, or important subpanel.</div>
+          <ul>
+            <li>Main campus incomer meter</li>
+            <li>One meter per major building or block</li>
+            <li>Optional AC / HVAC sub-metering later</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <strong>B. Solar monitoring</strong>
+          <div>Use inverter APIs, inverter Modbus registers, or a dedicated energy meter on the solar output line.</div>
+          <ul>
+            <li>Best case: use the inverter's existing Modbus or vendor API</li>
+            <li>Fallback: meter the solar output line with a 3-phase energy meter</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <strong>C. Water monitoring</strong>
+          <div>For real-time water, use either pulse-output water meters or RS485 flow/level sensors for tanks and main branches.</div>
+          <ul>
+            <li>Main incoming water line</li>
+            <li>Hostel and mess supply lines</li>
+            <li>Tank level sensors if direct flow meters are difficult</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <strong>D. Waste data capture</strong>
+          <div>Waste usually cannot be fully “real-time” like electricity. The practical approach is a hybrid system.</div>
+          <ul>
+            <li>Digital weighing scale at collection points</li>
+            <li>Simple mobile/web entry form for housekeeping staff</li>
+            <li>Optional QR-tagged building-wise entry workflow</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <strong>E. Edge gateway / collector</strong>
+          <div>This is the local device that reads meters and sends cleaned readings to the backend.</div>
+          <ul>
+            <li>Raspberry Pi 5 or small industrial PC for pilot</li>
+            <li>USB-RS485 converters or RS485 HAT</li>
+            <li>Optional LoRaWAN gateway if devices are spread out</li>
+          </ul>
+        </div>
+
+        <div class="mini-card">
+          <strong>F. Network and power</strong>
+          <div>Each collector needs stable internet and backup power.</div>
+          <ul>
+            <li>Campus LAN or 4G router</li>
+            <li>Mini UPS for collector</li>
+            <li>Panel-safe enclosure, wiring, and surge protection</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2. Realistic hardware options and rough cost</h2>
+      <p class="section-intro">
+        These are not procurement quotes. They are practical estimate ranges to help planning. Final pricing depends on vendor, quantity, wiring distance, panel changes, CTs, installation labor, and GST.
+      </p>
+
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Use in project</th>
+            <th>Approx cost (INR)</th>
+            <th>Planning note</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>3-phase RS485 energy meter</td>
+            <td>Building or solar feeder monitoring</td>
+            <td>₹2,400 to ₹3,600 per meter</td>
+            <td>Use for main building incomers, solar output, or major subpanels.</td>
+          </tr>
+          <tr>
+            <td>Raspberry Pi 5 (4GB)</td>
+            <td>Edge collector for Modbus polling and buffering</td>
+            <td>~₹5,800 to ₹6,300</td>
+            <td>Add SD card/SSD, case, PSU, and RS485 adapters.</td>
+          </tr>
+          <tr>
+            <td>LoRaWAN indoor gateway</td>
+            <td>Wireless sensor aggregation for distributed nodes</td>
+            <td>~₹11,000</td>
+            <td>Needed only if wiring is difficult or buildings are spread out.</td>
+          </tr>
+          <tr>
+            <td>Water leak sensor (RS485)</td>
+            <td>Leak alerts in tank/pump/basement areas</td>
+            <td>~₹3,900 per point</td>
+            <td>Good as an early smart feature even before full flow metering.</td>
+          </tr>
+          <tr>
+            <td>Tank / level sensor (RS485 ultrasonic)</td>
+            <td>Tank usage estimation if no inline flow meter is available</td>
+            <td>~₹2,000 to ₹12,000</td>
+            <td>Use simpler tank-level solutions before expensive branch flow metering.</td>
+          </tr>
+          <tr>
+            <td>Industrial water flow / open channel sensor</td>
+            <td>Detailed water monitoring</td>
+            <td>₹15,000 to ₹45,000+ each</td>
+            <td>Use only for key water lines in phase 2 or phase 3.</td>
+          </tr>
+          <tr>
+            <td>Mini UPS / protected power</td>
+            <td>Keep gateway alive during short outages</td>
+            <td>₹2,000 to ₹8,000</td>
+            <td>Important for reliable telemetry and avoiding corrupted SD cards.</td>
+          </tr>
+          <tr>
+            <td>USB-RS485 / converter / wiring accessories</td>
+            <td>Physical communication from meters to edge collector</td>
+            <td>₹500 to ₹2,000 per collector</td>
+            <td>Budget separately for panel wiring, conduit, and terminals.</td>
+          </tr>
+          <tr>
+            <td>Cloud runtime</td>
+            <td>Backend, database, IoT routing, backups</td>
+            <td>₹0 to ₹8,000+/month</td>
+            <td>Very small pilots can stay near free tier; real deployments should budget cloud + backup + logging.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <strong>Important budgeting point</strong>
+        In campus IoT projects, installation and wiring labor can become as important as the device price. For a realistic estimate, add about <code>15% to 35%</code> on top of sensor/device cost for electrical work, mounting, wiring, commissioning, and testing.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>3. Example deployment budgets</h2>
+      <div class="phase-grid">
+        <div class="phase-card">
+          <span class="badge">Pilot</span>
+          <strong>₹70,000 to ₹1,20,000</strong>
+          <ul>
+            <li>1 Raspberry Pi edge collector</li>
+            <li>4 to 6 energy meters</li>
+            <li>1 solar data source</li>
+            <li>1 to 2 leak / level sensors</li>
+            <li>Basic installation and network</li>
+          </ul>
+          <div>This is enough to instrument a few major buildings and prove the dashboard with real data.</div>
+        </div>
+
+        <div class="phase-card">
+          <span class="badge">Phase 2</span>
+          <strong>₹2L to ₹4L</strong>
+          <ul>
+            <li>8 to 20 energy meters</li>
+            <li>Dedicated water sensing on key lines or tanks</li>
+            <li>1 LoRa or multi-collector setup if buildings are spread out</li>
+            <li>More structured solar and alert coverage</li>
+          </ul>
+          <div>This makes the platform useful across major campus zones, not just as a demo.</div>
+        </div>
+
+        <div class="phase-card">
+          <span class="badge">Campus scale</span>
+          <strong>₹4L to ₹6L+</strong>
+          <ul>
+            <li>Fine-grained submetering across most buildings</li>
+            <li>Meaningful water network visibility</li>
+            <li>Waste workflow digitization</li>
+            <li>Reliable cloud, backups, and alerting</li>
+          </ul>
+          <div>This is where you move from “smart dashboard” to “operational sustainability platform.”</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>4. How to integrate real hardware with this project</h2>
+      <p class="section-intro">
+        The current project already has a strong analytics layer. The missing real-time part is telemetry ingestion. So the right approach is not to rewrite the dashboard, but to add a device ingestion layer in front of the existing summary logic.
+      </p>
+
+      <div class="integration-grid">
+        <div class="integration-card">
+          <strong>Step 1. Add a telemetry ingestion API</strong>
+          <div>Create new backend routes like:</div>
+          <ul>
+            <li><code>POST /ingest/energy</code></li>
+            <li><code>POST /ingest/water</code></li>
+            <li><code>POST /ingest/solar</code></li>
+            <li><code>POST /ingest/waste</code></li>
+          </ul>
+          <div>Each route should accept device ID, building, timestamp, value, and quality/health fields.</div>
+        </div>
+
+        <div class="integration-card">
+          <strong>Step 2. Add raw telemetry tables</strong>
+          <div>Right now the project stores summarized-style records in tables like <code>EnergyData</code> and <code>WaterData</code>. For real-time scale, add raw telemetry tables first.</div>
+          <ul>
+            <li><code>energy_telemetry_raw</code></li>
+            <li><code>water_telemetry_raw</code></li>
+            <li><code>solar_telemetry_raw</code></li>
+            <li><code>device_registry</code></li>
+          </ul>
+        </div>
+
+        <div class="integration-card">
+          <strong>Step 3. Keep the current dashboard models for rollups</strong>
+          <div>Run a scheduled aggregation job every 5 minutes / 15 minutes / 1 hour to push cleaned totals into the current reporting tables.</div>
+          <ul>
+            <li>This protects the existing dashboard logic.</li>
+            <li>It also keeps charts and forecasts fast.</li>
+          </ul>
+        </div>
+
+        <div class="integration-card">
+          <strong>Step 4. Build an edge collector service</strong>
+          <div>The edge collector will sit near the hardware and do:</div>
+          <ul>
+            <li>Modbus polling</li>
+            <li>retry and buffering during internet outage</li>
+            <li>local timestamping</li>
+            <li>secure API push to backend</li>
+          </ul>
+        </div>
+
+        <div class="integration-card">
+          <strong>Step 5. Add device health and missing-data monitoring</strong>
+          <div>You should also store:</div>
+          <ul>
+            <li>last seen time per device</li>
+            <li>battery/power status where possible</li>
+            <li>communication failure count</li>
+            <li>bad data / zero-value anomaly flags</li>
+          </ul>
+        </div>
+
+        <div class="integration-card">
+          <strong>Step 6. Extend UI with a device operations page</strong>
+          <div>Add a new `Operations` or `Devices` view showing:</div>
+          <ul>
+            <li>meter list</li>
+            <li>building mapping</li>
+            <li>last reading time</li>
+            <li>signal status</li>
+            <li>offline / stale devices</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5. How each resource would be implemented</h2>
+
+      <h3>Electricity</h3>
+      <ul>
+        <li>Install RS485/Modbus meter on each selected building incomer.</li>
+        <li>Collector reads cumulative kWh and possibly voltage/current/power factor.</li>
+        <li>Backend stores raw readings and derives interval usage.</li>
+        <li>Existing dashboard endpoints continue to summarize by building and time window.</li>
+      </ul>
+
+      <h3>Solar</h3>
+      <ul>
+        <li>Preferred: read the solar inverter via Modbus or vendor API.</li>
+        <li>Fallback: install a dedicated solar export/production meter.</li>
+        <li>Map solar telemetry to the existing <code>SolarData</code> concept.</li>
+      </ul>
+
+      <h3>Water</h3>
+      <ul>
+        <li>Phase 1: use tank level and leak sensors plus manual meter reading import.</li>
+        <li>Phase 2: add pulse or RS485 water meters to main lines.</li>
+        <li>Phase 3: instrument hostel / mess / main branch lines for real per-building visibility.</li>
+      </ul>
+
+      <h3>Waste</h3>
+      <ul>
+        <li>Keep waste as operator-entered data rather than trying to force real-time automation immediately.</li>
+        <li>Use a staff tablet/phone form with building, waste type, and weight.</li>
+        <li>If needed later, integrate smart scales via API or local bridge.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>6. Software work needed in this repo</h2>
+      <div class="integration-grid">
+        <div class="integration-card">
+          <strong>Backend changes</strong>
+          <ul>
+            <li>Add device registry models and raw telemetry models</li>
+            <li>Add ingestion APIs with token-based authentication</li>
+            <li>Add aggregation jobs or scheduler</li>
+            <li>Add device health and stale-data alerts</li>
+            <li>Optionally add TimescaleDB / PostgreSQL partitioning later</li>
+          </ul>
+        </div>
+        <div class="integration-card">
+          <strong>Frontend changes</strong>
+          <ul>
+            <li>Add device operations page</li>
+            <li>Add live data freshness indicators</li>
+            <li>Add “last updated” badges for each building</li>
+            <li>Add ingestion health widgets and stale sensor alerts</li>
+            <li>Extend executive report with “data confidence” summary</li>
+          </ul>
+        </div>
+        <div class="integration-card">
+          <strong>Security changes</strong>
+          <ul>
+            <li>Per-device API keys or signed tokens</li>
+            <li>Role-based admin access for device setup</li>
+            <li>HTTPS-only ingestion</li>
+            <li>IP allow-list for edge devices if possible</li>
+            <li>Audit log for imported vs live-generated data</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>7. Best implementation approach for this exact project</h2>
+      <div class="phase-grid">
+        <div class="phase-card">
+          <strong>Recommended Phase 1</strong>
+          <ul>
+            <li>Instrument 3 to 5 buildings only</li>
+            <li>Use existing solar data source if available</li>
+            <li>Keep water partly manual or tank-level based</li>
+            <li>Keep waste manual</li>
+            <li>Add one edge collector and one ingestion API</li>
+          </ul>
+        </div>
+        <div class="phase-card">
+          <strong>Recommended Phase 2</strong>
+          <ul>
+            <li>Add more submetering</li>
+            <li>Add leak alerts and better water sensing</li>
+            <li>Introduce device health dashboard</li>
+            <li>Start live alerting by email / WhatsApp / Teams</li>
+          </ul>
+        </div>
+        <div class="phase-card">
+          <strong>Recommended Phase 3</strong>
+          <ul>
+            <li>Move to near real-time forecasting</li>
+            <li>Add tariff optimization and peak-demand control</li>
+            <li>Add occupancy/event integration from timetable systems</li>
+            <li>Use the platform for real sustainability governance</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <div class="callout">
+      <strong>Best practical recommendation</strong>
+      If this becomes a real campus project, do <em>not</em> try to instrument everything at once. Start with one edge collector, a few RS485 energy meters, existing solar data, and simple water/waste workflows. That gives the fastest proof, the clearest ROI, and the safest path to a larger rollout.
+    </div>
+
+    <section class="section">
+      <h2>8. Sources used for current price and deployment guidance</h2>
+      <p class="section-intro">
+        These links were used as current reference points for rough cost planning. Final procurement should still be done through your college’s vendor comparison process.
+      </p>
+      <div class="source-list">
+        <a href="https://robu.in/product/raspberry-pi-5-model-4gb/">Raspberry Pi 5 Model 4GB on Robu.in</a>
+        <a href="https://electrixzone.com/product/trinity-digital-energy-meter-entity-rs485/">TRINITY RS485 energy meter on ElectrixZone</a>
+        <a href="https://pricehistory.app/p/selec-em2m-digital-single-phase-direct-100a-yq0syiQ2">SELEC EM2M RS485 meter price reference</a>
+        <a href="https://robu.in/product/sensecap-m2-multi-platform-lorawan-indoor-gatewaysx1302-eu868-without-power-adapter/">SenseCAP M2 LoRaWAN gateway on Robu.in</a>
+        <a href="https://stg.robu.in/product/industrial-water-leak-detector-type-rs485/">Industrial RS485 water leak sensor on Robu.in</a>
+        <a href="https://robu.in/product/ultrasonic-sensor-ds1603da-v1-0-rs485measuring-range50-2000/">RS485 ultrasonic level sensor on Robu.in</a>
+        <a href="https://robu.in/product/ultrasonic-sensor-dyp-a17ny4w-v1-0-rs485/">RS485 well/tank level sensor on Robu.in</a>
+        <a href="https://robu.in/product/radar-flow-meter-sensor/">Radar flow meter sensor on Robu.in</a>
+        <a href="https://aws.amazon.com/iot-platform/pricing/">AWS IoT Core pricing</a>
+        <a href="https://aws.amazon.com/rds/pricing/">Amazon RDS pricing</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
