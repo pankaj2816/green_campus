@@ -13,11 +13,11 @@ from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, Tabl
 
 OUTPUT_DIR = Path(__file__).resolve().parent
 PPTX_PATH = OUTPUT_DIR / "Green_Campus_Demo_Deck.pptx"
-PDF_PATH = OUTPUT_DIR / "Green_Campus_Demo_Guide.pdf"
+PDF_PATH = OUTPUT_DIR / "Green_Campus_User_Guide.pdf"
 MARKDOWN_PATH = OUTPUT_DIR / "DEMO_TALK_TRACK.md"
 
 TITLE = "Green Campus Sustainability Intelligence Platform"
-SUBTITLE = "Demo deck and explanation guide"
+SUBTITLE = "User guide and explanation document"
 
 THEME = {
     "green": RGBColor(27, 127, 98),
@@ -179,118 +179,99 @@ SLIDES = [
 
 GUIDE_SECTIONS = [
     (
-        "1. What this project does",
+        "1. What this system is",
         [
-            "Green Campus is a sustainability dashboard for educational campuses.",
-            "It combines electricity, water, waste, and solar information in one place.",
-            "The platform helps a user see the current situation, compare buildings, understand carbon impact, and plan future usage.",
+            "Green Campus is a dashboard that helps a campus track electricity, water, waste, solar, carbon, and future planning in one place.",
+            "It is meant for a user who wants to understand the current situation clearly and make better decisions for the next period.",
         ],
     ),
     (
-        "2. How to explain the website to someone else",
+        "2. What the main values mean",
         [
-            "Start from the top hero section and explain that this is the command center.",
-            "Then show the current scope, forecast mode, and data controls.",
-            "Next explain that the first cards are quick KPI summaries, the next sections explain carbon and solar, and the lower sections provide AI-style planning support.",
+            "Gross Energy means all electricity used before solar support is removed.",
+            "Solar means electricity produced by the solar system.",
+            "Net Energy means electricity still needed from the grid after using solar.",
+            "Water means total water use in the selected scope.",
+            "Waste means total waste in the selected scope.",
+            "Carbon means estimated emissions linked to the remaining grid electricity.",
+            "Green Index means the final overall sustainability score. Higher is better.",
         ],
     ),
     (
-        "3. Website demo flow step by step",
+        "3. Basic formulas used by the dashboard",
         [
-            "Step 1: Login to the application.",
-            "Step 2: Explain that the dashboard is filter-based and can be viewed for the whole campus or a single building.",
-            "Step 3: Show KPI cards for energy, water, waste, solar, net energy, and Green Index.",
-            "Step 4: Open carbon and solar sections and explain how solar reduces grid demand.",
-            "Step 5: Show alerts, trends, and the resource mix chart.",
-            "Step 6: Show AI insights, risk, forecast, and scenario simulation.",
-            "Step 7: Show assumptions and terminology so non-technical users understand the values.",
-            "Step 8: Show import, export, and reset workflow.",
-        ],
-    ),
-    (
-        "4. Exact calculation logic used in the system",
-        [
-            "Gross Energy = total of all energy_kwh records in the selected scope.",
-            "Solar = total of all solar_kwh records in the selected scope.",
             "Net Energy = max(Gross Energy - Solar, 0).",
             "Export to Grid = max(Solar - Gross Energy, 0).",
-            "Carbon = Net Energy x 0.82 kg CO2 per kWh.",
-            "Gross Carbon = Gross Energy x 0.82.",
-            "Solar Avoided Carbon = min(Solar, Gross Energy) x 0.82.",
+            "Carbon = Net Energy x carbon factor.",
+            "Gross Carbon = Gross Energy x carbon factor.",
+            "Solar Avoided Carbon = min(Solar, Gross Energy) x carbon factor.",
         ],
     ),
     (
-        "4A. Simple meaning of important terms",
+        "4. Green Index in simple words",
         [
-            "KPI means Key Performance Indicator. It is a quick important number shown on the dashboard card so a user can understand the situation fast.",
-            "Gross Energy means the total electricity used before subtracting solar power.",
-            "Net Energy means the electricity still needed after using solar power.",
-            "Solar Offset means how much electricity demand was covered by solar instead of the grid.",
-            "Gross Carbon means carbon linked to full electricity demand before solar benefit is considered.",
-            "Net Carbon means carbon linked only to the remaining grid electricity after solar support.",
-            "Solar Avoided Carbon means the carbon saved because solar reduced the amount of grid electricity needed.",
-            "Benchmark means a reference target or comparison value. It helps the system decide whether current usage is low, acceptable, or high.",
-            "Efficiency Score or Weighted Efficiency means the combined pressure from energy, water, and waste after giving each one a fixed importance.",
-            "Green Index means the final sustainability score shown in an easy percentage form. Higher is better.",
-            "Forecast Granularity means the time level used in prediction, such as daily, monthly, yearly, or seasonal.",
-            "Scenario Simulator means a what-if tool that shows what may happen if energy, water, waste, or solar values change.",
-            "Alert Threshold means the change percentage after which the system starts calling something unusual.",
-            "Export Potential means solar generation that may remain after meeting campus demand and could be sent to storage or the grid.",
+            "The system first checks whether energy, water, and waste are high or low compared with their benchmark values.",
+            "Then it combines those three results using weights.",
+            "Energy has the biggest effect, water the next, and waste the least.",
+            "After that, the system converts the result into a score out of 100.",
+            "If energy, water, and waste are lower and more efficient, the Green Index becomes higher.",
         ],
     ),
     (
-        "5. Green Index calculation step by step",
+        "5. Green Index step by step",
         [
-            "Energy benchmark = 100000",
-            "Water benchmark = 20000",
-            "Waste benchmark = 30000",
-            "Energy Score = min(Net Energy / 100000, 1)",
-            "Water Score = min(Water / 20000, 1)",
-            "Waste Score = min(Waste / 30000, 1)",
-            "Weighted Efficiency = 0.5 x Energy Score + 0.3 x Water Score + 0.2 x Waste Score",
-            "Green Index = (1 - Weighted Efficiency) x 100",
+            "Step 1: Compare Net Energy with the energy benchmark.",
+            "Step 2: Compare Water with the water benchmark.",
+            "Step 3: Compare Waste with the waste benchmark.",
+            "Step 4: Multiply those three results by their weights.",
+            "Step 5: Add them to get one combined efficiency pressure value.",
+            "Step 6: Convert that pressure into the final Green Index score.",
+            "Simple formula: Green Index = (1 - combined efficiency pressure) x 100.",
         ],
     ),
     (
-        "6. Forecast logic in easy words",
+        "6. Important terms in simple language",
         [
-            "The system supports daily, monthly, yearly, and seasonal views.",
-            "It groups historical records according to the selected mode.",
-            "Then it looks for recurring patterns in that grouping and uses average cycle behavior to generate the next periods.",
-            "This is practical and easy to explain during a demo because it uses historical campus behavior directly.",
+            "Benchmark means a reference value used to judge whether usage is low or high.",
+            "Weighted Efficiency means the combined effect of energy, water, and waste after giving each one different importance.",
+            "Forecast Range means the system shows a likely lower and upper band instead of pretending one exact future number is guaranteed.",
+            "Occupancy Effect means future demand changes because campus activity changes from month to month.",
+            "Export Potential means extra solar energy that may remain after campus demand is met.",
         ],
     ),
     (
-        "7. Seasonal logic and college-specific example",
+        "7. What occupancy values mean",
         [
-            "The platform knows that some months have lower occupancy.",
-            "For example, June has lower academic activity, so demand is expected to reduce.",
-            "That means energy and water can fall, while solar can cover a larger percentage of demand.",
-            "If solar becomes greater than demand, the dashboard shows export potential.",
+            "1.0 means normal or full campus activity.",
+            "0.9 means slightly reduced activity.",
+            "0.5 means partial activity or vacation-like activity.",
+            "0.2 means very low campus activity.",
+            "These are activity multipliers, not exact percentages.",
         ],
     ),
     (
-        "8. Import, export, and reset",
+        "8. Forecast and seasonal logic in simple words",
         [
-            "Import Excel replaces the current workbook data with a fresh dataset.",
-            "Export Excel downloads the live system data with summary and raw sheets.",
-            "Reset Data clears resource records when a fresh demo or new dataset is needed.",
+            "The system looks at past data and groups it by daily, monthly, yearly, or seasonal view.",
+            "Then it uses those patterns to estimate future values.",
+            "Lower occupancy months like June and July usually reduce expected energy and water demand.",
+            "At the same time, solar may cover a larger share of demand during low-activity months.",
         ],
     ),
     (
-        "9. Current strengths of the project",
+        "9. Alerts, recommendations, and action board",
         [
-            "Strong end-to-end flow from login to dashboard to data actions.",
-            "Good campus-specific logic for occupancy, solar offset, and utility planning.",
-            "Useful mix of operational metrics and AI-style recommendation features.",
+            "Alerts help the user notice spikes, unusual changes, and possible problem areas.",
+            "Recommendations suggest what action could improve energy, cost, carbon, or resource behavior.",
+            "The Action Board lets the user mark each recommendation as suggested, planned, in progress, or completed.",
         ],
     ),
     (
-        "10. Current improvement opportunities",
+        "10. Import, export, and reset",
         [
-            "The frontend can still be improved further by moving more repeated card styles into reusable UI building blocks.",
-            "The backend can be split more cleanly into service-layer calculations and thinner routers.",
-            "Future versions can add PDF management reports, smarter anomaly detection, and occupancy-linked forecasting.",
+            "Import Excel loads a fresh workbook into the system.",
+            "Export Excel downloads the current system data as a workbook.",
+            "Reset Data clears the current records so a new dataset can be loaded.",
         ],
     ),
 ]
@@ -403,7 +384,7 @@ def build_pdf():
 
     story = []
     story.append(Paragraph(TITLE, title_style))
-    story.append(Paragraph("Easy explanation guide for demo presentation and stakeholder walkthrough", body_style))
+    story.append(Paragraph("Simple user guide for terms, formulas, and key dashboard values", body_style))
     story.append(Spacer(1, 12))
 
     assumptions_table = Table(
