@@ -21,6 +21,27 @@ const getAuthHeaders = (extraHeaders = {}) => {
   };
 };
 
+const readResponseBody = async (response) => {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+  return text ? { detail: text } : {};
+};
+
+const getDetailMessage = (data, fallbackMessage) => {
+  if (Array.isArray(data?.detail)) {
+    return data.detail
+      .map((item) => item.msg || item.message || JSON.stringify(item))
+      .join(", ");
+  }
+
+  return data?.detail || data?.message || fallbackMessage;
+};
+
 const handleResponse = async (response) => {
   if (response.status === 401) {
     localStorage.removeItem("token");
@@ -28,10 +49,10 @@ const handleResponse = async (response) => {
     return null;
   }
 
-  const data = await response.json();
+  const data = await readResponseBody(response);
 
   if (!response.ok) {
-    throw new Error(data.detail || "Request failed");
+    throw new Error(getDetailMessage(data, "Request failed"));
   }
 
   return data;
@@ -39,8 +60,8 @@ const handleResponse = async (response) => {
 
 const extractErrorMessage = async (response, fallbackMessage) => {
   try {
-    const data = await response.json();
-    return data.detail || fallbackMessage;
+    const data = await readResponseBody(response);
+    return getDetailMessage(data, fallbackMessage);
   } catch (error) {
     return fallbackMessage;
   }
@@ -172,6 +193,7 @@ export const fetchDashboardBundle = async ({
     insightsData,
     seasonalOutlook,
     alertsData,
+    dataQuality,
   ] = await Promise.all([
     apiGet("/dashboard/summary", params),
     apiGet("/dashboard/comparison", params),
@@ -184,6 +206,7 @@ export const fetchDashboardBundle = async ({
     apiGet("/insights", { ...params, granularity }),
     apiGet("/ai/seasonal-outlook", params),
     apiGet("/ai/alerts/overview", params),
+    apiGet("/ai/data-quality", params),
   ]);
 
   return {
@@ -198,6 +221,7 @@ export const fetchDashboardBundle = async ({
     insightsData,
     seasonalOutlook,
     alertsData,
+    dataQuality,
   };
 };
 

@@ -57,6 +57,7 @@ It contains:
 
 - carbon footprint section
 - solar section
+- data quality and forecast trust section
 - alert center
 - resource mix chart
 - energy and solar trend charts
@@ -74,7 +75,27 @@ Simple example:
 This view now feels more focused because:
 
 - the main workspace shows carbon, solar, and trend analysis
-- the support rail highlights alerts and attention points
+- the support rail highlights data trust, alerts, and attention points
+
+### Data Quality and Forecast Trust
+
+This section checks whether the imported Excel data is reliable enough for charts, forecasts, and reports.
+
+It looks for:
+
+- how many months of history are available
+- missing months in each resource sheet
+- duplicate readings for the same building and date
+- zero or negative values that may be mistakes
+- whether there is enough history for stronger forecasting
+
+Simple example:
+
+- if energy has 12 months of records and no duplicate readings, the score will be strong
+- if water is missing several months, the dashboard will still work but the trust level may become medium
+- if required data is missing, the trust level becomes low and the section tells the user what to fix
+
+This is useful before a demo or report because it tells the user whether the dashboard numbers can be trusted.
 
 ### Planning Studio
 

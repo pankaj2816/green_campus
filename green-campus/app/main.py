@@ -11,6 +11,7 @@ from app.routers import data_import
 from app.routers import meta, simulation
 from app.routers import seasonal
 from app.routers import alerts
+from app.routers import data_quality
 import os
 
 
@@ -54,6 +55,7 @@ app.include_router(meta.router)
 app.include_router(simulation.router)
 app.include_router(seasonal.router)
 app.include_router(alerts.router)
+app.include_router(data_quality.router)
 
 @app.get("/")
 def root():

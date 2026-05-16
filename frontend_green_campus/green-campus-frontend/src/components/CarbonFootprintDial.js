@@ -26,7 +26,7 @@ function CarbonFootprintDial({ data }) {
         </div>
       </div>
 
-      <div style={styles.layout}>
+      <div style={styles.layout} className="carbon-footprint-layout">
         <div style={styles.gaugeWrap}>
           <GaugeChart
             id="carbon-gauge"

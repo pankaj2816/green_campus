@@ -8,7 +8,7 @@ import ResourceOverview from "./ResourceOverview";
 function ResourceCharts({ data, trendData }) {
   return (
     <div style={styles.wrapper}>
-      <div style={styles.header}>
+      <div style={styles.header} className="resource-charts-header">
         <div>
           <span style={styles.kicker}>Visual Storyboard</span>
           <h3 style={styles.title}>
@@ -24,7 +24,7 @@ function ResourceCharts({ data, trendData }) {
           Use these views to explain which resource is dominating the current picture and how grid dependence shifts over time.
         </p>
       </div>
-      <div style={styles.grid}>
+      <div style={styles.grid} className="resource-charts-grid">
         <ResourceOverview data={data} />
         <ResourceMixChart data={data} />
       </div>

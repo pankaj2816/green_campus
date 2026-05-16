@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 import { runSimulation } from "../services/api";
 import { dashboardCopy } from "../config/dashboardConfig";
+import StatusNotice from "./StatusNotice";
 
 const defaultInputs = {
   energy_reduction_pct: 10,
@@ -23,6 +24,7 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
   const [inputs, setInputs] = useState(defaultInputs);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [notice, setNotice] = useState(null);
 
   const handleChange = (key, value) => {
     setInputs((current) => ({
@@ -32,6 +34,7 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
   };
 
   const handleRun = async () => {
+    setNotice(null);
     setLoading(true);
 
     try {
@@ -44,7 +47,7 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
       setResult(data);
     } catch (error) {
       console.error(error);
-      alert(error.message || dashboardCopy.simulator.failed);
+      setNotice({ tone: "error", message: error.message || dashboardCopy.simulator.failed });
     } finally {
       setLoading(false);
     }
@@ -82,6 +85,14 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
           label={dashboardCopy.simulator.sliders.solarIncrease}
           value={inputs.solar_increase_pct}
           onChange={(value) => handleChange("solar_increase_pct", value)}
+        />
+      </div>
+
+      <div style={styles.noticeWrap}>
+        <StatusNotice
+          tone={notice?.tone}
+          message={notice?.message}
+          onDismiss={() => setNotice(null)}
         />
       </div>
 
@@ -139,6 +150,9 @@ const styles = {
     borderRadius: "16px",
     boxShadow: "0 6px 20px rgba(0,0,0,0.05)",
     marginBottom: "20px",
+  },
+  noticeWrap: {
+    marginTop: "14px",
   },
   header: {
     display: "flex",

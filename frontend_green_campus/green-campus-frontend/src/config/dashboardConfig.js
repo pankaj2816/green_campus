@@ -1,11 +1,11 @@
 export const dashboardCopy = {
   branding: {
-    appShort: "GC",
-    appName: "Green Campus",
+    appShort: "MGCD",
+    appName: "MAHE Green Campus Dashboard (MGCD)",
     organization: "Manipal Institute of Technology, Karnataka",
     tagline: "Sustainability Intelligence Platform",
-    logoText: "Green Campus",
-    logoSubtext: "College demo edition",
+    logoText: "MAHE Green Campus Dashboard (MGCD)",
+    logoSubtext: "MIT campus sustainability intelligence",
   },
   resources: {
     simpleGuidePdf: "/docs/green-campus-simple-guide.pdf",
@@ -51,7 +51,7 @@ export const dashboardCopy = {
     noData: "No data available right now.",
   },
   header: {
-    kicker: "Green Campus Command Center",
+    kicker: "MAHE Green Campus Dashboard Command Center",
     title: "Operational Sustainability Intelligence",
     subtitle:
       "Monitor utilities, forecast demand, reset or import fresh datasets, and plan around academic occupancy changes with a clearer professional dashboard.",
@@ -336,6 +336,18 @@ export const dashboardCopy = {
     noExportDays: "No export-ready days were detected in the current filtered data.",
     noAlerts: "No important alerts are active right now.",
   },
+  quality: {
+    title: "Data Quality and Forecast Trust",
+    subtitle:
+      "Checks whether imported data is complete and reliable enough for charts, forecasts, and reports.",
+    trustLabel: "Trust Level",
+    recommendationsTitle: "What to check next",
+    metrics: {
+      history: "History Available",
+      readiness: "Forecast Readiness",
+      issues: "Issues Found",
+    },
+  },
   comparison: {
     title: "Comparison Analytics",
     subtitle: "Compare the selected period with the immediately previous period of the same length.",
@@ -456,7 +468,7 @@ export const dashboardCopy = {
     },
   },
   auth: {
-    loginTitle: "Green Campus Login",
+    loginTitle: "MGCD Login",
     loginSubtitle: "Access live campus sustainability operations, forecasting, and management reporting in one place.",
     loginButton: "Login",
     signingInButton: "Signing in...",

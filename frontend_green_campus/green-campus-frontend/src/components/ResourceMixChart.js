@@ -53,7 +53,7 @@ function ResourceMixChart({ data }) {
         <p style={styles.subtitle}>{dashboardCopy.chart.resourceMixSubtitle}</p>
       </div>
 
-      <div style={styles.layout}>
+      <div style={styles.layout} className="resource-mix-layout">
         <div style={styles.chartOuter}>
           <div style={styles.chartWrap}>
             <Doughnut data={chartData} options={options} />

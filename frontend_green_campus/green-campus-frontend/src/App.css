@@ -142,6 +142,17 @@
   opacity: 0.2;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 @keyframes fadeSlideUp {
   from {
     opacity: 0;
@@ -201,6 +212,16 @@
 
   .dashboard-mobile-tabs {
     display: flex !important;
+  }
+
+  .resource-charts-header,
+  .resource-charts-grid,
+  .resource-mix-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .resource-charts-header p {
+    justify-self: start !important;
   }
 
   .app-shell-ambient > div[style*="grid-template-columns: minmax(0, 430px) minmax(0, 1fr)"],
@@ -278,6 +299,22 @@
   .hero-command-sticky input,
   .hero-command-sticky select {
     width: 100%;
+  }
+
+  .carbon-footprint-layout {
+    grid-template-columns: 1fr !important;
+  }
+
+  .carbon-footprint-layout [style*="min-height: 330px"] {
+    min-height: 250px !important;
+  }
+
+  .resource-mix-layout [style*="height: 320px"] {
+    height: 240px !important;
+  }
+
+  .dashboard-mobile-tabs button {
+    white-space: nowrap;
   }
 }
 

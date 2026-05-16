@@ -14,6 +14,7 @@ import SustainabilitySimulator from "../components/SustainabilitySimulator";
 import AssumptionsPanel from "../components/AssumptionsPanel";
 import SeasonalOutlookPanel from "../components/SeasonalOutlookPanel";
 import AlertCenter from "../components/AlertCenter";
+import DataQualityPanel from "../components/DataQualityPanel";
 import ExecutiveReportView from "../components/ExecutiveReportView";
 import CampusPulseBar from "../components/CampusPulseBar";
 import ComparisonSection from "../components/ComparisonSection";
@@ -22,6 +23,7 @@ import StrategicGoalsPanel from "../components/StrategicGoalsPanel";
 import ActionTrackerPanel from "../components/ActionTrackerPanel";
 import InsightDetailDrawer from "../components/InsightDetailDrawer";
 import InfoHint from "../components/InfoHint";
+import StatusNotice from "../components/StatusNotice";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
@@ -51,6 +53,7 @@ function Dashboard() {
   const [assumptions, setAssumptions] = useState(null);
   const [seasonalOutlook, setSeasonalOutlook] = useState(null);
   const [alertsData, setAlertsData] = useState(null);
+  const [dataQuality, setDataQuality] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [forecastGranularity, setForecastGranularity] = useState("monthly");
   const [dateFrom, setDateFrom] = useState("");
@@ -62,9 +65,11 @@ function Dashboard() {
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [settingsData, setSettingsData] = useState(null);
+  const [loadError, setLoadError] = useState("");
 
   const fetchData = useCallback(async () => {
     setLoading(true);
+    setLoadError("");
 
     try {
       const bundle = await fetchDashboardBundle({
@@ -85,8 +90,10 @@ function Dashboard() {
       setInsightsData(bundle.insightsData);
       setSeasonalOutlook(bundle.seasonalOutlook);
       setAlertsData(bundle.alertsData);
+      setDataQuality(bundle.dataQuality);
     } catch (error) {
       console.error("Dashboard fetch error:", error);
+      setLoadError(error.message || "Unable to load dashboard data. Please check the backend service and try again.");
     } finally {
       setLoading(false);
     }
@@ -221,6 +228,14 @@ function Dashboard() {
                     </button>
                   ))}
                 </div>
+
+                <div style={styles.loadNotice}>
+                  <StatusNotice
+                    tone="error"
+                    message={loadError}
+                    onDismiss={() => setLoadError("")}
+                  />
+                </div>
               </>
             ) : null}
 
@@ -275,6 +290,7 @@ function Dashboard() {
                     />
                   </div>
                   <div style={styles.workspaceRail}>
+                    <DataQualityPanel qualityData={dataQuality} onOpenDetail={setSelectedDetail} />
                     <AlertCenter alertsData={alertsData} onOpenDetail={setSelectedDetail} />
                   </div>
                 </div>
@@ -402,6 +418,9 @@ const styles = {
     gap: "12px",
     flexWrap: "wrap",
     marginBottom: "20px",
+  },
+  loadNotice: {
+    marginBottom: "18px",
   },
   mobileTabButton: {
     padding: "12px 18px",

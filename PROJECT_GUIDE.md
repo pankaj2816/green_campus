@@ -13,6 +13,7 @@ This system is built for professional campus sustainability monitoring and plann
 - anomaly and recommendation insights
 - scenario simulation
 - occupancy-aware seasonal planning
+- data quality and forecast trust scoring
 
 It is designed so you can import fresh Excel data, reset old data, view current sustainability performance, and later adjust formulas based on your campus needs.
 
@@ -47,6 +48,8 @@ Important backend files:
   Summary, building ranking, and building filter logic
 - `app\routers\data_import.py`
   Excel import and full dataset reset
+- `app\routers\data_quality.py`
+  Data quality and forecast trust endpoint
 - `app\routers\forecast.py`
   AI forecast endpoint
 - `app\routers\ai_risk.py`
@@ -95,6 +98,7 @@ The dashboard now works like a professional operations console. It includes:
 - resource comparison and pie-style mix view
 - AI insights and risk
 - alert center and export-ready days
+- data quality and forecast trust panel
 - scenario simulator
 - occupancy and campus-context settings editor
 - editable runtime parameter editor in Governance
@@ -698,6 +702,8 @@ Adjust:
 - AI risk analysis
 - alert center
 - export-ready day analysis
+- data quality scoring
+- forecast readiness scoring
 - AI anomalies
 - AI opportunities
 - AI recommendations
@@ -769,6 +775,7 @@ Adjust:
 - `GET /ai/risk/energy`
 - `GET /ai/seasonal-outlook`
 - `GET /ai/alerts/overview`
+- `GET /ai/data-quality`
 - `GET /insights`
 - `POST /ai/simulate/impact`
 

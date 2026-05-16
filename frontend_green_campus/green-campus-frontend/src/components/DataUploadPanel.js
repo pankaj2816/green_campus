@@ -7,6 +7,7 @@ import {
   validateCampusDataset,
 } from "../services/api";
 import { dashboardCopy } from "../config/dashboardConfig";
+import StatusNotice from "./StatusNotice";
 
 function DataUploadPanel({ onUploadSuccess }) {
   const [file, setFile] = useState(null);
@@ -15,6 +16,7 @@ function DataUploadPanel({ onUploadSuccess }) {
   const [resetting, setResetting] = useState(false);
   const [validating, setValidating] = useState(false);
   const [validation, setValidation] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const handleFileChange = async (nextFile) => {
     setFile(nextFile);
@@ -41,34 +43,36 @@ function DataUploadPanel({ onUploadSuccess }) {
 
   const handleUpload = async () => {
     if (!file) {
-      alert(dashboardCopy.dataControls.selectFileAlert);
+      setNotice({ tone: "error", message: dashboardCopy.dataControls.selectFileAlert });
       return;
     }
 
+    setNotice(null);
     setLoading(true);
 
     try {
       const data = await uploadCampusDataset(file);
-      alert(data.message || dashboardCopy.dataControls.uploadSuccess);
+      setNotice({ tone: "success", message: data.message || dashboardCopy.dataControls.uploadSuccess });
       setValidation(data.validation || validation);
       onUploadSuccess();
     } catch (error) {
       console.error(error);
-      alert(error.message || dashboardCopy.dataControls.uploadFailed);
+      setNotice({ tone: "error", message: error.message || dashboardCopy.dataControls.uploadFailed });
     } finally {
       setLoading(false);
     }
   };
 
   const handleExport = async () => {
+    setNotice(null);
     setExporting(true);
 
     try {
       const data = await exportCampusDataset();
-      alert(data.message || dashboardCopy.dataControls.exportSuccess);
+      setNotice({ tone: "success", message: data.message || dashboardCopy.dataControls.exportSuccess });
     } catch (error) {
       console.error(error);
-      alert(error.message || dashboardCopy.dataControls.exportFailed);
+      setNotice({ tone: "error", message: error.message || dashboardCopy.dataControls.exportFailed });
     } finally {
       setExporting(false);
     }
@@ -81,15 +85,16 @@ function DataUploadPanel({ onUploadSuccess }) {
       return;
     }
 
+    setNotice(null);
     setResetting(true);
 
     try {
       const data = await resetCampusDataset();
-      alert(data.message || "Campus data reset successfully");
+      setNotice({ tone: "success", message: data.message || "Campus data reset successfully" });
       onUploadSuccess();
     } catch (error) {
       console.error(error);
-      alert(error.message || dashboardCopy.dataControls.resetFailed);
+      setNotice({ tone: "error", message: error.message || dashboardCopy.dataControls.resetFailed });
     } finally {
       setResetting(false);
     }
@@ -116,6 +121,12 @@ function DataUploadPanel({ onUploadSuccess }) {
             : dashboardCopy.dataControls.subtitle}
         </span>
       </label>
+
+      <StatusNotice
+        tone={notice?.tone}
+        message={notice?.message}
+        onDismiss={() => setNotice(null)}
+      />
 
       <div style={styles.validationCard}>
         <strong style={styles.validationTitle}>{dashboardCopy.dataControls.validationTitle}</strong>
