@@ -21,7 +21,8 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
             <InfoHint
               title="What Data Quality means"
               text="This checks whether imported data is complete enough to trust charts and forecasts. It looks for missing months, duplicates, and unusual zero or negative values."
-              width={310}
+              width={260}
+              align="right"
             />
           </h3>
           <p style={styles.subtext}>{dashboardCopy.quality.subtitle}</p>
@@ -124,20 +125,21 @@ const styles = {
     marginBottom: "20px",
   },
   header: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
     gap: "14px",
-    alignItems: "flex-start",
-    flexWrap: "wrap",
+    alignItems: "start",
   },
   title: {
     margin: 0,
     color: theme.colors.primaryText,
+    lineHeight: 1.3,
   },
   subtext: {
     margin: "8px 0 0",
     color: theme.colors.secondaryText,
     lineHeight: 1.55,
+    maxWidth: "520px",
   },
   scoreBadge: {
     display: "grid",
@@ -151,8 +153,8 @@ const styles = {
   scoreRow: {
     display: "grid",
     gridTemplateColumns: "110px minmax(0, 1fr)",
-    gap: "16px",
-    alignItems: "center",
+    gap: "18px",
+    alignItems: "start",
     marginTop: "18px",
   },
   scoreCircle: {
@@ -167,36 +169,39 @@ const styles = {
   },
   scoreDetails: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
-    gap: "10px",
+    gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+    gap: "12px",
   },
   metric: {
     display: "grid",
     gap: "5px",
-    padding: "12px",
+    padding: "14px",
     borderRadius: "14px",
     background: theme.colors.softSurface,
     color: theme.colors.secondaryText,
+    minHeight: "82px",
+    alignContent: "start",
   },
   resourceGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-    gap: "10px",
+    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+    gap: "12px",
     marginTop: "16px",
   },
   resourceCard: {
     border: "1px solid #dcebe5",
     background: "#ffffff",
     borderRadius: "14px",
-    padding: "13px",
+    padding: "14px",
     textAlign: "left",
     cursor: "pointer",
+    minHeight: "120px",
   },
   resourceTop: {
     display: "flex",
     justifyContent: "space-between",
     gap: "8px",
-    alignItems: "center",
+    alignItems: "start",
     textTransform: "capitalize",
   },
   statusPill: {
@@ -211,12 +216,15 @@ const styles = {
     fontSize: "24px",
     fontWeight: "800",
     color: theme.colors.primaryText,
+    lineHeight: 1.1,
   },
   resourceMeta: {
     display: "block",
     marginTop: "4px",
     color: theme.colors.secondaryText,
     fontSize: "12px",
+    lineHeight: 1.45,
+    wordBreak: "break-word",
   },
   recommendationBox: {
     display: "grid",

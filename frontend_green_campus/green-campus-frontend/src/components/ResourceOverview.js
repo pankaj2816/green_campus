@@ -24,15 +24,41 @@ function ResourceOverview({ data }) {
       legend: {
         display: false,
       },
+      tooltip: {
+        callbacks: {
+          label: (context) => {
+            const value = Number(context.raw || 0).toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            });
+            const unitMap = ["kWh", "kl", "kg", "kWh"];
+            return `${context.label}: ${value} ${unitMap[context.dataIndex] || ""}`;
+          },
+        },
+      },
     },
     scales: {
       x: {
+        ticks: {
+          maxRotation: 0,
+          autoSkip: false,
+          font: {
+            size: 11,
+          },
+        },
         title: {
           display: true,
           text: dashboardCopy.chart.resourceOverviewXAxis,
         },
+        grid: {
+          display: false,
+        },
       },
       y: {
+        ticks: {
+          font: {
+            size: 11,
+          },
+        },
         title: {
           display: true,
           text: dashboardCopy.chart.resourceOverviewYAxis,
@@ -68,7 +94,8 @@ const styles = {
     marginTop: "8px",
   },
   chartWrap: {
-    height: "320px",
+    height: "360px",
+    marginTop: "6px",
   },
 };
 

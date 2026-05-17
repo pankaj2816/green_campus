@@ -17,7 +17,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 def normalize_username(username: str) -> str:
-    return (username or "").strip()
+    return (username or "").strip().lower()
 
 
 def hash_password(password: str):

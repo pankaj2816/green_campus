@@ -116,7 +116,7 @@ const styles = {
   },
   layout: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "minmax(240px, 0.95fr) minmax(220px, 1.05fr)",
     gap: "18px",
     alignItems: "center",
   },
@@ -176,6 +176,7 @@ const styles = {
     fontWeight: "700",
     color: theme.colors.primaryText,
     marginTop: "6px",
+    wordBreak: "break-word",
   },
   legendPercent: {
     color: theme.colors.secondaryText,

@@ -124,7 +124,7 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns: "1.1fr 0.9fr",
     gap: "16px",
   },
   panel: {
@@ -148,6 +148,7 @@ const styles = {
     marginBottom: 0,
     color: theme.colors.secondaryText,
     lineHeight: 1.5,
+    wordBreak: "break-word",
   },
   exportSummary: {
     marginBottom: "12px",
@@ -159,9 +160,9 @@ const styles = {
     color: theme.colors.primaryText,
   },
   exportCard: {
-    display: "flex",
-    justifyContent: "space-between",
-    gap: "12px",
+    display: "grid",
+    gridTemplateColumns: "minmax(84px, auto) minmax(0, 1fr)",
+    gap: "10px",
     background: theme.colors.surface,
     borderRadius: "12px",
     padding: "14px",
@@ -170,6 +171,7 @@ const styles = {
     border: "none",
     cursor: "pointer",
     textAlign: "left",
+    alignItems: "start",
   },
 };
 

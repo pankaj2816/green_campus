@@ -216,7 +216,8 @@
 
   .resource-charts-header,
   .resource-charts-grid,
-  .resource-mix-layout {
+  .resource-mix-layout,
+  .intelligence-support-grid {
     grid-template-columns: 1fr !important;
   }
 
@@ -311,6 +312,10 @@
 
   .resource-mix-layout [style*="height: 320px"] {
     height: 240px !important;
+  }
+
+  .dashboard-main-column [style*="grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr)"] {
+    grid-template-columns: 1fr !important;
   }
 
   .dashboard-mobile-tabs button {

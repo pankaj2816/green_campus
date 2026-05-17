@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function InfoHint({ title = "What this means", text, width = 280 }) {
+export default function InfoHint({ title = "What this means", text, width = 280, align = "left" }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -20,7 +20,15 @@ export default function InfoHint({ title = "What this means", text, width = 280 
         !
       </button>
       {open ? (
-        <span style={{ ...styles.tooltip, width }}>
+        <span
+          style={{
+            ...styles.tooltip,
+            width,
+            maxWidth: "min(320px, calc(100vw - 32px))",
+            ...(align === "right" ? styles.tooltipRight : {}),
+            ...(align === "center" ? styles.tooltipCenter : {}),
+          }}
+        >
           <strong style={styles.tooltipTitle}>{title}</strong>
           <span style={styles.tooltipText}>{text}</span>
         </span>
@@ -63,6 +71,14 @@ const styles = {
     boxShadow: "0 18px 36px rgba(8, 18, 16, 0.28)",
     display: "grid",
     gap: "6px",
+  },
+  tooltipRight: {
+    left: "auto",
+    right: 0,
+  },
+  tooltipCenter: {
+    left: "50%",
+    transform: "translateX(-50%)",
   },
   tooltipTitle: {
     fontSize: "12px",

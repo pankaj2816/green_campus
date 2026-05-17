@@ -276,20 +276,19 @@ function Dashboard() {
             {activeView === "intelligence" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.performanceSection} />
-                <div style={styles.workspaceShell}>
-                  <div style={styles.workspaceMain}>
-                    <div style={styles.twoCol}>
-                      <CarbonFootprintDial data={data} />
-                      <SolarSection data={data} />
-                    </div>
-
-                    <ResourceCharts
-                      data={data}
-                      trendData={trendData}
-                      buildingData={buildingData}
-                    />
+                <div style={styles.intelligenceStack}>
+                  <div style={styles.twoCol}>
+                    <CarbonFootprintDial data={data} />
+                    <SolarSection data={data} />
                   </div>
-                  <div style={styles.workspaceRail}>
+
+                  <ResourceCharts
+                    data={data}
+                    trendData={trendData}
+                    buildingData={buildingData}
+                  />
+
+                  <div style={styles.intelligenceSupportGrid} className="intelligence-support-grid">
                     <DataQualityPanel qualityData={dataQuality} onOpenDetail={setSelectedDetail} />
                     <AlertCenter alertsData={alertsData} onOpenDetail={setSelectedDetail} />
                   </div>
@@ -484,6 +483,16 @@ const styles = {
     gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
     gap: "20px",
     marginBottom: "20px",
+  },
+  intelligenceStack: {
+    display: "grid",
+    gap: "20px",
+  },
+  intelligenceSupportGrid: {
+    display: "grid",
+    gridTemplateColumns: "minmax(320px, 0.9fr) minmax(0, 1.1fr)",
+    gap: "20px",
+    alignItems: "start",
   },
 };
 

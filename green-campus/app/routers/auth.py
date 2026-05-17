@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
@@ -38,7 +39,7 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         )
 
     existing_user = db.query(models.User).filter(
-        models.User.username == username
+        func.lower(models.User.username) == username
     ).first()
 
     if existing_user:
@@ -75,7 +76,7 @@ def login(
         )
 
     user = db.query(models.User).filter(
-        models.User.username == username
+        func.lower(models.User.username) == username
     ).first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):
@@ -118,7 +119,7 @@ def get_current_user(
         raise credentials_exception
 
     user = db.query(models.User).filter(
-        models.User.username == username
+        func.lower(models.User.username) == normalize_username(username)
     ).first()
 
     if user is None:
