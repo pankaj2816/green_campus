@@ -322,7 +322,7 @@ function Dashboard() {
             {activeView === "governance" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.governanceSection} />
-                <div style={styles.workspaceShell}>
+                <div style={styles.governanceShell} className="governance-shell">
                   <div style={styles.workspaceMain}>
                     <RankingSection performanceData={performanceData} />
                     <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
@@ -491,6 +491,12 @@ const styles = {
   intelligenceSupportGrid: {
     display: "grid",
     gridTemplateColumns: "minmax(320px, 0.9fr) minmax(0, 1.1fr)",
+    gap: "20px",
+    alignItems: "start",
+  },
+  governanceShell: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1.2fr) minmax(320px, 0.8fr)",
     gap: "20px",
     alignItems: "start",
   },
