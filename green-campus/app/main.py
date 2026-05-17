@@ -1,5 +1,7 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from app.database import engine, Base
 from app.routers import energy, water, waste, dashboard, auth
 from app.routers import insights
@@ -12,7 +14,6 @@ from app.routers import meta, simulation
 from app.routers import seasonal
 from app.routers import alerts
 from app.routers import data_quality
-import os
 
 
 # Create tables
@@ -24,11 +25,16 @@ app = FastAPI(title="Green Campus MVP")
 # CORS (allow React frontend)
 cors_env = os.getenv("CORS_ORIGINS", "")
 env_origins = [origin.strip() for origin in cors_env.split(",") if origin.strip()]
-origins = [
+origins = []
+for origin in [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://green-campus-frontend.onrender.com",
+    "https://green-campus-frontend-app.onrender.com",
     *env_origins,
-]
+]:
+    if origin and origin not in origins:
+        origins.append(origin)
 
 app.add_middleware(
     CORSMiddleware,
