@@ -66,6 +66,8 @@ function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageTone, setMessageTone] = useState("error");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -73,6 +75,7 @@ function Login({ onLogin }) {
 
     if (!trimmedUsername || !password) {
       setMessage("Please enter both username and password.");
+      setMessageTone("error");
       return;
     }
 
@@ -87,9 +90,11 @@ function Login({ onLogin }) {
         navigate("/dashboard");
       } else {
         setMessage(dashboardCopy.auth.loginInvalid);
+        setMessageTone("error");
       }
     } catch (error) {
       setMessage(error.message || dashboardCopy.auth.loginFailed);
+      setMessageTone("error");
     } finally {
       setLoading(false);
     }
@@ -115,25 +120,41 @@ function Login({ onLogin }) {
 
       <label style={styles.field}>
         <span style={styles.label}>{dashboardCopy.auth.passwordLabel}</span>
-        <input
-          type="password"
-          placeholder={dashboardCopy.auth.passwordLabel}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !loading) {
-              handleLogin();
-            }
-          }}
-        />
+        <div style={styles.passwordField}>
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder={dashboardCopy.auth.passwordLabel}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={styles.passwordInput}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !loading) {
+                handleLogin();
+              }
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((current) => !current)}
+            style={styles.passwordToggle}
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
+        </div>
       </label>
 
       <button onClick={handleLogin} style={styles.primaryButton} disabled={loading}>
         {loading ? dashboardCopy.auth.signingInButton : dashboardCopy.auth.loginButton}
       </button>
 
-      <p style={styles.message}>{message}</p>
+      <p
+        style={{
+          ...styles.message,
+          color: messageTone === "success" ? "#166534" : "#a62b34",
+        }}
+      >
+        {message}
+      </p>
 
       <p style={styles.footerText}>
         {dashboardCopy.auth.noAccountText}{" "}
@@ -218,6 +239,29 @@ const styles = {
     background: "#fbfefd",
     boxSizing: "border-box",
   },
+  passwordField: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) auto",
+    gap: "10px",
+    alignItems: "center",
+  },
+  passwordInput: {
+    width: "100%",
+    padding: "13px 14px",
+    borderRadius: "14px",
+    border: "1px solid #cfddd8",
+    background: "#fbfefd",
+    boxSizing: "border-box",
+  },
+  passwordToggle: {
+    padding: "12px 14px",
+    borderRadius: "12px",
+    border: "1px solid #cfddd8",
+    background: "#f4f8f6",
+    color: "#35514a",
+    cursor: "pointer",
+    fontWeight: "700",
+  },
   primaryButton: {
     width: "100%",
     marginTop: "18px",
@@ -232,7 +276,6 @@ const styles = {
   message: {
     minHeight: "24px",
     marginTop: "12px",
-    color: "#a62b34",
   },
   footerText: {
     color: "#60756f",
