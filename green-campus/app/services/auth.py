@@ -10,10 +10,14 @@ SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# Use PBKDF2 to avoid bcrypt backend issues on some deployment targets.
-pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+# Support both legacy bcrypt hashes and new PBKDF2 hashes.
+pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+def normalize_username(username: str) -> str:
+    return (username or "").strip()
 
 
 def hash_password(password: str):

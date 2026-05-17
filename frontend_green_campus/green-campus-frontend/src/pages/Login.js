@@ -69,11 +69,18 @@ function Login({ onLogin }) {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+    const trimmedUsername = username.trim();
+
+    if (!trimmedUsername || !password) {
+      setMessage("Please enter both username and password.");
+      return;
+    }
+
     setLoading(true);
     setMessage("");
 
     try {
-      const data = await loginUser(username, password);
+      const data = await loginUser(trimmedUsername, password);
 
       if (data?.access_token) {
         onLogin?.(data.access_token);

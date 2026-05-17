@@ -13,6 +13,7 @@ from app.services.auth import (
     hash_password,
     verify_password,
     create_access_token,
+    normalize_username,
     SECRET_KEY,
     ALGORITHM
 )
@@ -29,9 +30,15 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 # =========================
 @router.post("/register")
 def register(request: RegisterRequest, db: Session = Depends(get_db)):
+    username = normalize_username(request.username)
+    if not username or not request.password:
+        raise HTTPException(
+            status_code=400,
+            detail="Username and password are required"
+        )
 
     existing_user = db.query(models.User).filter(
-        models.User.username == request.username
+        models.User.username == username
     ).first()
 
     if existing_user:
@@ -41,7 +48,7 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
         )
 
     user = models.User(
-        username=request.username,
+        username=username,
         hashed_password=hash_password(request.password)
     )
 
@@ -60,9 +67,15 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db)
 ):
+    username = normalize_username(form_data.username)
+    if not username or not form_data.password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username and password are required",
+        )
 
     user = db.query(models.User).filter(
-        models.User.username == form_data.username
+        models.User.username == username
     ).first()
 
     if not user or not verify_password(form_data.password, user.hashed_password):

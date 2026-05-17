@@ -36,10 +36,11 @@ function CarbonFootprintDial({ data }) {
             arcWidth={0.24}
             textColor={theme.colors.primaryText}
           />
-          <div style={styles.centerLabel}>
-            <strong style={styles.mainValue}>{carbonTon.toFixed(2)} tCO2</strong>
-            <span style={styles.mainCaption}>{dashboardCopy.carbon.netLabel}</span>
-          </div>
+        </div>
+
+        <div style={styles.primaryMetricBlock}>
+          <strong style={styles.mainValue}>{carbonTon.toFixed(2)} tCO2</strong>
+          <span style={styles.mainCaption}>{dashboardCopy.carbon.netLabel}</span>
         </div>
 
         <div style={styles.breakdown}>
@@ -101,24 +102,24 @@ const styles = {
   },
   gaugeWrap: {
     position: "relative",
-    minHeight: "330px",
+    minHeight: "250px",
   },
-  centerLabel: {
-    position: "absolute",
-    left: "50%",
-    top: "58%",
-    transform: "translate(-50%, -50%)",
+  primaryMetricBlock: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    pointerEvents: "none",
+    justifyContent: "center",
+    gap: "4px",
+    marginTop: "-6px",
+    marginBottom: "8px",
+    textAlign: "center",
   },
   mainValue: {
     fontSize: theme.fontSizes.cardValue,
     color: theme.colors.primaryText,
+    lineHeight: 1.1,
   },
   mainCaption: {
-    marginTop: "4px",
     color: theme.colors.secondaryText,
   },
   breakdown: {

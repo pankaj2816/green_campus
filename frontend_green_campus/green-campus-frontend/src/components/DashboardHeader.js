@@ -69,7 +69,8 @@ function DashboardHeader({
     <div style={styles.hero} className="hero-command-sticky">
       <div style={styles.heroText}>
         <span style={styles.kicker}>{dashboardCopy.header.kicker}</span>
-        <h1 style={styles.title}>{dashboardCopy.header.title}</h1>
+        <h1 style={styles.title}>{dashboardCopy.branding.appName}</h1>
+        <div style={styles.subtitleLead}>{dashboardCopy.header.title}</div>
         <p style={styles.subtitle}>{dashboardCopy.header.subtitle}</p>
 
         <div style={styles.commandBrief}>
@@ -269,6 +270,12 @@ const styles = {
     fontSize: theme.fontSizes.heroSubtitle,
     maxWidth: "700px",
     lineHeight: 1.6,
+  },
+  subtitleLead: {
+    color: theme.colors.primaryText,
+    fontSize: "18px",
+    fontWeight: "700",
+    marginTop: "-2px",
   },
   commandBrief: {
     display: "grid",
