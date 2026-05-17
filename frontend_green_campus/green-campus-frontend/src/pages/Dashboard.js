@@ -322,14 +322,14 @@ function Dashboard() {
             {activeView === "governance" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.governanceSection} />
-                <div style={styles.governanceShell} className="governance-shell">
-                  <div style={styles.workspaceMain}>
-                    <RankingSection performanceData={performanceData} />
-                    <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
-                  </div>
-                  <div style={styles.workspaceRail}>
-                    <AssumptionsPanel assumptions={assumptions} settings={settingsData} onSaved={refreshSettings} />
-                  </div>
+                <div style={styles.governanceStack} className="governance-stack">
+                  <RankingSection performanceData={performanceData} />
+                  <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
+                  <AssumptionsPanel
+                    assumptions={assumptions}
+                    settings={settingsData}
+                    onSaved={refreshSettings}
+                  />
                 </div>
               </section>
             ) : null}
@@ -494,11 +494,9 @@ const styles = {
     gap: "20px",
     alignItems: "start",
   },
-  governanceShell: {
+  governanceStack: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.2fr) minmax(320px, 0.8fr)",
     gap: "20px",
-    alignItems: "start",
   },
 };
 
