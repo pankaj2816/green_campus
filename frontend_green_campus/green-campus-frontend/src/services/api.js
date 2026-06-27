@@ -1,4 +1,7 @@
-const API_BASE = process.env.REACT_APP_API_BASE_URL || "http://127.0.0.1:8000";
+const normalizeApiBase = (value) => (value || "http://127.0.0.1:8000").replace(/\/+$/, "");
+const API_BASE = normalizeApiBase(process.env.REACT_APP_API_BASE_URL);
+const NETWORK_ERROR_MESSAGE =
+  "Cannot reach the backend service. Please check that the API URL and backend deployment are working.";
 
 const buildUrl = (endpoint, params = {}) => {
   const url = new URL(`${API_BASE}${endpoint}`);
@@ -42,6 +45,18 @@ const getDetailMessage = (data, fallbackMessage) => {
   return data?.detail || data?.message || fallbackMessage;
 };
 
+const performFetch = async (endpoint, options = {}) => {
+  try {
+    return await fetch(buildUrl(endpoint), options);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(NETWORK_ERROR_MESSAGE);
+    }
+
+    throw error;
+  }
+};
+
 const handleResponse = async (response) => {
   if (response.status === 401) {
     localStorage.removeItem("token");
@@ -72,7 +87,7 @@ export const loginUser = async (username, password) => {
   formData.append("username", username);
   formData.append("password", password);
 
-  const response = await fetch(buildUrl("/auth/login"), {
+  const response = await performFetch("/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded",
@@ -84,7 +99,7 @@ export const loginUser = async (username, password) => {
 };
 
 export const registerUser = async (username, password) => {
-  const response = await fetch(buildUrl("/auth/register"), {
+  const response = await performFetch("/auth/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -96,18 +111,26 @@ export const registerUser = async (username, password) => {
 };
 
 export const apiGet = async (endpoint, params = {}) => {
-  const response = await fetch(buildUrl(endpoint, params), {
-    headers: getAuthHeaders(),
-  });
+  try {
+    const response = await fetch(buildUrl(endpoint, params), {
+      headers: getAuthHeaders(),
+    });
 
-  return handleResponse(response);
+    return handleResponse(response);
+  } catch (error) {
+    if (error instanceof TypeError) {
+      throw new Error(NETWORK_ERROR_MESSAGE);
+    }
+
+    throw error;
+  }
 };
 
 export const uploadCampusDataset = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(buildUrl("/admin/upload-campus-excel"), {
+  const response = await performFetch("/admin/upload-campus-excel", {
     method: "POST",
     headers: getAuthHeaders(),
     body: formData,
@@ -120,7 +143,7 @@ export const validateCampusDataset = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
 
-  const response = await fetch(buildUrl("/admin/validate-campus-excel"), {
+  const response = await performFetch("/admin/validate-campus-excel", {
     method: "POST",
     headers: getAuthHeaders(),
     body: formData,
@@ -130,7 +153,7 @@ export const validateCampusDataset = async (file) => {
 };
 
 export const resetCampusDataset = async () => {
-  const response = await fetch(buildUrl("/admin/reset-campus-data"), {
+  const response = await performFetch("/admin/reset-campus-data", {
     method: "POST",
     headers: getAuthHeaders(),
   });
@@ -139,7 +162,7 @@ export const resetCampusDataset = async () => {
 };
 
 export const exportCampusDataset = async () => {
-  const response = await fetch(buildUrl("/admin/export-campus-excel"), {
+  const response = await performFetch("/admin/export-campus-excel", {
     headers: getAuthHeaders(),
   });
 
@@ -162,7 +185,7 @@ export const exportCampusDataset = async () => {
 };
 
 export const apiPost = async (endpoint, body = {}) => {
-  const response = await fetch(buildUrl(endpoint), {
+  const response = await performFetch(endpoint, {
     method: "POST",
     headers: getAuthHeaders({
       "Content-Type": "application/json",
@@ -194,6 +217,8 @@ export const fetchDashboardBundle = async ({
     seasonalOutlook,
     alertsData,
     dataQuality,
+    deviceReadiness,
+    auditTrail,
   ] = await Promise.all([
     apiGet("/dashboard/summary", params),
     apiGet("/dashboard/comparison", params),
@@ -207,6 +232,8 @@ export const fetchDashboardBundle = async ({
     apiGet("/ai/seasonal-outlook", params),
     apiGet("/ai/alerts/overview", params),
     apiGet("/ai/data-quality", params),
+    apiGet("/operations/devices"),
+    apiGet("/meta/audit-trail", { limit: 12 }),
   ]);
 
   return {
@@ -222,11 +249,16 @@ export const fetchDashboardBundle = async ({
     seasonalOutlook,
     alertsData,
     dataQuality,
+    deviceReadiness,
+    auditTrail,
   };
 };
 
 export const fetchAssumptions = async () => apiGet("/meta/assumptions");
 export const fetchDashboardSettings = async () => apiGet("/meta/settings");
+export const fetchAuditTrail = async (limit = 20) => apiGet("/meta/audit-trail", { limit });
+export const fetchDeviceReadiness = async () => apiGet("/operations/devices");
 export const saveDashboardSettings = async (payload) => apiPost("/meta/settings", payload);
+export const saveDeviceReadiness = async (payload) => apiPost("/operations/devices", payload);
 
 export const runSimulation = async (payload) => apiPost("/ai/simulate/impact", payload);

@@ -45,6 +45,7 @@ function DashboardHeader({
   comparisonData,
   riskData,
   insightsData,
+  onLogout,
 }) {
   const navigate = useNavigate();
   const primaryRisk = riskData?.[0];
@@ -52,6 +53,12 @@ function DashboardHeader({
   const comparisonDelta = comparisonData?.delta?.net_energy;
 
   const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+      navigate("/");
+      return;
+    }
+
     localStorage.removeItem("token");
     navigate("/");
   };

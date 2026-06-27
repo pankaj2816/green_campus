@@ -54,6 +54,7 @@ function DataUploadPanel({ onUploadSuccess }) {
       const data = await uploadCampusDataset(file);
       setNotice({ tone: "success", message: data.message || dashboardCopy.dataControls.uploadSuccess });
       setValidation(data.validation || validation);
+      setFile(null);
       onUploadSuccess();
     } catch (error) {
       console.error(error);
@@ -91,6 +92,8 @@ function DataUploadPanel({ onUploadSuccess }) {
     try {
       const data = await resetCampusDataset();
       setNotice({ tone: "success", message: data.message || "Campus data reset successfully" });
+      setFile(null);
+      setValidation(null);
       onUploadSuccess();
     } catch (error) {
       console.error(error);
@@ -113,6 +116,7 @@ function DataUploadPanel({ onUploadSuccess }) {
           accept=".xlsx"
           onChange={(e) => handleFileChange(e.target.files[0])}
           style={styles.hiddenInput}
+          key={file ? file.name : "empty-file"}
         />
         <span style={styles.filePickerLabel}>{dashboardCopy.dataControls.importLabel}</span>
         <span style={styles.filePickerHint}>
@@ -144,7 +148,17 @@ function DataUploadPanel({ onUploadSuccess }) {
           <div style={styles.summaryGrid}>
             {validation.sheet_summaries.map((item) => (
               <div key={item.sheet} style={styles.summaryItem}>
-                <strong>{item.sheet}</strong>
+                <div style={styles.summaryTop}>
+                  <strong>{item.sheet}</strong>
+                  <span
+                    style={{
+                      ...styles.summaryStatus,
+                      ...(item.status === "ready" ? styles.summaryReady : styles.summaryNeedsAttention),
+                    }}
+                  >
+                    {item.status === "ready" ? "Ready" : "Review"}
+                  </span>
+                </div>
                 <span>
                   {item.rows} {dashboardCopy.dataControls.rowsLabel}
                 </span>
@@ -268,6 +282,26 @@ const styles = {
     gap: "2px",
     color: "#35514a",
     fontSize: "12px",
+  },
+  summaryTop: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "8px",
+    alignItems: "center",
+  },
+  summaryStatus: {
+    padding: "3px 8px",
+    borderRadius: "999px",
+    fontSize: "10px",
+    fontWeight: "700",
+  },
+  summaryReady: {
+    color: "#166534",
+    background: "#e9f8ef",
+  },
+  summaryNeedsAttention: {
+    color: "#8a3d45",
+    background: "#fdeff1",
   },
   warningList: {
     display: "grid",

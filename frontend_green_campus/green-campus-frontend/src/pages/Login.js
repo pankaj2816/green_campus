@@ -137,13 +137,14 @@ function Login({ onLogin }) {
             type="button"
             onClick={() => setShowPassword((current) => !current)}
             style={styles.passwordToggle}
+            disabled={loading}
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
       </label>
 
-      <button onClick={handleLogin} style={styles.primaryButton} disabled={loading}>
+      <button type="button" onClick={handleLogin} style={styles.primaryButton} disabled={loading}>
         {loading ? dashboardCopy.auth.signingInButton : dashboardCopy.auth.loginButton}
       </button>
 

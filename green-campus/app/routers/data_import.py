@@ -9,6 +9,7 @@ from app.database import get_db
 from app import models
 from app.routers.auth import get_current_user
 from app.routers.dashboard import calculate_building_performance
+from app.services.audit import log_audit_event
 
 router = APIRouter(prefix="/admin", tags=["Data Management"])
 
@@ -17,6 +18,13 @@ REQUIRED_SHEETS = {
     "water": {"required": True, "columns": ["date", "building", "water_kl"]},
     "solar": {"required": False, "columns": ["date", "building", "solar_kwh"]},
     "waste": {"required": False, "columns": ["date", "building", "waste_kg"]},
+}
+
+RESOURCE_VALUE_FIELDS = {
+    "energy": "energy_kwh",
+    "water": "water_kl",
+    "solar": "solar_kwh",
+    "waste": "waste_kg",
 }
 
 
@@ -48,6 +56,41 @@ def _infer_water_unit(df: pd.DataFrame):
         return df, "liters_converted_to_kl"
 
     return df, "kl"
+
+
+def _sanitize_resource_dataframe(sheet_name: str, df: pd.DataFrame):
+    if df.empty:
+        return df, []
+
+    cleaned = df.copy()
+    warnings = []
+    required_columns = REQUIRED_SHEETS[sheet_name]["columns"]
+    value_field = RESOURCE_VALUE_FIELDS[sheet_name]
+
+    cleaned = cleaned.dropna(how="all")
+    if cleaned.empty:
+        return cleaned, warnings
+
+    if "date" in cleaned.columns:
+        cleaned["date"] = pd.to_datetime(cleaned["date"], errors="coerce")
+    if "building" in cleaned.columns:
+        cleaned["building"] = cleaned["building"].astype(str).str.strip()
+        cleaned.loc[cleaned["building"].isin(["", "nan", "None"]), "building"] = pd.NA
+    if value_field in cleaned.columns:
+        cleaned[value_field] = pd.to_numeric(cleaned[value_field], errors="coerce")
+
+    valid_mask = pd.Series(True, index=cleaned.index)
+    for column in required_columns:
+        valid_mask &= cleaned[column].notna()
+
+    dropped_rows = int((~valid_mask).sum())
+    if dropped_rows:
+        warnings.append(
+            f"Sheet '{sheet_name}' had {dropped_rows} row(s) skipped because date, building, or value was blank or invalid."
+        )
+
+    cleaned = cleaned.loc[valid_mask].copy()
+    return cleaned, warnings
 
 
 def _validate_workbook(file_obj):
@@ -85,6 +128,10 @@ def _validate_workbook(file_obj):
                 results["warnings"].append(
                     "Water values looked like liters, so they were converted to kl during import."
                 )
+
+        if not missing_columns:
+            df, sanitize_warnings = _sanitize_resource_dataframe(sheet_name, df)
+            results["warnings"].extend(sanitize_warnings)
 
         dataframes[sheet_name] = df
         results["sheet_summaries"].append({
@@ -161,6 +208,24 @@ async def upload_campus_excel(
         ))
 
     db.commit()
+    log_audit_event(
+        db,
+        event_type="dataset",
+        action="import",
+        actor_username=current_user.username,
+        summary="Imported campus Excel dataset",
+        target_name=file.filename,
+        details={
+            "imported_rows": {
+                "energy": int(len(energy_df.index)),
+                "water": int(len(water_df.index)),
+                "solar": int(len(solar_df.index)),
+                "waste": int(len(waste_df.index)),
+            },
+            "warnings": validation.get("warnings", []),
+        },
+    )
+    db.commit()
 
     return {
         "message": "Campus dataset imported successfully",
@@ -180,6 +245,14 @@ def reset_campus_data(
     current_user: models.User = Depends(get_current_user),
 ):
     _clear_existing_data(db)
+    log_audit_event(
+        db,
+        event_type="dataset",
+        action="reset",
+        actor_username=current_user.username,
+        summary="Reset all imported campus resource data",
+        target_name="campus_dataset",
+    )
     db.commit()
     return {"message": "All campus resource data has been reset"}
 

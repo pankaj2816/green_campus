@@ -2,10 +2,11 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+from app.services.audit import serialize_audit_event
 from app.services.metrics_config import get_assumptions_payload
 from app.services.settings_service import get_dashboard_settings, save_dashboard_settings
 from app.database import get_db
-from app.models import User
+from app.models import AuditEvent, User
 from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/meta", tags=["Metadata"])
@@ -50,4 +51,22 @@ def update_settings(
             "action_tracker": request.action_tracker or {},
             "metric_overrides": request.metric_overrides or {},
         },
+        actor_username=current_user.username,
     )
+
+
+@router.get("/audit-trail")
+def get_audit_trail(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    records = (
+        db.query(AuditEvent)
+        .order_by(AuditEvent.created_at.desc())
+        .limit(min(max(limit, 1), 100))
+        .all()
+    )
+    return {
+        "records": [serialize_audit_event(record) for record in records],
+    }

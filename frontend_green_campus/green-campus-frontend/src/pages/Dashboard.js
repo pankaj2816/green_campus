@@ -24,6 +24,8 @@ import ActionTrackerPanel from "../components/ActionTrackerPanel";
 import InsightDetailDrawer from "../components/InsightDetailDrawer";
 import InfoHint from "../components/InfoHint";
 import StatusNotice from "../components/StatusNotice";
+import DeviceReadinessPanel from "../components/DeviceReadinessPanel";
+import AuditTrailPanel from "../components/AuditTrailPanel";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
@@ -40,7 +42,7 @@ function SectionIntro({ kicker, title, subtitle, helpText }) {
   );
 }
 
-function Dashboard() {
+function Dashboard({ onLogout }) {
   const [data, setData] = useState(null);
   const [trendData, setTrendData] = useState([]);
   const [comparisonData, setComparisonData] = useState(null);
@@ -54,6 +56,8 @@ function Dashboard() {
   const [seasonalOutlook, setSeasonalOutlook] = useState(null);
   const [alertsData, setAlertsData] = useState(null);
   const [dataQuality, setDataQuality] = useState(null);
+  const [deviceReadiness, setDeviceReadiness] = useState(null);
+  const [auditTrail, setAuditTrail] = useState(null);
   const [selectedBuilding, setSelectedBuilding] = useState("");
   const [forecastGranularity, setForecastGranularity] = useState("monthly");
   const [dateFrom, setDateFrom] = useState("");
@@ -91,6 +95,8 @@ function Dashboard() {
       setSeasonalOutlook(bundle.seasonalOutlook);
       setAlertsData(bundle.alertsData);
       setDataQuality(bundle.dataQuality);
+      setDeviceReadiness(bundle.deviceReadiness);
+      setAuditTrail(bundle.auditTrail);
     } catch (error) {
       console.error("Dashboard fetch error:", error);
       setLoadError(error.message || "Unable to load dashboard data. Please check the backend service and try again.");
@@ -212,6 +218,7 @@ function Dashboard() {
                   screenshotMode={screenshotMode}
                   setScreenshotMode={setScreenshotMode}
                   onPrintReport={handlePrintReport}
+                  onLogout={onLogout}
                 />
 
                 <div style={styles.mobileTabs} className="dashboard-mobile-tabs">
@@ -330,6 +337,8 @@ function Dashboard() {
                     settings={settingsData}
                     onSaved={refreshSettings}
                   />
+                  <DeviceReadinessPanel deviceReadiness={deviceReadiness} onSaved={fetchData} />
+                  <AuditTrailPanel auditTrail={auditTrail} />
                 </div>
               </section>
             ) : null}

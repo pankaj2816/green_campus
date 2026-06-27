@@ -98,6 +98,11 @@ function Register() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               style={styles.input}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !loading) {
+                  handleRegister();
+                }
+              }}
             />
           </label>
 
@@ -110,18 +115,24 @@ function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 style={styles.passwordInput}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !loading) {
+                    handleRegister();
+                  }
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
                 style={styles.passwordToggle}
+                disabled={loading}
               >
                 {showPassword ? "Hide" : "Show"}
               </button>
             </div>
           </label>
 
-          <button onClick={handleRegister} style={styles.primaryButton} disabled={loading}>
+          <button type="button" onClick={handleRegister} style={styles.primaryButton} disabled={loading}>
             {loading ? dashboardCopy.auth.registeringButton : dashboardCopy.auth.registerButton}
           </button>
 

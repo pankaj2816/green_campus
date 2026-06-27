@@ -3,6 +3,7 @@ import json
 from sqlalchemy.orm import Session
 
 from app import models
+from app.services.audit import log_audit_event
 from app.services.metrics_config import ACADEMIC_OCCUPANCY_FACTORS
 
 
@@ -66,7 +67,7 @@ def get_dashboard_settings(db: Session):
     return merged
 
 
-def save_dashboard_settings(db: Session, settings_payload: dict):
+def save_dashboard_settings(db: Session, settings_payload: dict, actor_username: str | None = None):
     current = get_dashboard_settings(db)
     next_payload = {
         "academic_occupancy_factors": {
@@ -97,6 +98,20 @@ def save_dashboard_settings(db: Session, settings_payload: dict):
         db.add(record)
     else:
         record.value_json = json.dumps(next_payload)
+
+    if actor_username:
+        changed_sections = [key for key, value in settings_payload.items() if value]
+        log_audit_event(
+            db,
+            event_type="settings",
+            action="update",
+            actor_username=actor_username,
+            summary=f"Updated dashboard settings: {', '.join(changed_sections) if changed_sections else 'no visible sections'}",
+            target_name=SETTINGS_KEY,
+            details={
+                "changed_sections": changed_sections,
+            },
+        )
 
     db.commit()
     db.refresh(record)

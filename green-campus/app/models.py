@@ -1,6 +1,8 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, Text
-from app.database import Base
 from datetime import datetime
+
+from sqlalchemy import Boolean, Column, DateTime, Float, Integer, String, Text
+
+from app.database import Base
 
 class EnergyData(Base):
     __tablename__ = "energy_data"
@@ -52,4 +54,34 @@ class CampusSetting(Base):
     id = Column(Integer, primary_key=True, index=True)
     key = Column(String, unique=True, index=True)
     value_json = Column(Text)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class AuditEvent(Base):
+    __tablename__ = "audit_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_type = Column(String, index=True)
+    action = Column(String, index=True)
+    actor_username = Column(String, index=True)
+    scope = Column(String, default="Campus")
+    target_name = Column(String, nullable=True)
+    summary = Column(String)
+    details_json = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+
+class DeviceRegistry(Base):
+    __tablename__ = "device_registry"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, index=True)
+    category = Column(String, index=True)
+    building = Column(String, index=True)
+    source_type = Column(String, default="meter")
+    status = Column(String, default="planned", index=True)
+    expected_frequency_minutes = Column(Integer, default=1440)
+    last_sync_at = Column(DateTime, nullable=True)
+    notes = Column(Text, nullable=True)
+    is_critical = Column(Boolean, default=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

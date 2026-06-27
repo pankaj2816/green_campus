@@ -14,6 +14,7 @@ from app.routers import meta, simulation
 from app.routers import seasonal
 from app.routers import alerts
 from app.routers import data_quality
+from app.routers import operations
 
 
 # Create tables
@@ -62,6 +63,7 @@ app.include_router(simulation.router)
 app.include_router(seasonal.router)
 app.include_router(alerts.router)
 app.include_router(data_quality.router)
+app.include_router(operations.router)
 
 @app.get("/")
 def root():
