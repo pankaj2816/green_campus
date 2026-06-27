@@ -37,6 +37,7 @@ export default function AuditTrailPanel({ auditTrail }) {
               text="This is a simple action history. It records important operations such as settings changes, dataset imports, data resets, and device registry updates so teams can understand what changed and when."
               width={330}
               align="right"
+              placement="top"
             />
           </h3>
           <p style={styles.subtitle}>
@@ -89,7 +90,12 @@ export default function AuditTrailPanel({ auditTrail }) {
           })}
         </div>
       ) : (
-        <p style={styles.empty}>No tracked governance activity is available yet.</p>
+        <div style={styles.emptyState}>
+          <p style={styles.empty}>No tracked governance activity is available yet.</p>
+          <span style={styles.emptyHint}>
+            Save settings, import data, reset data, or update device readiness to start filling this timeline.
+          </span>
+        </div>
       )}
     </div>
   );
@@ -208,5 +214,18 @@ const styles = {
   empty: {
     margin: 0,
     color: "#60756f",
+  },
+  emptyState: {
+    display: "grid",
+    gap: "8px",
+    padding: "14px",
+    borderRadius: "16px",
+    border: "1px dashed #d8e5df",
+    background: "#f8fbfa",
+  },
+  emptyHint: {
+    color: "#35514a",
+    fontSize: "13px",
+    lineHeight: 1.55,
   },
 };

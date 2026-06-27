@@ -367,7 +367,7 @@ const styles = {
   page: {
     position: "relative",
     overflow: "hidden",
-    padding: "28px 20px 60px",
+    padding: "24px 16px 52px",
     minHeight: "100vh",
     background:
       "radial-gradient(circle at top left, rgba(96,165,250,0.12), transparent 30%), linear-gradient(180deg, #f5f8f7 0%, #eef3f1 100%)",
@@ -407,16 +407,18 @@ const styles = {
   },
   pageInner: {
     position: "relative",
-    maxWidth: "1400px",
+    maxWidth: "1560px",
     margin: "0 auto",
   },
   shell: {
     display: "grid",
-    gridTemplateColumns: "280px minmax(0, 1fr)",
-    gap: "24px",
+    gridTemplateColumns: "248px minmax(0, 1fr)",
+    gap: "20px",
   },
   mainColumn: {
     minWidth: 0,
+    display: "grid",
+    gap: "18px",
   },
   mainColumnScreenshot: {
     maxWidth: "1180px",
@@ -446,27 +448,27 @@ const styles = {
     boxShadow: "0 10px 24px rgba(37, 99, 235, 0.18)",
   },
   sectionBlock: {
-    marginBottom: "34px",
+    marginBottom: "20px",
   },
   workspaceShell: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.45fr) minmax(320px, 0.95fr)",
-    gap: "20px",
+    gridTemplateColumns: "minmax(0, 1.32fr) minmax(300px, 0.96fr)",
+    gap: "18px",
     alignItems: "start",
   },
   workspaceMain: {
     minWidth: 0,
     display: "grid",
-    gap: "18px",
+    gap: "16px",
   },
   workspaceRail: {
     minWidth: 0,
     display: "grid",
-    gap: "18px",
+    gap: "16px",
     alignSelf: "start",
   },
   sectionIntro: {
-    marginBottom: "16px",
+    marginBottom: "14px",
     padding: "0 4px",
   },
   sectionKicker: {
@@ -485,27 +487,27 @@ const styles = {
     margin: 0,
     color: "#60756f",
     lineHeight: 1.6,
-    maxWidth: "800px",
+    maxWidth: "920px",
   },
   twoCol: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-    gap: "20px",
-    marginBottom: "20px",
+    gap: "18px",
+    marginBottom: "18px",
   },
   intelligenceStack: {
     display: "grid",
-    gap: "20px",
+    gap: "18px",
   },
   intelligenceSupportGrid: {
     display: "grid",
-    gridTemplateColumns: "minmax(320px, 0.9fr) minmax(0, 1.1fr)",
-    gap: "20px",
+    gridTemplateColumns: "minmax(300px, 0.92fr) minmax(0, 1.08fr)",
+    gap: "18px",
     alignItems: "start",
   },
   governanceStack: {
     display: "grid",
-    gap: "20px",
+    gap: "18px",
   },
 };
 

@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 
-export default function InfoHint({ title = "What this means", text, width = 280, align = "left" }) {
+export default function InfoHint({
+  title = "What this means",
+  text,
+  width = 280,
+  align = "left",
+  placement = "bottom",
+}) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -27,6 +33,7 @@ export default function InfoHint({ title = "What this means", text, width = 280,
             maxWidth: "min(320px, calc(100vw - 32px))",
             ...(align === "right" ? styles.tooltipRight : {}),
             ...(align === "center" ? styles.tooltipCenter : {}),
+            ...(placement === "top" ? styles.tooltipTop : {}),
           }}
         >
           <strong style={styles.tooltipTitle}>{title}</strong>
@@ -79,6 +86,10 @@ const styles = {
   tooltipCenter: {
     left: "50%",
     transform: "translateX(-50%)",
+  },
+  tooltipTop: {
+    top: "auto",
+    bottom: "30px",
   },
   tooltipTitle: {
     fontSize: "12px",

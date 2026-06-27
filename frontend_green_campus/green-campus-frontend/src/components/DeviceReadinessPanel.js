@@ -156,6 +156,7 @@ export default function DeviceReadinessPanel({ deviceReadiness, onSaved }) {
               title="What device readiness means"
               text="This section tracks which meters, logs, and digital sources are ready for live monitoring. It helps you plan what can become real-time first and what still depends on manual reporting."
               width={330}
+              placement="top"
             />
           </h3>
           <p style={styles.subtitle}>
@@ -411,9 +412,9 @@ const styles = {
     background: "#f8fbfa",
     border: "1px solid #deebe6",
     borderRadius: "20px",
-    padding: "16px",
+    padding: "16px 16px 14px",
     display: "grid",
-    gap: "14px",
+    gap: "12px",
   },
   deviceTop: {
     display: "flex",
@@ -457,12 +458,13 @@ const styles = {
   },
   formGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
     gap: "12px",
   },
   field: {
     display: "grid",
     gap: "6px",
+    minWidth: 0,
   },
   fieldLabel: {
     color: "#35514a",
@@ -474,27 +476,33 @@ const styles = {
     borderRadius: "12px",
     border: "1px solid #d5e1dc",
     background: "#ffffff",
+    width: "100%",
+    boxSizing: "border-box",
   },
   checkboxField: {
     display: "flex",
     alignItems: "center",
-    gap: "8px",
+    gap: "10px",
     color: "#35514a",
     fontSize: "13px",
     fontWeight: "600",
-    paddingTop: "26px",
+    flexWrap: "wrap",
+    gridColumn: "1 / -1",
+    padding: "4px 0 0",
   },
   textarea: {
-    minHeight: "80px",
+    minHeight: "72px",
     padding: "11px 12px",
     borderRadius: "12px",
     border: "1px solid #d5e1dc",
     background: "#ffffff",
     resize: "vertical",
+    width: "100%",
+    boxSizing: "border-box",
   },
   deviceFooter: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     gap: "12px",
     flexWrap: "wrap",
     alignItems: "center",
