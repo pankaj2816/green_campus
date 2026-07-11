@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MGCD Building Pilot Implementation Report</title>
+  <style>
+    :root {
+      --bg: #f2f7f4;
+      --surface: #ffffff;
+      --surface-soft: #f8fbfa;
+      --text: #17342d;
+      --muted: #5f756f;
+      --accent: #1b7f62;
+      --accent-blue: #2458c6;
+      --border: #d8e5df;
+      --shadow: 0 18px 40px rgba(12, 24, 21, 0.08);
+      --warn: #b45309;
+      --danger: #a61f2d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 22%),
+        var(--bg);
+      line-height: 1.65;
+    }
+
+    .page {
+      width: min(1220px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero,
+    .section,
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8fcfa 0%, #eff7f3 54%, #eef2ff 100%);
+    }
+
+    .kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    h1 {
+      margin: 12px 0 10px;
+      font-size: 42px;
+      line-height: 1.06;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 980px;
+      font-size: 16px;
+    }
+
+    .section {
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    .section-intro {
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .summary-grid,
+    .assumption-grid,
+    .scenario-grid,
+    .op-grid,
+    .timeline-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 22px;
+    }
+
+    .assumption-grid,
+    .scenario-grid,
+    .op-grid,
+    .timeline-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .card,
+    .scenario-card,
+    .timeline-card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e9f7f1;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .warn {
+      background: #fff4e5;
+      color: var(--warn);
+    }
+
+    .danger {
+      background: #fdeef1;
+      color: var(--danger);
+    }
+
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .cost-table th,
+    .cost-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .cost-table th {
+      background: #f7fbf9;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cost-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .amount {
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    .callout {
+      padding: 22px 24px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fffdf8 0%, #fff7ea 100%);
+    }
+
+    .callout strong {
+      display: block;
+      color: var(--warn);
+      margin-bottom: 8px;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .source-list a {
+      color: var(--accent-blue);
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .source-list a:hover {
+      text-decoration: underline;
+    }
+
+    code {
+      background: #eef5f2;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        width: min(100% - 20px, 1220px);
+      }
+
+      .hero,
+      .section,
+      .callout {
+        border-radius: 22px;
+      }
+
+      .hero,
+      .section {
+        padding: 22px 18px;
+      }
+
+      h1 {
+        font-size: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <span class="kicker">MAHE Green Campus Dashboard (MGCD)</span>
+      <h1>Single-Building Campus Implementation Cost Report</h1>
+      <p>
+        This report estimates the cost of implementing the current MGCD platform for one campus building as a real pilot project.
+        It covers hardware, electrical integration, cloud/runtime, software enablement, annual maintenance, and rollout steps.
+        Because an exact building was not specified, this report uses a realistic <strong>pilot-building assumption</strong> that can later be refined to your actual block.
+      </p>
+
+      <div class="summary-grid">
+        <div class="card">
+          <span class="badge">Recommended Budget</span>
+          <strong>Rs 1.08 lakh to Rs 1.35 lakh</strong>
+          <div>This is the most realistic first-building budget when you want a useful pilot, not just a demo setup.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Annual Maintenance</span>
+          <strong>Rs 56,000 to Rs 1.08 lakh / year</strong>
+          <div>Includes hosting, hardware support, routine health checks, and minor software/admin effort.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Fastest Rollout</span>
+          <strong>5 to 8 weeks</strong>
+          <div>Site survey, procurement, installation, dashboard mapping, user acceptance test, and handover.</div>
+        </div>
+        <div class="card">
+          <span class="badge warn">Important Reality</span>
+          <strong>Current app is dashboard-ready, not full telemetry-ready</strong>
+          <div>Live building deployment still needs a small ingestion layer between devices and the current backend.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1. Pilot Building Assumptions</h2>
+      <p class="section-intro">
+        Since the exact building was not provided, this estimate assumes a realistic first deployment for a single academic or admin block.
+        These assumptions are intentionally practical and aligned with the current MGCD architecture.
+      </p>
+
+      <div class="assumption-grid">
+        <div class="card">
+          <strong>Building type</strong>
+          <div>Academic block or admin block with one main LT incomer and a few meaningful internal zones.</div>
+        </div>
+        <div class="card">
+          <strong>Size</strong>
+          <div>About 5,000 to 7,000 sqm built-up area, with 500 to 900 active daily users.</div>
+        </div>
+        <div class="card">
+          <strong>Energy layout</strong>
+          <div>1 main incomer + 3 internal monitoring points such as floors, HVAC branch, or lab/power branch.</div>
+        </div>
+        <div class="card">
+          <strong>Water layout</strong>
+          <div>One practical water visibility layer using leak/tank monitoring first, not full campus water SCADA.</div>
+        </div>
+        <div class="card">
+          <strong>Solar layout</strong>
+          <div>Either existing inverter data is available, or one extra solar feeder meter must be added.</div>
+        </div>
+        <div class="card">
+          <strong>Network model</strong>
+          <div>One edge collector with LAN or 4G connection, pushing data to the MGCD backend.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Why this is the right assumption model</strong>
+        For a first real deployment, trying to instrument every internal circuit and every pipe is not cost-effective.
+        A pilot succeeds when it gives trustworthy building-level visibility, device health, alerts, and a credible management report.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>2. What Must Be Added To The Current Project</h2>
+      <p class="section-intro">
+        The current software is already strong for dashboarding, forecasting, governance, audit trail, and device-readiness tracking.
+        However, for real building use, it still needs a live telemetry bridge.
+      </p>
+
+      <div class="op-grid">
+        <div class="card">
+          <strong>Already present</strong>
+          <ul>
+            <li>Dashboard UI and reporting</li>
+            <li>Excel import/export/reset</li>
+            <li>Forecasting, risk, simulator, alerts</li>
+            <li>Audit trail for key actions</li>
+            <li>Device-readiness registry</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Still needed for live building deployment</strong>
+          <ul>
+            <li>Telemetry ingestion APIs such as <code>/ingest/energy</code> and <code>/ingest/water</code></li>
+            <li>Edge collector script for RS485/Modbus polling</li>
+            <li>Raw telemetry storage or aggregation buffer</li>
+            <li>Stale-device alerting from live sync timestamps</li>
+            <li>Device authentication or signed ingestion keys</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Cost impact</strong>
+          <div>
+            If your team builds this enablement in-house, cash cost is low.
+            If outsourced, it should be budgeted as a one-time software integration package.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>3. Initial CAPEX Estimate For One Building</h2>
+      <p class="section-intro">
+        This table separates source-backed items from engineering-estimate items.
+        Source-backed items are based on current linked prices. Engineering-estimate items are practical budget bands that normally depend on site wiring, CT selection, plumbing constraints, and labor.
+      </p>
+
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Line item</th>
+            <th>Qty</th>
+            <th>Unit estimate</th>
+            <th>Total estimate</th>
+            <th>Why it is needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TRINITY RS485 digital energy meter</td>
+            <td>4</td>
+            <td class="amount">Rs 2,464</td>
+            <td class="amount">Rs 9,856</td>
+            <td>Main incomer plus 3 useful internal monitoring points.</td>
+          </tr>
+          <tr>
+            <td>Solar feeder meter</td>
+            <td>0 or 1</td>
+            <td class="amount">Rs 2,464</td>
+            <td class="amount">Rs 0 to Rs 2,464</td>
+            <td>Only needed if rooftop solar cannot be read from the inverter directly.</td>
+          </tr>
+          <tr>
+            <td>Edge collector kit</td>
+            <td>1</td>
+            <td class="amount">Rs 11,500 to Rs 13,500</td>
+            <td class="amount">Rs 11,500 to Rs 13,500</td>
+            <td>Raspberry Pi 5 4GB board, power, case, storage, and basic serial interfaces.</td>
+          </tr>
+          <tr>
+            <td>Water starter visibility package</td>
+            <td>1 set</td>
+            <td class="amount">Rs 8,000 to Rs 15,000</td>
+            <td class="amount">Rs 8,000 to Rs 15,000</td>
+            <td>Leak/tank monitoring first, used when full inline digital water metering is not yet justified.</td>
+          </tr>
+          <tr>
+            <td>Mini UPS, enclosure, LAN/4G router, RS485 adapters</td>
+            <td>1 set</td>
+            <td class="amount">Rs 10,000 to Rs 15,000</td>
+            <td class="amount">Rs 10,000 to Rs 15,000</td>
+            <td>Required for stable, protected, always-on telemetry.</td>
+          </tr>
+          <tr>
+            <td>CTs, terminals, panel accessories, wiring materials</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 12,000 to Rs 25,000</td>
+            <td class="amount">Rs 12,000 to Rs 25,000</td>
+            <td>Usually underestimated, but necessary for safe and clean panel integration.</td>
+          </tr>
+          <tr>
+            <td>Electrical installation and commissioning labor</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 18,000 to Rs 35,000</td>
+            <td class="amount">Rs 18,000 to Rs 35,000</td>
+            <td>Meter mounting, CT wiring, collector setup, testing, and verification.</td>
+          </tr>
+          <tr>
+            <td>MGCD live-enablement and configuration</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 22,000 to Rs 45,000</td>
+            <td class="amount">Rs 22,000 to Rs 45,000</td>
+            <td>Backend ingestion bridge, dashboard mapping, device registration, testing, and operator training.</td>
+          </tr>
+          <tr>
+            <td>Contingency</td>
+            <td>10%</td>
+            <td class="amount">10% of above</td>
+            <td class="amount">Rs 9,000 to Rs 17,000</td>
+            <td>Protects the pilot against panel surprises, extra cable runs, and sensor accessories.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>4. Final Initial Cost Scenarios</h2>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <span class="badge">Scenario A</span>
+          <strong>Minimal smart pilot: Rs 70,000 to Rs 95,000</strong>
+          <ul>
+            <li>3 energy meters instead of 4</li>
+            <li>Existing solar API, no extra solar meter</li>
+            <li>Water kept mostly manual or tank-level only</li>
+            <li>In-house software setup</li>
+          </ul>
+          <div>This is the lowest sensible budget that still gives real building visibility.</div>
+        </div>
+
+        <div class="scenario-card">
+          <span class="badge">Scenario B</span>
+          <strong>Recommended pilot: Rs 1.08 lakh to Rs 1.35 lakh</strong>
+          <ul>
+            <li>4 energy meters</li>
+            <li>Device collector and protected network</li>
+            <li>Starter water visibility package</li>
+            <li>Live MGCD enablement and operator handover</li>
+          </ul>
+          <div>This is the best balance of cost, usefulness, and management credibility.</div>
+        </div>
+
+        <div class="scenario-card">
+          <span class="badge danger">Scenario C</span>
+          <strong>Advanced pilot: Rs 1.45 lakh to Rs 2.20 lakh</strong>
+          <ul>
+            <li>Dedicated solar meter if needed</li>
+            <li>Fuller water instrumentation on one main line</li>
+            <li>More submetering inside the building</li>
+            <li>Higher-quality site packaging and managed commissioning</li>
+          </ul>
+          <div>This is suitable if the building is energy-intensive or is meant to become the showcase reference building.</div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Recommended answer for planning meetings</strong>
+        If someone asks for a practical first number, use <strong>Rs 1.2 lakh per building</strong> as the planning figure for a good single-building pilot, and say that this can move down toward Rs 80k or up toward Rs 2 lakh depending on water and solar instrumentation depth.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5. Recurring OPEX / Annual Maintenance</h2>
+      <p class="section-intro">
+        Annual maintenance is not only hardware servicing. In a live dashboard system, the real recurring costs are hosting, device health checks, data QA, and small operational support.
+      </p>
+
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Recurring item</th>
+            <th>Annual estimate</th>
+            <th>How it was interpreted</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Render hosting and database</td>
+            <td class="amount">Rs 15,000 to Rs 19,000 / year</td>
+            <td>Based on Starter web service at $7/month, Basic-256MB Postgres at $6/month, plus small allowance for domain/bandwidth/backups. INR conversion here uses an assumption of Rs 86 per USD.</td>
+          </tr>
+          <tr>
+            <td>Preventive hardware maintenance and calibration visits</td>
+            <td class="amount">Rs 12,000 to Rs 20,000 / year</td>
+            <td>Periodic checks on meters, communication lines, power health, and enclosure conditions.</td>
+          </tr>
+          <tr>
+            <td>Software administration and data QA</td>
+            <td class="amount">Rs 24,000 to Rs 60,000 / year</td>
+            <td>Includes a few support hours each month for user issues, dashboard tuning, device registry updates, and audit review.</td>
+          </tr>
+          <tr>
+            <td>Replacement reserve / spares</td>
+            <td class="amount">Rs 5,000 to Rs 10,000 / year</td>
+            <td>Covers failed adapters, power supplies, SD/storage replacement, and small sensor swaps.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="scenario-grid" style="margin-top: 16px;">
+        <div class="scenario-card">
+          <span class="badge">Lean in-house support</span>
+          <strong>Rs 56,000 to Rs 70,000 / year</strong>
+          <div>Use this if the college owns day-to-day operations and only needs light maintenance help.</div>
+        </div>
+        <div class="scenario-card">
+          <span class="badge">Managed support</span>
+          <strong>Rs 80,000 to Rs 1.08 lakh / year</strong>
+          <div>Use this if an external vendor or integrator supports the deployment regularly.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>6. Implementation Timeline</h2>
+      <div class="timeline-grid">
+        <div class="timeline-card">
+          <strong>Week 1</strong>
+          <div>Site survey, panel mapping, meter point confirmation, water monitoring choice, and solar data source review.</div>
+        </div>
+        <div class="timeline-card">
+          <strong>Week 2</strong>
+          <div>Procurement of meters, collector hardware, UPS, adapters, and accessories.</div>
+        </div>
+        <div class="timeline-card">
+          <strong>Week 3-4</strong>
+          <div>Electrical installation, CT wiring, collector setup, network connection, and basic telemetry test.</div>
+        </div>
+        <div class="timeline-card">
+          <strong>Week 5</strong>
+          <div>MGCD live-enablement: device registration, ingestion script integration, dashboard mapping, and alert validation.</div>
+        </div>
+        <div class="timeline-card">
+          <strong>Week 6</strong>
+          <div>User acceptance test, report review, training of building operators, and audit/device-readiness review.</div>
+        </div>
+        <div class="timeline-card">
+          <strong>Week 7-8</strong>
+          <div>Stabilization window, anomaly tuning, occupancy/context validation, and management sign-off.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>7. Recommended Technical Scope For The First Building</h2>
+      <div class="op-grid">
+        <div class="card">
+          <strong>Must do</strong>
+          <ul>
+            <li>Main incomer meter</li>
+            <li>2-3 additional internal meters</li>
+            <li>One edge collector</li>
+            <li>Protected power and network</li>
+            <li>Device registry and audit trail usage</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Should do</strong>
+          <ul>
+            <li>Solar feeder integration if rooftop solar exists</li>
+            <li>Basic water leak or tank monitoring</li>
+            <li>Stale-device alerting</li>
+            <li>Weekly health review using audit + readiness screens</li>
+          </ul>
+        </div>
+        <div class="card">
+          <strong>Can wait for phase 2</strong>
+          <ul>
+            <li>Full inline water flow metering everywhere</li>
+            <li>Detailed waste automation</li>
+            <li>LoRaWAN coverage across many buildings</li>
+            <li>Advanced tariff or peak-demand optimization</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>8. Management Recommendation</h2>
+      <p class="section-intro">
+        If your goal is to move from project/demo to real campus use, the strongest strategy is to make one building fully credible first.
+      </p>
+      <div class="scenario-grid">
+        <div class="scenario-card">
+          <strong>Best budget for planning</strong>
+          <div>Use <strong>Rs 1.2 lakh CAPEX</strong> and <strong>Rs 70,000 annual OPEX</strong> as the practical planning figure for one good building pilot.</div>
+        </div>
+        <div class="scenario-card">
+          <strong>Best building type to start with</strong>
+          <div>Choose a building with stable occupancy, visible electrical panels, and at least one meaningful operational use case such as HVAC, labs, library, or admin operations.</div>
+        </div>
+        <div class="scenario-card">
+          <strong>What success should look like</strong>
+          <div>Within 2 months, the building should show live or near-live energy visibility, device health status, alerts, sustainability reporting, and audit-backed operational changes.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>9. Sources Used</h2>
+      <p class="section-intro">
+        These sources were used for current pricing anchors and deployment interpretation. Some remaining values in the report are engineering estimates and are marked as such.
+      </p>
+      <div class="source-list">
+        <a href="https://electrixzone.com/product/trinity-digital-energy-meter-entity-rs485/">ElectrixZone: TRINITY Digital Energy Meter ENTITY RS485</a>
+        <a href="https://render.com/pricing">Render official pricing</a>
+        <a href="https://www.raspberrypi.com/products/raspberry-pi-5/">Raspberry Pi official product page</a>
+        <a href="https://www.tomshardware.com/raspberry-pi/raspberry-pi-5-price-increases-drastically-as-ai-shortage-bites-16gb-version-now-usd205-second-price-increase-in-three-months-over-70-percent-more-expensive-than-original-msrp">Tom's Hardware: Raspberry Pi 5 price increase article (reports official February 2026 pricing table)</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

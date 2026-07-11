@@ -178,7 +178,7 @@ export default function StrategicGoalsPanel({ summaryData, settings, onSaved, on
 
 const styles = {
   card: {
-    background: "#ffffff",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(246,251,248,0.95))",
     borderRadius: "24px",
     padding: "22px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
@@ -223,12 +223,13 @@ const styles = {
   progressCardButton: {
     display: "grid",
     gap: "10px",
-    background: "#f8fbfa",
+    background: "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)",
     border: "1px solid #deebe6",
     borderRadius: "18px",
     padding: "14px",
     textAlign: "left",
     cursor: "pointer",
+    boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
   },
   progressCardTop: {
     display: "flex",
@@ -295,7 +296,7 @@ const styles = {
     padding: "11px 12px",
     borderRadius: "12px",
     border: "1px solid #d5e1dc",
-    background: "#fbfdfc",
+    background: "#ffffff",
   },
   footer: {
     display: "flex",

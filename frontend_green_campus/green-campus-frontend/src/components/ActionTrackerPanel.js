@@ -172,7 +172,7 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
 
 const styles = {
   card: {
-    background: "#ffffff",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(246,251,248,0.95))",
     borderRadius: "24px",
     padding: "22px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
@@ -207,7 +207,7 @@ const styles = {
     marginBottom: "14px",
   },
   legendItem: {
-    background: "#f7fbf9",
+    background: "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)",
     border: "1px solid #deebe6",
     borderRadius: "16px",
     padding: "12px 14px",
@@ -226,10 +226,11 @@ const styles = {
   rowInfo: {
     border: "1px solid #deebe6",
     borderRadius: "18px",
-    background: "#f8fbfa",
+    background: "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)",
     padding: "14px",
     textAlign: "left",
     cursor: "pointer",
+    boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
   },
   rowTop: {
     display: "flex",

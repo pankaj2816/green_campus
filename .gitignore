@@ -1,4 +1,7 @@
 backup/
+.pydeps/
+_live_frontend_bundle.js
+~$*.xlsx
 **/node_modules/
 **/build/
 **/__pycache__/

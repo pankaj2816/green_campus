@@ -29,15 +29,26 @@ import AuditTrailPanel from "../components/AuditTrailPanel";
 import { dashboardCopy } from "../config/dashboardConfig";
 import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
-function SectionIntro({ kicker, title, subtitle, helpText }) {
+function SectionIntro({ kicker, title, subtitle, helpText, darkMode = false }) {
   return (
     <div style={styles.sectionIntro}>
-      <span style={styles.sectionKicker}>{kicker}</span>
-      <h2 style={styles.sectionTitle}>
+      <div style={styles.sectionLabelRow}>
+        <span style={styles.sectionIconDot} />
+        <span style={{ ...styles.sectionKicker, color: darkMode ? "#7de1bb" : styles.sectionKicker.color }}>{kicker}</span>
+      </div>
+      <h2 style={{ ...styles.sectionTitle, color: darkMode ? "#f4fbf8" : styles.sectionTitle.color }}>
         {title}
         {helpText ? <InfoHint title={title} text={helpText} width={320} /> : null}
       </h2>
-      <p style={styles.sectionSubtitle}>{subtitle}</p>
+      <p style={{ ...styles.sectionSubtitle, color: darkMode ? "rgba(232,245,239,0.78)" : styles.sectionSubtitle.color }}>{subtitle}</p>
+      <div
+        style={{
+          ...styles.sectionDivider,
+          background: darkMode
+            ? "linear-gradient(90deg, rgba(125,225,187,0.34), rgba(96,165,250,0.24), rgba(255,255,255,0))"
+            : styles.sectionDivider.background,
+        }}
+      />
     </div>
   );
 }
@@ -66,6 +77,7 @@ function Dashboard({ onLogout }) {
   const [screenshotMode, setScreenshotMode] = useState(false);
   const [pendingPrint, setPendingPrint] = useState(false);
   const [printMode, setPrintMode] = useState(false);
+  const [executiveDarkMode, setExecutiveDarkMode] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [settingsData, setSettingsData] = useState(null);
@@ -175,8 +187,10 @@ function Dashboard({ onLogout }) {
       style={{
         ...styles.page,
         ...(screenshotMode ? styles.pageScreenshot : {}),
+        ...(executiveDarkMode ? styles.pageExecutiveDark : {}),
       }}
       className={`app-shell-ambient ${screenshotMode ? "screenshot-mode" : ""}`}
+      data-theme={executiveDarkMode ? "executive-dark" : "executive-light"}
     >
       <div style={styles.ambientOne} />
       <div style={styles.ambientTwo} />
@@ -217,6 +231,8 @@ function Dashboard({ onLogout }) {
                   insightsData={insightsData}
                   screenshotMode={screenshotMode}
                   setScreenshotMode={setScreenshotMode}
+                  executiveDarkMode={executiveDarkMode}
+                  setExecutiveDarkMode={setExecutiveDarkMode}
                   onPrintReport={handlePrintReport}
                   onLogout={onLogout}
                 />
@@ -248,7 +264,7 @@ function Dashboard({ onLogout }) {
 
             {activeView === "overview" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-                <SectionIntro {...dashboardCopy.layout.primarySection} />
+                <SectionIntro {...dashboardCopy.layout.primarySection} darkMode={executiveDarkMode} />
                 <div style={styles.workspaceShell}>
                   <div style={styles.workspaceMain}>
                     <CampusPulseBar
@@ -282,7 +298,7 @@ function Dashboard({ onLogout }) {
 
             {activeView === "intelligence" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-                <SectionIntro {...dashboardCopy.layout.performanceSection} />
+                <SectionIntro {...dashboardCopy.layout.performanceSection} darkMode={executiveDarkMode} />
                 <div style={styles.intelligenceStack}>
                   <div style={styles.twoCol}>
                     <CarbonFootprintDial data={data} />
@@ -292,6 +308,7 @@ function Dashboard({ onLogout }) {
                   <ResourceCharts
                     data={data}
                     trendData={trendData}
+                    darkMode={executiveDarkMode}
                     buildingData={buildingData}
                   />
 
@@ -305,7 +322,7 @@ function Dashboard({ onLogout }) {
 
             {activeView === "planning" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-                <SectionIntro {...dashboardCopy.layout.planningSection} />
+                <SectionIntro {...dashboardCopy.layout.planningSection} darkMode={executiveDarkMode} />
                 <div style={styles.workspaceShell}>
                   <div style={styles.workspaceMain}>
                     <AIForecastSection
@@ -328,7 +345,7 @@ function Dashboard({ onLogout }) {
 
             {activeView === "governance" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
-                <SectionIntro {...dashboardCopy.layout.governanceSection} />
+                <SectionIntro {...dashboardCopy.layout.governanceSection} darkMode={executiveDarkMode} />
                 <div style={styles.governanceStack} className="governance-stack">
                   <RankingSection performanceData={performanceData} />
                   <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
@@ -367,53 +384,57 @@ const styles = {
   page: {
     position: "relative",
     overflow: "hidden",
-    padding: "24px 16px 52px",
+    padding: "20px 14px 44px",
     minHeight: "100vh",
     background:
-      "radial-gradient(circle at top left, rgba(96,165,250,0.12), transparent 30%), linear-gradient(180deg, #f5f8f7 0%, #eef3f1 100%)",
+      "radial-gradient(circle at top left, rgba(29,138,103,0.12), transparent 28%), radial-gradient(circle at top right, rgba(37,99,235,0.10), transparent 26%), linear-gradient(180deg, #f7fbf9 0%, #eef4f1 54%, #edf2f7 100%)",
   },
   pageScreenshot: {
     background: "#f4f7f6",
   },
+  pageExecutiveDark: {
+    background:
+      "radial-gradient(circle at top left, rgba(29,138,103,0.18), transparent 28%), radial-gradient(circle at top right, rgba(37,99,235,0.16), transparent 26%), linear-gradient(180deg, #0d1715 0%, #12211e 48%, #162724 100%)",
+  },
   ambientOne: {
     position: "absolute",
-    width: "380px",
-    height: "380px",
+    width: "460px",
+    height: "460px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(34,197,94,0.16), rgba(34,197,94,0))",
-    top: "-40px",
-    left: "-80px",
-    filter: "blur(10px)",
+    background: "radial-gradient(circle, rgba(34,197,94,0.15), rgba(34,197,94,0))",
+    top: "-80px",
+    left: "-120px",
+    filter: "blur(16px)",
   },
   ambientTwo: {
     position: "absolute",
-    width: "420px",
-    height: "420px",
+    width: "500px",
+    height: "500px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(59,130,246,0.12), rgba(59,130,246,0))",
-    top: "180px",
-    right: "-120px",
-    filter: "blur(8px)",
+    background: "radial-gradient(circle, rgba(59,130,246,0.11), rgba(59,130,246,0))",
+    top: "150px",
+    right: "-180px",
+    filter: "blur(14px)",
   },
   ambientThree: {
     position: "absolute",
-    width: "300px",
-    height: "300px",
+    width: "360px",
+    height: "360px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(16,185,129,0.12), rgba(16,185,129,0))",
-    bottom: "40px",
-    left: "20%",
-    filter: "blur(12px)",
+    background: "radial-gradient(circle, rgba(16,185,129,0.10), rgba(16,185,129,0))",
+    bottom: "20px",
+    left: "18%",
+    filter: "blur(18px)",
   },
   pageInner: {
     position: "relative",
-    maxWidth: "1560px",
+    maxWidth: "1640px",
     margin: "0 auto",
   },
   shell: {
     display: "grid",
-    gridTemplateColumns: "248px minmax(0, 1fr)",
-    gap: "20px",
+    gridTemplateColumns: "256px minmax(0, 1fr)",
+    gap: "18px",
   },
   mainColumn: {
     minWidth: 0,
@@ -421,7 +442,7 @@ const styles = {
     gap: "18px",
   },
   mainColumnScreenshot: {
-    maxWidth: "1180px",
+    maxWidth: "1240px",
   },
   mobileTabs: {
     display: "none",
@@ -430,7 +451,7 @@ const styles = {
     marginBottom: "20px",
   },
   loadNotice: {
-    marginBottom: "18px",
+    marginBottom: "12px",
   },
   mobileTabButton: {
     padding: "12px 18px",
@@ -448,28 +469,45 @@ const styles = {
     boxShadow: "0 10px 24px rgba(37, 99, 235, 0.18)",
   },
   sectionBlock: {
-    marginBottom: "20px",
+    marginBottom: "16px",
   },
   workspaceShell: {
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1.32fr) minmax(300px, 0.96fr)",
-    gap: "18px",
+    gridTemplateColumns: "minmax(0, 1.38fr) minmax(320px, 0.92fr)",
+    gap: "16px",
     alignItems: "start",
   },
   workspaceMain: {
     minWidth: 0,
     display: "grid",
-    gap: "16px",
+    gap: "14px",
   },
   workspaceRail: {
     minWidth: 0,
     display: "grid",
-    gap: "16px",
+    gap: "14px",
     alignSelf: "start",
   },
   sectionIntro: {
     marginBottom: "14px",
-    padding: "0 4px",
+    padding: "0 6px",
+  },
+  sectionLabelRow: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "8px 12px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.72)",
+    border: "1px solid rgba(171, 194, 186, 0.28)",
+    boxShadow: "0 8px 20px rgba(12, 24, 21, 0.04)",
+  },
+  sectionIconDot: {
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    background: "linear-gradient(135deg, #1d8a67, #2563eb)",
+    boxShadow: "0 0 0 4px rgba(29, 138, 103, 0.12)",
   },
   sectionKicker: {
     color: "#1b7f62",
@@ -481,33 +519,40 @@ const styles = {
   sectionTitle: {
     margin: "8px 0 6px",
     color: "#17342d",
-    fontSize: "30px",
+    fontSize: "32px",
+    letterSpacing: "-0.03em",
   },
   sectionSubtitle: {
     margin: 0,
     color: "#60756f",
     lineHeight: 1.6,
-    maxWidth: "920px",
+    maxWidth: "980px",
+  },
+  sectionDivider: {
+    marginTop: "14px",
+    width: "100%",
+    height: "1px",
+    background: "linear-gradient(90deg, rgba(29,138,103,0.24), rgba(37,99,235,0.16), rgba(255,255,255,0))",
   },
   twoCol: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-    gap: "18px",
-    marginBottom: "18px",
+    gap: "16px",
+    marginBottom: "16px",
   },
   intelligenceStack: {
     display: "grid",
-    gap: "18px",
+    gap: "16px",
   },
   intelligenceSupportGrid: {
     display: "grid",
-    gridTemplateColumns: "minmax(300px, 0.92fr) minmax(0, 1.08fr)",
-    gap: "18px",
+    gridTemplateColumns: "minmax(320px, 0.94fr) minmax(0, 1.06fr)",
+    gap: "16px",
     alignItems: "start",
   },
   governanceStack: {
     display: "grid",
-    gap: "18px",
+    gap: "16px",
   },
 };
 

@@ -36,6 +36,11 @@ function DashboardSidebar({
         {branding.organization} | {branding.tagline}
       </p>
 
+      <div style={styles.platformStrip}>
+        <span style={styles.platformPill}>Live Campus</span>
+        <span style={styles.platformText}>Executive-ready AI sustainability workspace</span>
+      </div>
+
       <div style={styles.navList}>
         {dashboardCopy.header.sectionTabs.map((tab, index) => (
           <button
@@ -103,12 +108,12 @@ const styles = {
     position: "sticky",
     top: "24px",
     alignSelf: "start",
-    background: "linear-gradient(180deg, rgba(18, 35, 31, 0.96) 0%, rgba(24, 52, 46, 0.98) 100%)",
+    background: "linear-gradient(180deg, rgba(16, 40, 36, 0.98) 0%, rgba(24, 56, 50, 0.98) 50%, rgba(32, 76, 69, 0.98) 100%)",
     color: "#f5fbf8",
     borderRadius: "28px",
-    padding: "24px 20px",
-    border: "1px solid rgba(133, 177, 164, 0.16)",
-    boxShadow: "0 24px 44px rgba(9, 20, 18, 0.22)",
+    padding: "22px 18px",
+    border: "1px solid rgba(133, 177, 164, 0.18)",
+    boxShadow: "0 28px 48px rgba(9, 20, 18, 0.24)",
   },
   brandBlock: {
     display: "flex",
@@ -122,8 +127,8 @@ const styles = {
     display: "grid",
     placeItems: "center",
     fontWeight: "800",
-    background: "linear-gradient(135deg, #2ea26f, #2563eb)",
-    boxShadow: "0 12px 20px rgba(46, 162, 111, 0.18)",
+    background: "linear-gradient(135deg, #33b17d, #2563eb)",
+    boxShadow: "0 16px 26px rgba(46, 162, 111, 0.24)",
   },
   brandKicker: {
     color: "rgba(237, 250, 244, 0.7)",
@@ -133,18 +138,46 @@ const styles = {
   },
   brandTitle: {
     margin: "4px 0 0",
-    fontSize: "24px",
+    fontSize: "22px",
+    lineHeight: 1.08,
+    letterSpacing: "-0.03em",
   },
   brandText: {
-    margin: "16px 0 0",
+    margin: "14px 0 0",
     color: "rgba(237, 250, 244, 0.74)",
     lineHeight: 1.6,
     fontSize: "14px",
   },
+  platformStrip: {
+    marginTop: "16px",
+    padding: "14px 14px 12px",
+    borderRadius: "18px",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
+    border: "1px solid rgba(147, 197, 185, 0.12)",
+    display: "grid",
+    gap: "8px",
+  },
+  platformPill: {
+    display: "inline-flex",
+    width: "fit-content",
+    padding: "6px 10px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.12)",
+    color: "#ffffff",
+    fontSize: "11px",
+    fontWeight: "800",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+  },
+  platformText: {
+    color: "rgba(237, 250, 244, 0.84)",
+    fontSize: "13px",
+    lineHeight: 1.5,
+  },
   navList: {
     display: "grid",
     gap: "12px",
-    marginTop: "24px",
+    marginTop: "20px",
   },
   navItem: {
     display: "flex",
@@ -152,17 +185,17 @@ const styles = {
     gap: "14px",
     width: "100%",
     textAlign: "left",
-    padding: "14px 14px",
+    padding: "14px 13px",
     borderRadius: "18px",
     border: "1px solid rgba(147, 197, 185, 0.14)",
-    background: "rgba(255,255,255,0.04)",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025))",
     color: "#eef8f4",
     cursor: "pointer",
   },
   navItemActive: {
-    background: "linear-gradient(135deg, rgba(46, 162, 111, 0.28), rgba(37, 99, 235, 0.28))",
+    background: "linear-gradient(135deg, rgba(46, 162, 111, 0.34), rgba(37, 99, 235, 0.26))",
     border: "1px solid rgba(122, 203, 171, 0.36)",
-    boxShadow: "0 16px 24px rgba(7, 17, 15, 0.18)",
+    boxShadow: "0 18px 28px rgba(7, 17, 15, 0.20)",
   },
   navLeading: {
     display: "grid",
@@ -200,9 +233,9 @@ const styles = {
   },
   contextCard: {
     marginTop: "16px",
-    padding: "16px",
+    padding: "15px 16px",
     borderRadius: "18px",
-    background: "rgba(255,255,255,0.06)",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
     border: "1px solid rgba(147, 197, 185, 0.1)",
   },
   contextLabel: {
@@ -222,7 +255,7 @@ const styles = {
     marginTop: "16px",
     padding: "16px",
     borderRadius: "18px",
-    background: "linear-gradient(135deg, rgba(37,99,235,0.18), rgba(46,162,111,0.14))",
+    background: "linear-gradient(135deg, rgba(37,99,235,0.24), rgba(46,162,111,0.18))",
     border: "1px solid rgba(147, 197, 185, 0.18)",
     color: "#ffffff",
     display: "grid",
@@ -247,7 +280,7 @@ const styles = {
     alignSelf: "start",
     padding: "10px 14px",
     borderRadius: "999px",
-    background: "rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.16)",
     border: "1px solid rgba(255,255,255,0.18)",
     color: "#ffffff",
     textDecoration: "none",

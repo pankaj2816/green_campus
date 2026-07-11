@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MGCD Building Pilot Cost Estimate</title>
+  <style>
+    :root {
+      --bg: #f3f7f5;
+      --surface: #ffffff;
+      --surface-soft: #f8fbfa;
+      --text: #17342d;
+      --muted: #60756f;
+      --accent: #1b7f62;
+      --border: #d8e5df;
+      --shadow: 0 18px 40px rgba(12, 24, 21, 0.08);
+      --warn: #b45309;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 24%),
+        radial-gradient(circle at top right, rgba(34, 197, 94, 0.08), transparent 22%),
+        var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    .page {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero,
+    .section,
+    .callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 32px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #f8fcfa 0%, #eff7f3 54%, #eef2ff 100%);
+    }
+
+    .section {
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    .kicker {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 12px 0 10px;
+      font-size: 40px;
+      line-height: 1.08;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .summary-grid,
+    .scenario-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      margin-top: 22px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .card strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #e9f7f1;
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .cost-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+
+    .cost-table th,
+    .cost-table td {
+      padding: 14px 16px;
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cost-table th {
+      background: #f7fbf9;
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .cost-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .amount {
+      white-space: nowrap;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .callout {
+      padding: 22px 24px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #fffdf8 0%, #fff7ea 100%);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--warn);
+    }
+
+    ul {
+      margin: 10px 0 0 18px;
+      padding: 0;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 6px;
+    }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .source-list a {
+      color: #2458c6;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    .source-list a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <span class="kicker">MAHE Green Campus Dashboard (MGCD)</span>
+      <h1>Single Building Cost Estimate Report</h1>
+      <p>
+        This report is only for cost estimation. It focuses on expected initial investment and recurring annual cost for implementing the current MGCD platform on one campus building as a practical pilot.
+      </p>
+
+      <div class="summary-grid">
+        <div class="card">
+          <span class="badge">Recommended CAPEX</span>
+          <strong>Rs 1.08 lakh to Rs 1.35 lakh</strong>
+          <div>Best realistic range for one useful pilot building.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Recommended OPEX</span>
+          <strong>Rs 56,000 to Rs 1.08 lakh / year</strong>
+          <div>Includes hosting, support, maintenance, and small replacements.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Planning Figure</span>
+          <strong>Rs 1.2 lakh initial + Rs 70,000 yearly</strong>
+          <div>Use this number for early budgeting and approval discussion.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Scope Used</span>
+          <strong>One pilot building</strong>
+          <div>Main incomer, 3 internal points, one edge collector, basic water visibility, optional solar tie-in.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>1. Cost Assumptions</h2>
+      <p>
+        This estimate assumes one academic or admin building with moderate electrical complexity. It does not assume full campus-wide metering. It also assumes that the current MGCD software is used as the dashboard layer and only the building-level live enablement is added.
+      </p>
+
+      <ul>
+        <li>1 main building energy meter point plus 3 internal monitoring points</li>
+        <li>1 edge collector device for data reading and forwarding</li>
+        <li>basic network, UPS, wiring accessories, and enclosure</li>
+        <li>starter water visibility only, not full building water SCADA</li>
+        <li>solar source already available from inverter or one extra feeder meter if needed</li>
+        <li>software configuration, device mapping, and dashboard enablement included as a project cost</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>2. Initial Cost Breakdown (CAPEX)</h2>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Line item</th>
+            <th>Qty</th>
+            <th>Unit estimate</th>
+            <th>Total estimate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>RS485 digital energy meter</td>
+            <td>4</td>
+            <td class="amount">Rs 2,464</td>
+            <td class="amount">Rs 9,856</td>
+          </tr>
+          <tr>
+            <td>Optional solar feeder meter</td>
+            <td>0 or 1</td>
+            <td class="amount">Rs 2,464</td>
+            <td class="amount">Rs 0 to Rs 2,464</td>
+          </tr>
+          <tr>
+            <td>Edge collector kit (Pi, power, storage, serial interfaces)</td>
+            <td>1 set</td>
+            <td class="amount">Rs 11,500 to Rs 13,500</td>
+            <td class="amount">Rs 11,500 to Rs 13,500</td>
+          </tr>
+          <tr>
+            <td>Water starter monitoring package</td>
+            <td>1 set</td>
+            <td class="amount">Rs 8,000 to Rs 15,000</td>
+            <td class="amount">Rs 8,000 to Rs 15,000</td>
+          </tr>
+          <tr>
+            <td>UPS, enclosure, LAN/4G router, RS485 adapters</td>
+            <td>1 set</td>
+            <td class="amount">Rs 10,000 to Rs 15,000</td>
+            <td class="amount">Rs 10,000 to Rs 15,000</td>
+          </tr>
+          <tr>
+            <td>CTs, terminals, wiring materials, panel accessories</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 12,000 to Rs 25,000</td>
+            <td class="amount">Rs 12,000 to Rs 25,000</td>
+          </tr>
+          <tr>
+            <td>Electrical installation and commissioning labor</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 18,000 to Rs 35,000</td>
+            <td class="amount">Rs 18,000 to Rs 35,000</td>
+          </tr>
+          <tr>
+            <td>MGCD live-enablement, mapping, testing, training</td>
+            <td>1 lot</td>
+            <td class="amount">Rs 22,000 to Rs 45,000</td>
+            <td class="amount">Rs 22,000 to Rs 45,000</td>
+          </tr>
+          <tr>
+            <td>Contingency</td>
+            <td>10%</td>
+            <td class="amount">10% of above</td>
+            <td class="amount">Rs 9,000 to Rs 17,000</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>3. Initial Cost Scenarios</h2>
+      <div class="scenario-grid">
+        <div class="card">
+          <span class="badge">Low</span>
+          <strong>Rs 70,000 to Rs 95,000</strong>
+          <div>
+            Minimal but real pilot. Fewer internal meters, existing solar feed, simple water visibility, and mostly in-house setup effort.
+          </div>
+        </div>
+        <div class="card">
+          <span class="badge">Recommended</span>
+          <strong>Rs 1.08 lakh to Rs 1.35 lakh</strong>
+          <div>
+            Best balance of cost and usefulness. Suitable for a serious first-building implementation.
+          </div>
+        </div>
+        <div class="card">
+          <span class="badge">Advanced</span>
+          <strong>Rs 1.45 lakh to Rs 2.20 lakh</strong>
+          <div>
+            More internal submetering, stronger water instrumentation, dedicated solar metering if required, and more managed commissioning.
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <strong>Budget answer for management</strong>
+        If one number is needed quickly, use <strong>Rs 1.2 lakh</strong> as the initial per-building pilot estimate.
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>4. Annual Recurring Cost (OPEX / Maintenance)</h2>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Recurring item</th>
+            <th>Annual estimate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Cloud hosting, backend runtime, database, backups</td>
+            <td class="amount">Rs 15,000 to Rs 19,000 / year</td>
+          </tr>
+          <tr>
+            <td>Preventive hardware maintenance and calibration visits</td>
+            <td class="amount">Rs 12,000 to Rs 20,000 / year</td>
+          </tr>
+          <tr>
+            <td>Software administration, monitoring, and data QA</td>
+            <td class="amount">Rs 24,000 to Rs 60,000 / year</td>
+          </tr>
+          <tr>
+            <td>Replacement reserve / spares</td>
+            <td class="amount">Rs 5,000 to Rs 10,000 / year</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="scenario-grid" style="margin-top: 16px;">
+        <div class="card">
+          <span class="badge">Lean Annual Cost</span>
+          <strong>Rs 56,000 to Rs 70,000 / year</strong>
+          <div>Use this if the institute manages most routine work internally.</div>
+        </div>
+        <div class="card">
+          <span class="badge">Managed Annual Cost</span>
+          <strong>Rs 80,000 to Rs 1.08 lakh / year</strong>
+          <div>Use this if an external integrator or vendor supports the live setup regularly.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>5. Final Cost Summary</h2>
+      <table class="cost-table">
+        <thead>
+          <tr>
+            <th>Cost type</th>
+            <th>Low estimate</th>
+            <th>Recommended estimate</th>
+            <th>Advanced estimate</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Initial CAPEX</td>
+            <td class="amount">Rs 70,000 to Rs 95,000</td>
+            <td class="amount">Rs 1.08 lakh to Rs 1.35 lakh</td>
+            <td class="amount">Rs 1.45 lakh to Rs 2.20 lakh</td>
+          </tr>
+          <tr>
+            <td>Annual OPEX</td>
+            <td class="amount">Rs 56,000 to Rs 70,000</td>
+            <td class="amount">Around Rs 70,000 to Rs 85,000</td>
+            <td class="amount">Rs 80,000 to Rs 1.08 lakh</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>6. Source Anchors Used For Pricing</h2>
+      <p>
+        These were used as cost anchors. Some other lines in this report are engineering estimates because final pricing depends on wiring distance, panel condition, labor, and vendor choice.
+      </p>
+      <div class="source-list">
+        <a href="https://electrixzone.com/product/trinity-digital-energy-meter-entity-rs485/">ElectrixZone: TRINITY Digital Energy Meter ENTITY RS485</a>
+        <a href="https://render.com/pricing">Render official pricing</a>
+        <a href="https://www.raspberrypi.com/products/raspberry-pi-5/">Raspberry Pi official product page</a>
+        <a href="https://www.tomshardware.com/raspberry-pi/raspberry-pi-5-price-increases-drastically-as-ai-shortage-bites-16gb-version-now-usd205-second-price-increase-in-three-months-over-70-percent-more-expensive-than-original-msrp">Tom's Hardware coverage of Raspberry Pi 5 official pricing updates</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

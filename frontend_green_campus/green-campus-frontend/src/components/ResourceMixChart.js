@@ -12,10 +12,26 @@ const resourceItems = [
   { key: "solar", label: "Solar", color: "#84cc16", unit: "kWh" },
 ];
 
-function ResourceMixChart({ data }) {
+function ResourceMixChart({ data, darkMode = false }) {
   if (!data) {
     return null;
   }
+
+  const titleColor = darkMode ? "#f4fbf8" : theme.colors.primaryText;
+  const subtitleColor = darkMode ? "rgba(235,245,240,0.76)" : theme.colors.secondaryText;
+  const cardBackground = darkMode
+    ? "linear-gradient(180deg, rgba(20,38,34,0.98), rgba(18,32,29,0.96))"
+    : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,251,249,0.94))";
+  const chipBackground = darkMode ? "rgba(255,255,255,0.08)" : "rgba(255,255,255,0.74)";
+  const chipBorder = darkMode ? "rgba(157, 191, 179, 0.14)" : "rgba(160, 190, 180, 0.24)";
+  const legendCardBackground = darkMode
+    ? "linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03))"
+    : "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)";
+  const legendTextColor = darkMode ? "#f4fbf8" : theme.colors.primaryText;
+  const mutedTextColor = darkMode ? "rgba(235,245,240,0.72)" : theme.colors.secondaryText;
+  const highlightBackground = darkMode
+    ? "linear-gradient(135deg, rgba(29,138,103,0.24), rgba(37,99,235,0.22))"
+    : "linear-gradient(135deg, #eef7f2, #edf4ff)";
 
   const total = resourceItems.reduce((sum, item) => sum + (Number(data[item.key]) || 0), 0);
   const largestItem = [...resourceItems].sort(
@@ -28,9 +44,9 @@ function ResourceMixChart({ data }) {
       {
         data: resourceItems.map((item) => data[item.key]),
         backgroundColor: resourceItems.map((item) => item.color),
-        borderColor: "#f8fbfa",
+        borderColor: darkMode ? "#18332d" : "#f8fbfa",
         borderWidth: 4,
-        hoverOffset: 8,
+        hoverOffset: 10,
       },
     ],
   };
@@ -43,14 +59,30 @@ function ResourceMixChart({ data }) {
       legend: {
         display: false,
       },
+      tooltip: {
+        backgroundColor: darkMode ? "rgba(12, 24, 21, 0.94)" : "rgba(255,255,255,0.96)",
+        titleColor: darkMode ? "#f4fbf8" : "#17342d",
+        bodyColor: darkMode ? "#e8f5ef" : "#35514a",
+        borderColor: darkMode ? "rgba(148, 182, 170, 0.24)" : "rgba(148, 182, 170, 0.2)",
+        borderWidth: 1,
+        padding: 12,
+      },
     },
   };
 
   return (
-    <div style={styles.card}>
+    <div style={{ ...styles.card, background: cardBackground }}>
       <div style={styles.header}>
-        <h3 style={styles.title}>{dashboardCopy.chart.resourceMixTitle}</h3>
-        <p style={styles.subtitle}>{dashboardCopy.chart.resourceMixSubtitle}</p>
+        <div style={styles.headingRow}>
+          <div>
+            <div style={{ ...styles.microLabel, color: subtitleColor }}>Mix Snapshot</div>
+            <h3 style={{ ...styles.title, color: titleColor }}>{dashboardCopy.chart.resourceMixTitle}</h3>
+          </div>
+          <div style={{ ...styles.statChip, background: chipBackground, border: `1px solid ${chipBorder}` }}>
+            Current distribution
+          </div>
+        </div>
+        <p style={{ ...styles.subtitle, color: subtitleColor }}>{dashboardCopy.chart.resourceMixSubtitle}</p>
       </div>
 
       <div style={styles.layout} className="resource-mix-layout">
@@ -70,23 +102,26 @@ function ResourceMixChart({ data }) {
             const percentage = total > 0 ? ((rawValue / total) * 100).toFixed(1) : "0.0";
 
             return (
-              <div key={item.key} style={styles.legendCard}>
+              <div
+                key={item.key}
+                style={{ ...styles.legendCard, background: legendCardBackground }}
+              >
                 <div style={styles.legendTop}>
                   <span style={{ ...styles.dot, background: item.color }} />
-                  <strong>{item.label}</strong>
+                  <strong style={{ color: legendTextColor }}>{item.label}</strong>
                 </div>
-                <div style={styles.legendValue}>
+                <div style={{ ...styles.legendValue, color: legendTextColor }}>
                   {rawValue.toLocaleString()} {item.unit}
                 </div>
-                <div style={styles.legendPercent}>{percentage}% of current mix</div>
+                <div style={{ ...styles.legendPercent, color: mutedTextColor }}>{percentage}% of current mix</div>
               </div>
             );
           })}
 
-          <div style={styles.highlightCard}>
+          <div style={{ ...styles.highlightCard, background: highlightBackground }}>
             <strong>{dashboardCopy.chart.resourceMixLargestPrefix}</strong>
-            <div style={styles.highlightValue}>{largestItem.label}</div>
-            <div style={styles.highlightText}>
+            <div style={{ ...styles.highlightValue, color: legendTextColor }}>{largestItem.label}</div>
+            <div style={{ ...styles.highlightText, color: mutedTextColor }}>
               {Number(data[largestItem.key] || 0).toLocaleString()} {largestItem.unit}
             </div>
           </div>
@@ -98,21 +133,40 @@ function ResourceMixChart({ data }) {
 
 const styles = {
   card: {
-    background: theme.colors.surface,
     padding: "24px",
     borderRadius: theme.radius.card,
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
+  },
+  headingRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "12px",
+    alignItems: "start",
+    flexWrap: "wrap",
+  },
+  microLabel: {
+    fontSize: "11px",
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
   },
   header: {
     marginBottom: "16px",
   },
   title: {
     margin: 0,
-    color: theme.colors.primaryText,
+    letterSpacing: "-0.03em",
   },
   subtitle: {
     marginTop: "8px",
-    color: theme.colors.secondaryText,
+    lineHeight: 1.55,
+  },
+  statChip: {
+    padding: "8px 12px",
+    borderRadius: "999px",
+    color: "#35514a",
+    fontSize: "12px",
+    fontWeight: "700",
   },
   layout: {
     display: "grid",
@@ -145,6 +199,7 @@ const styles = {
   centerValue: {
     fontSize: theme.fontSizes.metricValue,
     color: theme.colors.primaryText,
+    letterSpacing: "-0.04em",
   },
   centerText: {
     color: theme.colors.secondaryText,
@@ -156,9 +211,10 @@ const styles = {
     gap: "10px",
   },
   legendCard: {
-    background: theme.colors.softSurface,
+    background: "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)",
     borderRadius: "14px",
     padding: "12px 14px",
+    border: "1px solid rgba(160, 190, 180, 0.18)",
   },
   legendTop: {
     display: "flex",
@@ -186,6 +242,7 @@ const styles = {
     background: "linear-gradient(135deg, #eef7f2, #edf4ff)",
     borderRadius: "14px",
     padding: "14px",
+    border: "1px solid rgba(160, 190, 180, 0.18)",
   },
   highlightValue: {
     fontSize: "20px",

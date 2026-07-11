@@ -5,12 +5,15 @@ import InfoHint from "./InfoHint";
 import ResourceMixChart from "./ResourceMixChart";
 import ResourceOverview from "./ResourceOverview";
 
-function ResourceCharts({ data, trendData }) {
+function ResourceCharts({ data, trendData, darkMode = false }) {
   return (
     <div style={styles.wrapper}>
       <div style={styles.header} className="resource-charts-header">
         <div>
-          <span style={styles.kicker}>Visual Storyboard</span>
+          <div style={styles.kickerRow}>
+            <span style={styles.kickerDot} />
+            <span style={styles.kicker}>Visual Storyboard</span>
+          </div>
           <h3 style={styles.title}>
             Resource flow and trend interpretation
             <InfoHint
@@ -25,11 +28,11 @@ function ResourceCharts({ data, trendData }) {
         </p>
       </div>
       <div style={styles.grid} className="resource-charts-grid">
-        <ResourceOverview data={data} />
-        <ResourceMixChart data={data} />
+        <ResourceOverview data={data} darkMode={darkMode} />
+        <ResourceMixChart data={data} darkMode={darkMode} />
       </div>
       <div style={styles.spanTwo}>
-        <EnergyTrend trendData={trendData} />
+        <EnergyTrend trendData={trendData} darkMode={darkMode} />
         <p style={styles.chartNote}>
           Reading tip: if solar rises while net grid energy drops, campus operations are getting more daytime support from renewable generation.
         </p>
@@ -46,8 +49,23 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "minmax(0, 0.85fr) minmax(0, 1fr)",
     gap: "18px",
-    marginBottom: "16px",
+    marginBottom: "14px",
     alignItems: "end",
+  },
+  kickerRow: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "7px 11px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.74)",
+    border: "1px solid rgba(171, 194, 186, 0.28)",
+  },
+  kickerDot: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "linear-gradient(135deg, #1d8a67, #2563eb)",
   },
   kicker: {
     color: "#1b7f62",
@@ -60,6 +78,7 @@ const styles = {
     margin: "8px 0 0",
     color: "#17342d",
     fontSize: "24px",
+    letterSpacing: "-0.03em",
   },
   text: {
     margin: 0,
@@ -76,7 +95,7 @@ const styles = {
   },
   spanTwo: {
     gridColumn: "1 / -1",
-    background: "#ffffff",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,251,249,0.94))",
     borderRadius: "24px",
     padding: "24px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",

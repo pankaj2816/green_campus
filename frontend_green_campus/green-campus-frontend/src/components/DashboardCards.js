@@ -42,11 +42,13 @@ function Card({ title, value, suffix = "", subtitle, accent, featured = false, o
       style={{
         ...styles.card,
         ...(featured ? styles.cardFeatured : {}),
-        borderTop: `6px solid ${accent}`,
+        borderTop: `5px solid ${accent}`,
       }}
       className="premium-card lift-card stagger-in"
       onClick={onOpenDetail}
     >
+      <span style={{ ...styles.accentOrb, background: `radial-gradient(circle, ${accent}55, transparent 70%)` }} />
+      <div style={styles.cardEyebrow}>Campus KPI</div>
       <div style={styles.cardTitle}>{title}</div>
       <div style={styles.cardValue}>
         {animatedValue.toLocaleString(undefined, {
@@ -189,9 +191,10 @@ const styles = {
     marginBottom: "24px",
   },
   card: {
-    background: "rgba(255,255,255,0.96)",
+    position: "relative",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,251,249,0.94))",
     borderRadius: theme.radius.card,
-    padding: "18px",
+    padding: "20px 18px 18px",
     boxShadow: "0 18px 40px rgba(12, 24, 21, 0.08)",
     borderLeft: "none",
     borderRight: "none",
@@ -199,26 +202,45 @@ const styles = {
     width: "100%",
     textAlign: "left",
     cursor: "pointer",
+    overflow: "hidden",
   },
   cardFeatured: {
-    background: "linear-gradient(180deg, #ffffff 0%, #f6fbf8 100%)",
-    boxShadow: "0 20px 44px rgba(12, 24, 21, 0.11)",
+    background: "linear-gradient(180deg, #ffffff 0%, #f4fbf8 55%, #eef6ff 100%)",
+    boxShadow: "0 24px 46px rgba(12, 24, 21, 0.11)",
+  },
+  accentOrb: {
+    position: "absolute",
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    top: "-24px",
+    right: "-20px",
+    pointerEvents: "none",
+  },
+  cardEyebrow: {
+    color: theme.colors.tertiaryText,
+    fontSize: "10px",
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
   },
   cardTitle: {
     color: theme.colors.secondaryText,
     fontSize: theme.fontSizes.cardTitle,
     fontWeight: "600",
+    marginTop: "10px",
   },
   cardValue: {
     color: theme.colors.primaryText,
-    fontSize: theme.fontSizes.cardValue,
-    fontWeight: "700",
+    fontSize: "32px",
+    fontWeight: "800",
     marginTop: "8px",
+    letterSpacing: "-0.04em",
   },
   cardSubtitle: {
     color: theme.colors.secondaryText,
     marginTop: "8px",
-    lineHeight: 1.4,
+    lineHeight: 1.5,
     fontSize: theme.fontSizes.cardSubtitle,
   },
 };

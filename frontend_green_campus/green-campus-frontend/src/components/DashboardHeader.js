@@ -41,6 +41,8 @@ function DashboardHeader({
   setDateTo,
   screenshotMode,
   setScreenshotMode,
+  executiveDarkMode,
+  setExecutiveDarkMode,
   onPrintReport,
   comparisonData,
   riskData,
@@ -73,23 +75,34 @@ function DashboardHeader({
   };
 
   return (
-    <div style={styles.hero} className="hero-command-sticky">
+    <div
+      style={{
+        ...styles.hero,
+        ...(executiveDarkMode ? styles.heroDark : {}),
+      }}
+      className="hero-command-sticky"
+    >
       <div style={styles.heroText}>
-        <span style={styles.kicker}>{dashboardCopy.header.kicker}</span>
-        <h1 style={styles.title}>{dashboardCopy.branding.appName}</h1>
-        <div style={styles.subtitleLead}>{dashboardCopy.header.title}</div>
-        <p style={styles.subtitle}>{dashboardCopy.header.subtitle}</p>
+        <div style={styles.kickerRow}>
+          <span style={{ ...styles.kicker, ...(executiveDarkMode ? styles.kickerDark : {}) }}>{dashboardCopy.header.kicker}</span>
+          <span style={{ ...styles.kickerBadge, ...(executiveDarkMode ? styles.kickerBadgeDark : {}) }}>Premium operations view</span>
+        </div>
+        <h1 style={{ ...styles.title, ...(executiveDarkMode ? styles.titleDark : {}) }}>{dashboardCopy.branding.appName}</h1>
+        <div style={{ ...styles.subtitleLead, ...(executiveDarkMode ? styles.subtitleLeadDark : {}) }}>{dashboardCopy.header.title}</div>
+        <p style={{ ...styles.subtitle, ...(executiveDarkMode ? styles.subtitleDark : {}) }}>{dashboardCopy.header.subtitle}</p>
 
         <div style={styles.commandBrief}>
           <InsightCard
             label="Priority Risk"
             value={primaryRisk ? primaryRisk.risk_level : "Stable"}
             note={primaryRisk?.primary_driver || primaryRisk?.message || "No major risk signal is active right now."}
+            darkMode={executiveDarkMode}
           />
           <InsightCard
             label="Best Next Action"
             value={topRecommendation?.title || "Review dashboard"}
             note={topRecommendation?.message || "Use the filtered views below to identify the next operational move."}
+            darkMode={executiveDarkMode}
           />
           <InsightCard
             label="Change Signal"
@@ -99,6 +112,7 @@ function DashboardHeader({
                 : `${comparisonDelta.change > 0 ? "+" : ""}${comparisonDelta.change.toLocaleString(undefined, { maximumFractionDigits: 0 })} kWh`
             }
             note="Current selection compared with the previous equal-length period."
+            darkMode={executiveDarkMode}
           />
         </div>
 
@@ -106,6 +120,7 @@ function DashboardHeader({
           <StatusCard
             label={dashboardCopy.header.statusCards.scope}
             value={selectedBuilding || dashboardCopy.header.buildingPlaceholder}
+            darkMode={executiveDarkMode}
           />
           <StatusCard
             label={dashboardCopy.header.statusCards.forecast}
@@ -114,10 +129,12 @@ function DashboardHeader({
                 (option) => option.value === forecastGranularity
               )?.label || forecastGranularity
             }
+            darkMode={executiveDarkMode}
           />
           <StatusCard
             label={dashboardCopy.header.statusCards.live}
             value="Live operations view"
+            darkMode={executiveDarkMode}
           />
           <StatusCard
             label={dashboardCopy.header.statusCards.period}
@@ -126,11 +143,12 @@ function DashboardHeader({
                 ? `${dateFrom} to ${dateTo}`
                 : "All imported data"
             }
+            darkMode={executiveDarkMode}
           />
         </div>
 
         <div style={styles.quickRangeRow}>
-          <span style={styles.quickRangeLabel}>{dashboardCopy.header.quickRangeLabel}</span>
+          <span style={{ ...styles.quickRangeLabel, ...(executiveDarkMode ? styles.quickRangeLabelDark : {}) }}>{dashboardCopy.header.quickRangeLabel}</span>
           <div style={styles.quickRangeButtons}>
             {dashboardCopy.header.quickRanges.map((range) => (
               <button
@@ -202,6 +220,13 @@ function DashboardHeader({
           </button>
 
           <button
+            onClick={() => setExecutiveDarkMode?.((current) => !current)}
+            style={styles.themeBtn}
+          >
+            {executiveDarkMode ? "Light Theme" : "Executive Dark"}
+          </button>
+
+          <button
             onClick={() => setScreenshotMode?.((current) => !current)}
             style={styles.ghostBtn}
           >
@@ -223,21 +248,21 @@ function DashboardHeader({
   );
 }
 
-function StatusCard({ label, value }) {
+function StatusCard({ label, value, darkMode = false }) {
   return (
-    <div style={styles.statusCard}>
-      <span style={styles.statusLabel}>{label}</span>
-      <strong style={styles.statusValue}>{value}</strong>
+    <div style={{ ...styles.statusCard, ...(darkMode ? styles.statusCardDark : {}) }}>
+      <span style={{ ...styles.statusLabel, ...(darkMode ? styles.statusLabelDark : {}) }}>{label}</span>
+      <strong style={{ ...styles.statusValue, ...(darkMode ? styles.statusValueDark : {}) }}>{value}</strong>
     </div>
   );
 }
 
-function InsightCard({ label, value, note }) {
+function InsightCard({ label, value, note, darkMode = false }) {
   return (
-    <div style={styles.insightCard}>
-      <span style={styles.insightLabel}>{label}</span>
-      <strong style={styles.insightValue}>{value}</strong>
-      <span style={styles.insightNote}>{note}</span>
+    <div style={{ ...styles.insightCard, ...(darkMode ? styles.insightCardDark : {}) }}>
+      <span style={{ ...styles.insightLabel, ...(darkMode ? styles.insightLabelDark : {}) }}>{label}</span>
+      <strong style={{ ...styles.insightValue, ...(darkMode ? styles.insightValueDark : {}) }}>{value}</strong>
+      <span style={{ ...styles.insightNote, ...(darkMode ? styles.insightNoteDark : {}) }}>{note}</span>
     </div>
   );
 }
@@ -247,16 +272,29 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "minmax(0, 1.4fr) minmax(320px, 0.95fr)",
     gap: "20px",
-    padding: "28px",
+    padding: "28px 28px 26px",
     borderRadius: "30px",
     background: `linear-gradient(135deg, ${theme.colors.heroStart} 0%, ${theme.colors.heroMiddle} 45%, ${theme.colors.heroEnd} 100%)`,
     boxShadow: theme.shadows.hero,
     marginBottom: "24px",
+    border: `1px solid ${theme.colors.borderSoft}`,
+    overflow: "hidden",
   },
   heroText: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
+  },
+  heroDark: {
+    background: "linear-gradient(135deg, rgba(14,30,27,0.98) 0%, rgba(18,40,35,0.98) 42%, rgba(25,54,77,0.92) 100%)",
+    border: "1px solid rgba(151, 182, 172, 0.14)",
+    boxShadow: "0 28px 60px rgba(4, 10, 9, 0.32)",
+  },
+  kickerRow: {
+    display: "flex",
+    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "10px",
   },
   kicker: {
     color: theme.colors.accent,
@@ -265,12 +303,37 @@ const styles = {
     textTransform: "uppercase",
     fontSize: theme.fontSizes.heroKicker,
   },
+  kickerDark: {
+    color: "#7de1bb",
+  },
+  kickerBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    padding: "7px 11px",
+    borderRadius: "999px",
+    background: "rgba(255,255,255,0.82)",
+    border: "1px solid rgba(151, 184, 173, 0.34)",
+    color: theme.colors.primaryText,
+    fontSize: "11px",
+    fontWeight: "800",
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+  },
+  kickerBadgeDark: {
+    background: "rgba(255,255,255,0.08)",
+    border: "1px solid rgba(151, 182, 172, 0.14)",
+    color: "#f4fbf8",
+  },
   title: {
     fontSize: theme.fontSizes.heroTitle,
     lineHeight: 1.04,
     margin: "12px 0",
     color: theme.colors.primaryText,
     maxWidth: "760px",
+    letterSpacing: "-0.04em",
+  },
+  titleDark: {
+    color: "#f4fbf8",
   },
   subtitle: {
     color: theme.colors.secondaryText,
@@ -278,11 +341,18 @@ const styles = {
     maxWidth: "700px",
     lineHeight: 1.6,
   },
+  subtitleDark: {
+    color: "rgba(232,245,239,0.8)",
+  },
   subtitleLead: {
     color: theme.colors.primaryText,
     fontSize: "18px",
     fontWeight: "700",
     marginTop: "-2px",
+    letterSpacing: "-0.02em",
+  },
+  subtitleLeadDark: {
+    color: "#f4fbf8",
   },
   commandBrief: {
     display: "grid",
@@ -291,12 +361,13 @@ const styles = {
     marginTop: "22px",
   },
   insightCard: {
-    background: "rgba(255,255,255,0.68)",
-    border: "1px solid rgba(173, 198, 192, 0.5)",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.82), rgba(248,251,250,0.76))",
+    border: "1px solid rgba(173, 198, 192, 0.42)",
     borderRadius: "18px",
     padding: "14px 16px",
     display: "grid",
     gap: "6px",
+    boxShadow: "0 12px 26px rgba(18, 34, 29, 0.05)",
   },
   insightLabel: {
     color: theme.colors.secondaryText,
@@ -314,6 +385,19 @@ const styles = {
     fontSize: "12px",
     lineHeight: 1.5,
   },
+  insightCardDark: {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04))",
+    border: "1px solid rgba(151, 182, 172, 0.14)",
+  },
+  insightLabelDark: {
+    color: "rgba(232,245,239,0.7)",
+  },
+  insightValueDark: {
+    color: "#f4fbf8",
+  },
+  insightNoteDark: {
+    color: "rgba(232,245,239,0.76)",
+  },
   statusGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
@@ -321,8 +405,8 @@ const styles = {
     marginTop: "22px",
   },
   statusCard: {
-    background: "rgba(255,255,255,0.72)",
-    border: "1px solid rgba(173, 198, 192, 0.5)",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.84), rgba(248,251,250,0.72))",
+    border: "1px solid rgba(173, 198, 192, 0.42)",
     borderRadius: "18px",
     padding: "14px 16px",
     display: "flex",
@@ -339,6 +423,16 @@ const styles = {
     color: theme.colors.primaryText,
     fontSize: "16px",
   },
+  statusCardDark: {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.04))",
+    border: "1px solid rgba(151, 182, 172, 0.14)",
+  },
+  statusLabelDark: {
+    color: "rgba(232,245,239,0.7)",
+  },
+  statusValueDark: {
+    color: "#f4fbf8",
+  },
   quickRangeRow: {
     display: "grid",
     gap: "8px",
@@ -351,6 +445,9 @@ const styles = {
     letterSpacing: "0.08em",
     fontWeight: "700",
   },
+  quickRangeLabelDark: {
+    color: "rgba(232,245,239,0.7)",
+  },
   quickRangeButtons: {
     display: "flex",
     flexWrap: "wrap",
@@ -360,7 +457,7 @@ const styles = {
     padding: "10px 14px",
     borderRadius: "999px",
     border: "1px solid rgba(122, 164, 152, 0.38)",
-    background: "rgba(255,255,255,0.78)",
+    background: "linear-gradient(180deg, rgba(255,255,255,0.9), rgba(247,251,249,0.86))",
     color: theme.colors.primaryText,
     fontWeight: "600",
     cursor: "pointer",
@@ -376,7 +473,7 @@ const styles = {
     minWidth: "180px",
     borderRadius: theme.radius.button,
     border: "1px solid #cedcd7",
-    background: theme.colors.surface,
+    background: "rgba(255,255,255,0.92)",
   },
   dateField: {
     display: "grid",
@@ -394,7 +491,7 @@ const styles = {
     padding: "12px 14px",
     borderRadius: theme.radius.button,
     border: "1px solid #cedcd7",
-    background: theme.colors.surface,
+    background: "rgba(255,255,255,0.92)",
   },
   logoutBtn: {
     padding: "12px 16px",
@@ -406,15 +503,23 @@ const styles = {
   },
   ghostBtn: {
     padding: "12px 16px",
-    background: "rgba(255,255,255,0.82)",
+    background: "rgba(255,255,255,0.86)",
     color: theme.colors.primaryText,
     border: "1px solid #d1ded8",
     borderRadius: theme.radius.button,
     cursor: "pointer",
   },
+  themeBtn: {
+    padding: "12px 16px",
+    background: "linear-gradient(135deg, rgba(24,53,47,0.98), rgba(37,99,235,0.92))",
+    color: "#ffffff",
+    border: "1px solid rgba(255,255,255,0.14)",
+    borderRadius: theme.radius.button,
+    cursor: "pointer",
+  },
   printBtn: {
     padding: "12px 16px",
-    background: "linear-gradient(135deg, #17342d, #2563eb)",
+    background: "linear-gradient(135deg, #1d8a67, #2563eb)",
     color: theme.colors.surface,
     border: "none",
     borderRadius: theme.radius.button,

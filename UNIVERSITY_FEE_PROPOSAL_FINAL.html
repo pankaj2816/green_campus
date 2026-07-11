@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Professional Fee Proposal</title>
+  <style>
+    :root {
+      --ink: #17342d;
+      --muted: #5f756f;
+      --accent: #1d8a67;
+      --line: #d7e6df;
+      --panel: #f7fbf9;
+      --white: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: #eef4f1;
+      line-height: 1.55;
+    }
+
+    .page {
+      width: 900px;
+      margin: 24px auto;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      box-shadow: 0 18px 44px rgba(12, 24, 21, 0.08);
+      overflow: hidden;
+    }
+
+    .hero {
+      padding: 36px 42px 28px;
+      background: linear-gradient(135deg, #f6fcf8 0%, #edf7f3 50%, #eef2ff 100%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(29, 138, 103, 0.1);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: 34px;
+      line-height: 1.12;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 720px;
+    }
+
+    .section {
+      padding: 24px 42px;
+      border-bottom: 1px solid #eef3f1;
+    }
+
+    .section:last-child {
+      border-bottom: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px;
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .rate {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .list {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+
+    .list li {
+      margin-bottom: 8px;
+    }
+
+    .highlight {
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #eff8f3, #eef3ff);
+      border: 1px solid var(--line);
+      margin-top: 12px;
+    }
+
+    .footer {
+      padding: 24px 42px 34px;
+    }
+
+    .signature {
+      margin-top: 16px;
+    }
+
+    @media print {
+      body {
+        background: #ffffff;
+      }
+
+      .page {
+        width: 100%;
+        margin: 0;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .section,
+      .hero,
+      .footer {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="hero">
+      <div class="badge">Professional Fee Proposal</div>
+      <h1>Proposal for Sitting, Consultation, Site Visit, Online Review, and Software Enhancement Charges</h1>
+      <p class="subtitle">
+        This document may be submitted to the university for approval of professional charges related to meetings, technical consultation, site review, online discussion, and future software enhancement work.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>1. Purpose</h2>
+      <p>
+        This proposal is submitted for kind consideration and approval of professional charges for expert consultation,
+        official meeting participation, site visit support, online review sessions, and any future software enhancement
+        or customization work requested by the university.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>2. Final Proposed Charges</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Sitting Charges</h3>
+          <div class="rate">Rs 7,500 per sitting</div>
+          <div class="muted">For attending official meetings, review sessions, committee discussions, or advisory sittings.</div>
+        </div>
+        <div class="card">
+          <h3>Consultation Charges</h3>
+          <div class="rate">Rs 3,000 per hour</div>
+          <div class="muted">For technical consultation, planning discussion, expert guidance, and project-related advisory support.</div>
+        </div>
+        <div class="card">
+          <h3>Site Visit Charges</h3>
+          <div class="rate">Rs 12,000 per visit</div>
+          <div class="muted">For physical campus visit, inspection, verification, technical review, or on-site discussion.</div>
+        </div>
+        <div class="card">
+          <h3>Online Review Charges</h3>
+          <div class="rate">Rs 4,000 per session</div>
+          <div class="muted">For online meeting, dashboard review, remote presentation, follow-up discussion, or virtual support session.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>3. Custom Report and Documentation Note</h2>
+      <p>
+        Software-generated reports available inside the application are treated as part of the software workflow and normal use.
+        Therefore, a separate high report charge is not being proposed for routine use of the reporting features already present in the application.
+      </p>
+      <p>
+        However, if the university separately requests a custom written technical note, inspection summary, compliance note,
+        recommendation document, or additional special report outside the software-generated reports, the same may be charged separately.
+      </p>
+      <div class="highlight">
+        <strong>Suggested custom written report charge, only if separately requested:</strong><br />
+        Rs 10,000 to Rs 15,000 per report
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>4. Software Enhancement / Additional Development</h2>
+      <p>
+        Any future addition, modification, customization, or enhancement in the software requested by the university shall be
+        charged separately based on scope, complexity, time, and implementation effort.
+      </p>
+      <p>
+        In addition, if any software-related professional service is required by the university beyond the present scope,
+        I shall also be available to provide support on mutually agreed commercial terms.
+      </p>
+      <ul class="list">
+        <li>New dashboard sections or analytics pages</li>
+        <li>New reports or new report formats</li>
+        <li>Formula or calculation changes</li>
+        <li>New user roles, permissions, or workflow changes</li>
+        <li>Database changes</li>
+        <li>Sensor, API, device, or system integration</li>
+        <li>AI prediction enhancement or advanced logic updates</li>
+        <li>Any new software module requested later</li>
+      </ul>
+      <div class="highlight">
+        <strong>Suggested reference structure:</strong><br />
+        Minor changes: Rs 5,000 to Rs 15,000<br />
+        Medium feature additions: Rs 15,000 to Rs 40,000<br />
+        Major module / advanced integration / substantial enhancement: separate project-based quotation
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>5. Travel and Accommodation</h2>
+      <p>
+        Travel, local conveyance, accommodation, and boarding, wherever applicable, may be reimbursed separately on actual basis
+        or may be arranged directly by the university.
+      </p>
+    </div>
+
+    <div class="section">
+      <h2>6. Summary for Approval</h2>
+      <ul class="list">
+        <li>Sitting charges: <strong>Rs 7,500 per sitting</strong></li>
+        <li>Consultation charges: <strong>Rs 3,000 per hour</strong></li>
+        <li>Site visit charges: <strong>Rs 12,000 per visit</strong></li>
+        <li>Online review charges: <strong>Rs 4,000 per session</strong></li>
+        <li>Custom written report, if separately requested: <strong>Rs 10,000 to Rs 15,000 per report</strong></li>
+        <li>Software enhancement / additional development: <strong>chargeable separately as per scope</strong></li>
+        <li>Travel and accommodation: <strong>Actual basis</strong></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <h2>7. Closing Note</h2>
+      <p>
+        The above proposed charges are submitted for kind consideration and approval. I shall be pleased to extend professional
+        support to the university as required for consultation, review, monitoring, and future software-related work.
+      </p>
+      <div class="signature">
+        Yours sincerely,<br /><br />
+        <strong>Pankaj Gupta</strong><br />
+        Senior FPGA Design Engineer, Keysight Technology<br />
+        +91-8219352125<br />
+        guptapan25@gmail.com
+      </div>
+    </div>
+  </div>
+</body>
+</html>
