@@ -20,6 +20,10 @@ function AIRiskSection({ riskData }) {
         />
       </h3>
       <p style={styles.subtext}>{risk.message}</p>
+      <p style={styles.subtext}>{risk.risk_note || "Forecast spread reflects variability, not a calibrated confidence interval or prediction accuracy."}</p>
+      {typeof risk.occupancy_adjustment_applied === "boolean" ? (
+        <p style={styles.subtext}>Occupancy adjustment applied to main forecast: {risk.occupancy_adjustment_applied ? "Yes" : "No"}.</p>
+      ) : null}
 
       <div style={styles.grid}>
         <MetricCard title={dashboardCopy.risk.cards.level} value={risk.risk_level} accent={getRiskColor(risk.risk_level)} />

@@ -20,7 +20,7 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
             {dashboardCopy.quality.title}
             <InfoHint
               title="What Data Quality means"
-              text="This checks whether imported data is complete enough to trust charts and forecasts. It looks for missing months, duplicates, and unusual zero or negative values."
+              text="This checks historical data availability, missing periods, duplicates, and unusual readings. It does not validate prediction accuracy or calibrate forecast uncertainty."
               width={260}
               align="right"
             />
@@ -45,10 +45,19 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
         </div>
         <div style={styles.scoreDetails}>
           <Metric label={dashboardCopy.quality.metrics.history} value={`${qualityData.history_months} months`} />
-          <Metric label={dashboardCopy.quality.metrics.readiness} value={`${qualityData.forecast_readiness}%`} />
+          <Metric label={dashboardCopy.quality.metrics.readiness} value={qualityData.forecast_readiness == null ? "Not available" : `${qualityData.forecast_readiness}%`} />
           <Metric label={dashboardCopy.quality.metrics.issues} value={qualityData.issue_count} />
         </div>
       </div>
+
+      <p style={styles.subtext}>
+        {qualityData.forecast_readiness_explanation || "History / data availability is a data-sufficiency heuristic, not prediction accuracy. Accuracy requires independent backtesting."}
+      </p>
+      {qualityData.history_availability_percent != null ? (
+        <p style={styles.subtext}>
+          History availability: {qualityData.history_availability_percent}%. {qualityData.history_availability_explanation}
+        </p>
+      ) : null}
 
       <div style={styles.resourceGrid}>
         {(qualityData.resources || []).map((item) => (
@@ -67,6 +76,12 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
                   `Duplicate readings: ${item.duplicate_readings}`,
                   `Zero or negative values: ${item.zero_or_negative_values}`,
                   `Average value: ${item.average_value} ${item.unit}`,
+                  ...coverageLines(item),
+                  ...(item.coverage_explanation ? [item.coverage_explanation] : []),
+                  ...(item.building_coverage || []).flatMap((building) => [
+                    `Building: ${building.building}`,
+                    ...coverageLines(building),
+                  ]),
                 ],
               })
             }
@@ -79,6 +94,9 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
             <span style={styles.resourceMeta}>
               {item.row_count} rows | {item.missing_month_count} missing months
             </span>
+            {coverageLines(item).map((line) => (
+              <span key={line} style={styles.resourceMeta}>{line}</span>
+            ))}
           </button>
         ))}
       </div>
@@ -91,6 +109,18 @@ function DataQualityPanel({ qualityData, onOpenDetail }) {
       </div>
     </div>
   );
+}
+
+function coverageLines(item) {
+  if (!("cadence" in item || "coverage_percent" in item)) return [];
+  const available = (value, suffix = "") => value == null ? "Unknown" : `${value}${suffix}`;
+  return [
+    `Cadence: ${item.cadence ?? "unknown"}`,
+    `Interval coverage: ${available(item.coverage_percent, "%")}${item.coverage_status ? ` (${item.coverage_status})` : ""}`,
+    `Observed / expected intervals: ${available(item.observed_intervals)} / ${available(item.expected_intervals)}`,
+    `Missing intervals: ${available(item.missing_interval_count)}`,
+    `Longest gap (intervals): ${available(item.longest_gap_intervals)}`,
+  ];
 }
 
 function Metric({ label, value }) {

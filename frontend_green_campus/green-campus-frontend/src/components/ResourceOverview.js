@@ -20,7 +20,7 @@ function ResourceOverview({ data, darkMode = false }) {
   const resources = [
     ...electricity,
     { label: "Water", value: Number(data.water || 0), unit: "kl", color: "#0284c7" },
-    { label: "Waste", value: Number(data.waste || 0), unit: "kg", color: "#14b8a6" },
+    { label: "Waste", value: Number(data.waste || 0), unit: "kg", color: "#14b8a6", unavailable: data.resource_availability?.waste === false },
   ];
   const solarCoverage = Number(data.energy || 0) > 0
     ? ((Number(data.solar || 0) / Number(data.energy || 0)) * 100).toFixed(1)
@@ -140,7 +140,7 @@ function ResourceOverview({ data, darkMode = false }) {
               <span style={{ ...styles.metricName, color: titleColor }}>{item.label}</span>
             </div>
             <strong style={{ ...styles.metricValue, color: titleColor }}>
-              {item.value.toLocaleString()} {item.unit}
+              {item.unavailable ? "Not available" : `${item.value.toLocaleString()} ${item.unit}`}
             </strong>
           </div>
         ))}

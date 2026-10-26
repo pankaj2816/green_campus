@@ -33,12 +33,14 @@ def calculate_compliance_score(db: Session):
     total_solar = sum(float(entry.solar_kwh or 0) for entry in solar_rows)
     net_energy = max(total_energy - total_solar, 0)
 
-    scores = calculate_green_index(net_energy, total_water, total_waste, constants)
+    scores = calculate_green_index(net_energy if energy_rows else None,
+                                   total_water if water_rows else None,
+                                   total_waste if waste_rows else None, constants)
     green_index = scores["green_index"]
 
     return {
         "scope": "Campus",
-        "grade": _grade(green_index),
+        "grade": _grade(green_index) if green_index is not None else "Not assessed",
         "formula": "dashboard_green_index",
         **scores,
     }

@@ -62,14 +62,21 @@ def _totals(db: Session, building: str | None, date_from: str | None = None, dat
     }
 
 
-def _green_index(net_energy: float, water: float, waste: float, constants: dict):
-    return calculate_green_index(net_energy, water, waste, constants)["green_index"]
+def _green_index(net_energy: float, water: float, waste: float, constants: dict, availability: dict):
+    return calculate_green_index(net_energy if availability["energy"] else None,
+                                 water if availability["water"] else None,
+                                 waste if availability["waste"] else None, constants)["green_index"]
 
 
 def simulate_sustainability_impact(db: Session, building: str | None, inputs: dict):
     settings = get_dashboard_settings(db)
     constants = get_runtime_constants(settings)
     baseline = _totals(db, building, inputs.get("date_from"), inputs.get("date_to"))
+    availability = {}
+    for name, model in (("energy", models.EnergyData), ("water", models.WaterData),
+                        ("waste", models.WasteData), ("solar", models.SolarData)):
+        availability[name] = apply_date_range(_apply_filter(db.query(model), model, building), model,
+                                              inputs.get("date_from"), inputs.get("date_to")).first() is not None
 
     energy_reduction_pct = float(inputs.get("energy_reduction_pct", 0) or 0)
     water_reduction_pct = float(inputs.get("water_reduction_pct", 0) or 0)
@@ -90,9 +97,12 @@ def simulate_sustainability_impact(db: Session, building: str | None, inputs: di
     projected_carbon = calculate_carbon(projected_net_energy, constants["emission_factor_kg_per_kwh"])
     baseline_cost = baseline_net_energy * constants["energy_cost_per_kwh"]
     projected_cost = projected_net_energy * constants["energy_cost_per_kwh"]
+    baseline_index = _green_index(baseline_net_energy, baseline["water"], baseline["waste"], constants, availability)
+    projected_index = _green_index(projected_net_energy, projected["water"], projected["waste"], constants, availability)
 
     return {
         "scope": building or "Campus",
+        "resource_availability": availability,
         "inputs": {
             "energy_reduction_pct": energy_reduction_pct,
             "water_reduction_pct": water_reduction_pct,
@@ -104,22 +114,19 @@ def simulate_sustainability_impact(db: Session, building: str | None, inputs: di
             "net_energy": round(baseline_net_energy, 2),
             "carbon": round(baseline_carbon, 2),
             "energy_cost": round(baseline_cost, 2),
-            "green_index": _green_index(baseline_net_energy, baseline["water"], baseline["waste"], constants),
+            "green_index": baseline_index,
         },
         "projected": {
             **{key: round(value, 2) for key, value in projected.items()},
             "net_energy": round(projected_net_energy, 2),
             "carbon": round(projected_carbon, 2),
             "energy_cost": round(projected_cost, 2),
-            "green_index": _green_index(projected_net_energy, projected["water"], projected["waste"], constants),
+            "green_index": projected_index,
         },
         "impact": {
             "carbon_saved": round(baseline_carbon - projected_carbon, 2),
             "cost_saved": round(baseline_cost - projected_cost, 2),
-            "green_index_gain": round(
-                _green_index(projected_net_energy, projected["water"], projected["waste"], constants) -
-                _green_index(baseline_net_energy, baseline["water"], baseline["waste"], constants),
-                2,
-            ),
+            "green_index_gain": round(projected_index - baseline_index, 2)
+                if projected_index is not None and baseline_index is not None else None,
         },
     }

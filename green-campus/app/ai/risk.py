@@ -28,7 +28,8 @@ def evaluate_resource_risk(forecast_payload):
         (((upper_values[-1] - lower_values[-1]) / future) * 100) if future and lower_values and upper_values else 0.0
     )
     average_future_occupancy = sum(occupancy_factors) / len(occupancy_factors) if occupancy_factors else 1.0
-    occupancy_impact_percent = round((average_future_occupancy - 1.0) * 100, 2)
+    occupancy_applied = energy_payload.get("occupancy_adjustment_applied", False)
+    occupancy_impact_percent = round((average_future_occupancy - 1.0) * 100, 2) if occupancy_applied else 0.0
 
     risk_score = 0
     if growth_percent > 18:
@@ -44,7 +45,7 @@ def evaluate_resource_risk(forecast_payload):
     if confidence_band_percent > 30:
         risk_score += 1
 
-    if average_future_occupancy > 0.95:
+    if occupancy_applied and average_future_occupancy > 0.95:
         risk_score += 1
 
     if risk_score >= 4:
@@ -63,10 +64,10 @@ def evaluate_resource_risk(forecast_payload):
     projected_cost = round(projected_net * constants["energy_cost_per_kwh"], 2)
     projected_carbon = round(calculate_carbon(projected_net, constants["emission_factor_kg_per_kwh"]), 2)
 
-    if average_future_occupancy < 0.7:
+    if occupancy_applied and average_future_occupancy < 0.7:
         primary_driver = "Lower expected campus occupancy is moderating future demand."
     elif growth_percent > 0:
-        primary_driver = "Future demand is rising because recent usage and occupancy pressure are both elevated."
+        primary_driver = "The historical seasonal reference projects higher demand; assumed occupancy is shown separately, not treated as a measured cause."
     else:
         primary_driver = "Recent demand is stable or softening, so risk mainly comes from variability."
 
@@ -80,6 +81,9 @@ def evaluate_resource_risk(forecast_payload):
         "confidence_band_percent": round(confidence_band_percent, 2),
         "occupancy_impact_percent": occupancy_impact_percent,
         "average_future_occupancy": round(average_future_occupancy, 2),
+        "occupancy_adjustment_applied": occupancy_applied,
+        "spread_type": energy_payload.get("spread_type"),
+        "risk_note": "Heuristic planning indicator, not a validated probability. Forecast spread is not a calibrated confidence interval.",
         "projected_energy": round(future, 2),
         "projected_net_energy": round(projected_net, 2),
         "projected_energy_low": round(lower_values[-1], 2) if lower_values else round(future, 2),

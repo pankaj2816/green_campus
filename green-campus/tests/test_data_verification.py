@@ -53,17 +53,18 @@ def expected_summary(rows, building=None, start=None, end=None):
               for resource, records in selected.items()}
     months = {(date.year, date.month) for records in selected.values() for date, _, _ in records}
     net = max(totals["energy"] - totals["solar"], Decimal(0))
-    pressure = sum(weight * min(totals_value / benchmark, Decimal(1))
-                   for weight, totals_value, benchmark in (
-                       (Decimal(".5"), net, Decimal(100000)),
-                       (Decimal(".3"), totals["water"], Decimal(20000)),
-                       (Decimal(".2"), totals["waste"], Decimal(30000))))
+    components = [(Decimal(".5"), net, Decimal(100000), bool(selected["energy"])),
+                  (Decimal(".3"), totals["water"], Decimal(20000), bool(selected["water"])),
+                  (Decimal(".2"), totals["waste"], Decimal(30000), bool(selected["waste"]))]
+    weight_sum = sum((weight for weight, _, _, present in components if present), Decimal(0))
+    pressure = sum((weight * min(value / benchmark, Decimal(1))
+                    for weight, value, benchmark, present in components if present), Decimal(0))
     return {**totals, "net_energy": net, "carbon": net * Decimal(".82"),
             "gross_carbon": totals["energy"] * Decimal(".82"),
             "solar_avoided_carbon": min(totals["energy"], totals["solar"]) * Decimal(".82"),
             "export_to_grid_kwh": max(totals["solar"] - totals["energy"], Decimal(0)),
             "monthly_energy_cost_rs": net * 8 / max(len(months), 1),
-            "green_index": (1 - pressure) * 100 if months else None,
+            "green_index": (1 - pressure / weight_sum) * 100 if weight_sum else None,
             "months_covered": max(len(months), 1)}
 
 
@@ -185,15 +186,13 @@ class DataVerificationTests(unittest.TestCase):
             self.assertAlmostEqual(point["net"], float(max(monthly["energy"][key] - monthly["solar"][key], 0)), delta=.011)
         forecast = self.get("/ai/forecast/resources", {"granularity": "monthly"})
         occupancy = {int(key): value for key, value in forecast["academic_occupancy_factors"].items()}
-        annual_occupancy_mean = sum(occupancy.values()) / 12
         for resource in VALUE_COLUMNS:
             series = forecast[resource]
             for label, value in zip(series["forecast_labels"], series["forecast_values"]):
                 month = datetime.strptime(label, "%b %Y").month
                 history = [float(total) for (_, historical_month), total in monthly[resource].items() if historical_month == month]
                 baseline = sum(history) / len(history)
-                multiplier = 1 if resource == "solar" else occupancy[month] / annual_occupancy_mean
-                self.assertAlmostEqual(value, baseline * multiplier, delta=.011)
+                self.assertAlmostEqual(value, baseline, delta=.011)
 
     def test_simulation_settings_and_occupancy_dependencies(self):
         self.headers = self.admin_headers()
@@ -224,7 +223,8 @@ class DataVerificationTests(unittest.TestCase):
         self.assertEqual(after["occupancy_average"], .2)
         forecast = self.get("/ai/forecast/resources")
         self.assertEqual(before["solar"]["forecast_values"], forecast["solar"]["forecast_values"])
-        self.assertNotEqual(before["energy"]["forecast_values"], forecast["energy"]["forecast_values"])
+        self.assertEqual(before["energy"]["forecast_values"], forecast["energy"]["forecast_values"])
+        self.assertNotEqual(before["energy"]["occupancy_scenario_values"], forecast["energy"]["occupancy_scenario_values"])
         events = self.get("/meta/audit-trail")["records"]
         self.assertGreaterEqual(len(events), 2)
         action = self.client.post("/meta/settings", headers=self.headers,

@@ -2,6 +2,7 @@ import React from "react";
 
 import { dashboardCopy } from "../config/dashboardConfig";
 import InfoHint from "./InfoHint";
+import { greenIndexNote } from "./assessmentPresentation";
 
 function formatNumber(value, suffix = "") {
   if (value === undefined || value === null) {
@@ -77,9 +78,11 @@ function ExecutiveReportView({
       <div style={styles.summaryGrid}>
         <SummaryMetric label="Net Energy" value={formatNumber(data.net_energy, " kWh")} note="After solar support" />
         <SummaryMetric label="Water" value={formatNumber(data.water, " kl")} note="Current filtered scope" />
-        <SummaryMetric label="Waste" value={formatNumber(data.waste, " kg")} note="Tracked waste output" />
-        <SummaryMetric label="Green Index" value={formatNumber(data.green_index, "%")} note="Higher is better" />
+        <SummaryMetric label="Waste" value={data.resource_availability?.waste === false ? "Not available" : formatNumber(data.waste, " kg")} note={data.resource_availability?.waste === false ? "No waste readings; not a confirmed zero" : "Tracked waste output"} />
+        <SummaryMetric label="Green Index" value={data.green_index_details?.assessment === "unavailable" ? "Not available" : formatNumber(data.green_index, "%")} note={greenIndexNote(data) || "Higher is better"} />
       </div>
+
+      {data.accounting_note ? <p style={styles.subtitle}>{data.accounting_note}</p> : null}
 
       <div style={styles.twoCol}>
         <div style={styles.panel}>

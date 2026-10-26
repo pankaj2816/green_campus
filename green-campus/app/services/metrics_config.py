@@ -77,12 +77,12 @@ def get_assumptions_payload(settings: dict | None = None):
             {
                 "term": "Net Energy",
                 "formula": "max(gross energy - solar, 0)",
-                "meaning": "This shows how much electricity still has to come from the grid after solar support.",
+                "meaning": "Period-level estimate after subtracting solar. Valid only if electricity is gross demand and both meters cover the same scope and time. It is not measured grid import.",
             },
             {
                 "term": "Export to Grid",
                 "formula": "max(solar - gross energy, 0)",
-                "meaning": "This shows extra solar generation that could be exported when solar is greater than demand.",
+                "meaning": "Period-level surplus estimate, not measured export. Verify interval alignment, self-consumption and meter boundaries before using it operationally.",
             },
             {
                 "term": "Carbon Footprint",
@@ -96,13 +96,13 @@ def get_assumptions_payload(settings: dict | None = None):
             },
             {
                 "term": "Green Index",
-                "formula": "100 x (1 - weighted efficiency score)",
-                "meaning": "The dashboard first normalizes energy, water, and waste against benchmarks, then combines them using weights. Higher final score is better.",
+                "formula": "100 x (1 - sum(available weight x capped resource/benchmark) / sum(available weights))",
+                "meaning": "Higher means less pressure against configured benchmarks. Missing resources are excluded, not treated as zero usage. Partial scores must not be compared directly with complete scores or different date windows.",
             },
             {
                 "term": "Monthly Energy Cost",
                 "formula": "(net energy / months covered) x electricity cost per unit",
-                "meaning": "This gives a simple estimated monthly energy spend for the selected date window.",
+                "meaning": "Assumption-based average over months containing records, not a full-month bill. Missing days and partial months can understate it; verify the tariff.",
             },
         ],
         "glossary": [

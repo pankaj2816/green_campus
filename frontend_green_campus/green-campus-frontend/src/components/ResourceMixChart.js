@@ -38,6 +38,7 @@ function ResourceMixChart({ data, darkMode = false }) {
   const exportKwh = Math.max(solar - grossEnergy, 0);
   const water = Number(data.water || 0);
   const waste = Number(data.waste || 0);
+  const wasteUnavailable = data.resource_availability?.waste === false;
   const resourceItems = [
     { key: "solar", label: "Solar used", rawValue: solarUsed, unit: "kWh", color: electricityColors.solar },
     { key: "grid", label: "Grid draw", rawValue: gridDraw, unit: "kWh", color: electricityColors.grid },
@@ -51,7 +52,7 @@ function ResourceMixChart({ data, darkMode = false }) {
       percentage: total > 0 ? (item.rawValue / total) * 100 : 0,
     }))
     .sort((a, b) => b.percentage - a.percentage);
-  const wasteTypes = Object.entries(data.waste_by_type || {});
+  const wasteTypes = wasteUnavailable ? [] : Object.entries(data.waste_by_type || {});
 
   const chartData = {
     labels: resourceItems.map((item) => item.label),
@@ -153,7 +154,7 @@ function ResourceMixChart({ data, darkMode = false }) {
       <div style={{ ...styles.highlightCard, background: highlightBackground, marginTop: "16px" }}>
         <strong>Other resources, kept in their own units</strong>
         <div style={{ ...styles.highlightText, color: mutedTextColor }}>
-          Water {water.toLocaleString()} kl · Waste {waste.toLocaleString()} kg
+          Water {water.toLocaleString()} kl · Waste {wasteUnavailable ? "not available (no readings)" : `${waste.toLocaleString()} kg`}
           {exportKwh > 0 ? ` · Solar export ${exportKwh.toLocaleString()} kWh` : ""}
         </div>
         {wasteTypes.length ? (

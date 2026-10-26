@@ -12,6 +12,25 @@ function ComparisonCard({ title, metric, positiveIsGood = false, suffix = "", on
   if (!metric) {
     return null;
   }
+  if (metric.comparable === false) {
+    const reason = metric.comparison_note || "Missing observations or different assessed resources prevent a measured comparison.";
+    return (
+      <button
+        type="button"
+        style={{ ...styles.card, ...styles.neutral }}
+        onClick={() => onOpenDetail?.({
+          title,
+          category: "Comparison Insight",
+          summary: "Not comparable",
+          points: [reason],
+        })}
+      >
+        <div style={styles.cardTitle}>{title}</div>
+        <div style={styles.changeValue}>Not comparable</div>
+        <div style={{ ...styles.percentText, color: styles.cardTitle.color }}>{reason}</div>
+      </button>
+    );
+  }
 
   const change = Number(metric.change || 0);
   const tone =

@@ -1,0 +1,102 @@
+{
+  "checked_at_utc": "2026-10-26T06:54:35.655027+00:00",
+  "scope": "Publisher metadata, repository license and bounded raw CSV header inspection only; not row-level completeness or import testing.",
+  "bdg2": {
+    "source_commit": "9b97ccbe90096aff42ed4fd6493bf7ae692d7118",
+    "header_urls": {
+      "electricity": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/electricity.csv",
+      "water": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/water.csv",
+      "solar": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/solar.csv"
+    },
+    "meter_columns": {
+      "electricity": 1578,
+      "water": 146,
+      "solar": 5
+    },
+    "electricity_water_common_count": 124,
+    "electricity_water_solar_common_identifiers": [
+      "Bobcat_education_Alissa",
+      "Bobcat_education_Coleman",
+      "Bobcat_education_Dylan",
+      "Bobcat_office_Justine",
+      "Bobcat_other_Timothy"
+    ],
+    "repository_license_url": "https://raw.githubusercontent.com/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/LICENSE",
+    "repository_license_first_line": "Attribution-ShareAlike 4.0 Unported",
+    "repository_license_sha256": "1df42bd84afc40e676a0cbf3d34e30e5151e3f0d995a68b406178dad3b0e23dc"
+  },
+  "unicon": {
+    "metadata_url": "https://www.kaggle.com/api/v1/datasets/view/cdaclab/unicon",
+    "title": "UNICON Energy Consumption Dataset",
+    "licenseName": "CC BY-NC-SA 4.0",
+    "currentVersionNumber": 1,
+    "totalBytes": 950884462
+  },
+  "bdg2_archive": {
+    "metadata_url": "https://zenodo.org/api/records/3887306",
+    "title": "buds-lab/building-data-genome-project-2: v1.0",
+    "license": {
+      "id": "cc-by-4.0"
+    },
+    "files": [
+      {
+        "name": "buds-lab/building-data-genome-project-2-v1.0.zip",
+        "bytes": 595266464
+      }
+    ]
+  },
+  "hkust": {
+    "metadata_url": "https://datadryad.org/api/v2/datasets/doi%3A10.5061%2Fdryad.k3j9kd5h6",
+    "title": "A 2.5-year campus-level smart meter database with equipment data for energy analytics",
+    "license": "https://spdx.org/licenses/CC0-1.0.html",
+    "versionNumber": 5
+  },
+  "dublin_waste": {
+    "metadata_url": "https://data.smartdublin.ie/api/3/action/package_show?id=waste-data-aes-bord-na-mona",
+    "title": "AES Bord na M\u00f3na Green Waste Report DCC",
+    "license_id": "cc-by",
+    "license_title": "Creative Commons Attribution",
+    "license_url": "http://www.opendefinition.org/licenses/cc-by"
+  },
+  "kitakyushu": {
+    "metadata_url": "https://api.figshare.com/v2/articles/24978645",
+    "title": "20-year Data of Energy Station at Kitakyushu Campus",
+    "doi": "10.6084/m9.figshare.24978645.v2",
+    "version": 2,
+    "license": {
+      "value": 1,
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    },
+    "files": [
+      {
+        "name": "Electricity load & Heating load & Cooling load & Hot water load.zip",
+        "bytes": 6086441
+      },
+      {
+        "name": "Gas usage.zip",
+        "bytes": 6996876
+      },
+      {
+        "name": "Heat recovery.zip",
+        "bytes": 5642319
+      },
+      {
+        "name": "Power.zip",
+        "bytes": 5272497
+      },
+      {
+        "name": "Raw Data.zip",
+        "bytes": 5747088
+      },
+      {
+        "name": "Weather data.zip",
+        "bytes": 7144599
+      },
+      {
+        "name": "Cooling and heating load data of individual buildings.zip",
+        "bytes": 57005344
+      }
+    ]
+  }
+}

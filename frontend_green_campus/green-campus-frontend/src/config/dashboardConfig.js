@@ -235,7 +235,7 @@ export const dashboardCopy = {
     forecastSeries: {
       historical: "Historical",
       forecast: "Forecast",
-      confidence: "Confidence Range",
+      confidence: "Forecast Spread",
     },
   },
   carbon: {
@@ -304,7 +304,7 @@ export const dashboardCopy = {
       trend: "Trend Direction",
       growth: "Growth",
       volatility: "Volatility",
-      confidence: "Forecast Range",
+      confidence: "Forecast Spread Width",
       occupancy: "Occupancy Effect",
       projectedEnergy: "Projected Energy",
       projectedWindow: "Projected Window",
@@ -333,14 +333,14 @@ export const dashboardCopy = {
     noAlerts: "No important alerts are active right now.",
   },
   quality: {
-    title: "Data Quality and Forecast Trust",
+    title: "Data Quality and History Availability",
     subtitle:
-      "Checks whether imported data is complete and reliable enough for charts, forecasts, and reports.",
-    trustLabel: "Trust Level",
+      "Checks imported history for gaps, duplicates, and unusual readings. Data availability is not a measure of prediction accuracy.",
+    trustLabel: "Data Quality Level",
     recommendationsTitle: "What to check next",
     metrics: {
       history: "History Available",
-      readiness: "Forecast Readiness",
+      readiness: "History / Data Availability",
       issues: "Issues Found",
     },
   },

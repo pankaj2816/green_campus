@@ -9,6 +9,14 @@ function ForecastCard({ title, payload, color, unit }) {
   if (!payload) {
     return null;
   }
+  if (Array.isArray(payload.historical_values) && payload.historical_values.length === 0) {
+    return (
+      <div style={styles.card}>
+        <h4 style={{ marginTop: 0 }}>{title}</h4>
+        <p style={styles.caption}>No measured records; forecast not assessed.</p>
+      </div>
+    );
+  }
 
   return (
     <div style={styles.card}>
@@ -26,9 +34,23 @@ function ForecastCard({ title, payload, color, unit }) {
       <p style={styles.caption}>
         Baseline: {payload.baseline_mean} | Recent: {payload.recent_mean} | Variability: {payload.variability_score}
       </p>
-      {payload.confidence_reasons?.[0] ? (
-        <p style={styles.reasonText}>{payload.confidence_reasons[0]}</p>
-      ) : null}
+      <details style={styles.reasonText}>
+        <summary style={{ cursor: "pointer", fontWeight: "600" }}>How this forecast works</summary>
+        {payload.forecast_method ? <p style={styles.reasonText}>Method: {payload.forecast_method.replaceAll("_", " ")}</p> : null}
+        {payload.method_description ? <p style={styles.reasonText}>{payload.method_description}</p> : null}
+        {payload.spread_type ? <p style={styles.reasonText}>Spread: {payload.spread_type.replaceAll("_", " ")}</p> : null}
+        {payload.spread_backtest_cases != null ? <p style={styles.reasonText}>Historical error cases used for spread: {payload.spread_backtest_cases}</p> : null}
+        {typeof payload.occupancy_adjustment_applied === "boolean" ? (
+          <p style={styles.reasonText}>Occupancy adjustment applied to main forecast: {payload.occupancy_adjustment_applied ? "Yes" : "No"}.{payload.occupancy_adjustment_applied === false ? " The main forecast is the baseline; occupancy what-if values are a separate scenario, not the baseline or measured attendance." : ""}</p>
+        ) : null}
+        {payload.occupancy_note ? <p style={styles.reasonText}>{payload.occupancy_note}</p> : null}
+        {payload.occupancy_scenario_values?.[0] != null ? (
+          <p style={styles.reasonText}>Separate occupancy what-if scenario{payload.forecast_labels?.[0] ? ` (${payload.forecast_labels[0]})` : " (first period)"}: {payload.occupancy_scenario_values[0]} {unit}. Not the main forecast.</p>
+        ) : null}
+        {payload.confidence_reasons?.[0] ? (
+          <p style={styles.reasonText}>{payload.confidence_reasons[0].replace(/confidence range/gi, "forecast spread")}</p>
+        ) : null}
+      </details>
     </div>
   );
 }
@@ -46,9 +68,12 @@ function AIForecastSection({ forecastData, granularity }) {
           <p style={styles.subtext}>
             {forecastData.horizon_label} {dashboardCopy.forecast.subtitlePrefix} {granularity} {dashboardCopy.forecast.subtitleMiddle} {forecastData.building}.
           </p>
-          <p style={styles.meta}>
-            Occupancy-aware average for upcoming periods: {Math.round((forecastData.future_occupancy_average || 0) * 100)}%
-          </p>
+          <p style={styles.subtext}>Forecast spreads illustrate variability and uncertainty; they are not calibrated confidence intervals or a guarantee of future coverage.</p>
+          {forecastData.future_occupancy_average != null ? (
+            <p style={styles.meta}>
+              Modeled occupancy factor for upcoming periods: {Math.round(forecastData.future_occupancy_average * 100)}% (not measured attendance)
+            </p>
+          ) : null}
         </div>
       </div>
 

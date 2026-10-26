@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
+import { greenIndexNote } from "./assessmentPresentation";
 
 const { theme } = dashboardCopy;
 
@@ -33,7 +34,7 @@ function useAnimatedNumber(value) {
   return displayValue;
 }
 
-function Card({ title, value, suffix = "", subtitle, accent, featured = false, onOpenDetail }) {
+function Card({ title, value, suffix = "", subtitle, accent, featured = false, onOpenDetail, unavailable = false }) {
   const animatedValue = useAnimatedNumber(value);
 
   return (
@@ -51,11 +52,11 @@ function Card({ title, value, suffix = "", subtitle, accent, featured = false, o
       <div style={styles.cardEyebrow}>Campus KPI</div>
       <div style={styles.cardTitle}>{title}</div>
       <div style={styles.cardValue}>
-        {animatedValue.toLocaleString(undefined, {
+        {unavailable ? "Not available" : <>{animatedValue.toLocaleString(undefined, {
           minimumFractionDigits: 0,
           maximumFractionDigits: animatedValue % 1 === 0 ? 0 : 2,
         })}{" "}
-        {suffix}
+        {suffix}</>}
       </div>
       <div style={styles.cardSubtitle}>{subtitle}</div>
     </button>
@@ -63,6 +64,9 @@ function Card({ title, value, suffix = "", subtitle, accent, featured = false, o
 }
 
 export default function DashboardCards({ data, onOpenDetail }) {
+  const indexNote = greenIndexNote(data);
+  const indexUnavailable = data.green_index_details?.assessment === "unavailable";
+  const wasteUnavailable = data.resource_availability?.waste === false;
   const solarImpact =
     data.energy > 0 ? ((data.solar / data.energy) * 100).toFixed(1) : 0;
 
@@ -108,15 +112,16 @@ export default function DashboardCards({ data, onOpenDetail }) {
       <Card
         title={dashboardCopy.kpis.waste.title}
         value={data.waste}
+        unavailable={wasteUnavailable}
         suffix="kg"
-        subtitle={dashboardCopy.kpis.waste.subtitle}
+        subtitle={wasteUnavailable ? "No waste readings in this scope; not a confirmed zero." : dashboardCopy.kpis.waste.subtitle}
         accent="#14b8a6"
         onOpenDetail={() =>
           onOpenDetail?.({
             title: dashboardCopy.kpis.waste.title,
             category: "KPI",
-            summary: "Waste generated shows the total tracked waste load for the selected data window.",
-            points: [
+            summary: wasteUnavailable ? "Waste is unavailable for this scope, not confirmed zero waste performance." : "Waste generated shows the total tracked waste load for the selected data window.",
+            points: wasteUnavailable ? ["Add waste readings to assess waste performance."] : [
               `Current waste load: ${data.waste} kg`,
               `Waste per student: ${data.waste_per_student_kg ?? "N/A"} kg`,
             ],
@@ -145,7 +150,7 @@ export default function DashboardCards({ data, onOpenDetail }) {
         title={dashboardCopy.kpis.net.title}
         value={data.net_energy}
         suffix="kWh"
-        subtitle={dashboardCopy.kpis.net.subtitle}
+        subtitle={<>{dashboardCopy.kpis.net.subtitle}{data.accounting_note ? <span style={{ display: "block", marginTop: "8px" }}>{data.accounting_note}</span> : null}</>}
         accent="#2563eb"
         featured
         onOpenDetail={() =>
@@ -156,6 +161,7 @@ export default function DashboardCards({ data, onOpenDetail }) {
             points: [
               `Current net energy: ${data.net_energy} kWh`,
               `Estimated monthly cost: Rs ${data.monthly_energy_cost_rs ?? "N/A"}`,
+              ...(data.accounting_note ? [data.accounting_note] : []),
             ],
           })
         }
@@ -163,8 +169,9 @@ export default function DashboardCards({ data, onOpenDetail }) {
       <Card
         title={dashboardCopy.kpis.greenIndex.title}
         value={data.green_index}
+        unavailable={indexUnavailable}
         suffix="%"
-        subtitle={dashboardCopy.kpis.greenIndex.subtitle}
+        subtitle={indexNote || dashboardCopy.kpis.greenIndex.subtitle}
         accent="#1b7f62"
         featured
         onOpenDetail={() =>
@@ -173,7 +180,9 @@ export default function DashboardCards({ data, onOpenDetail }) {
             category: "KPI",
             summary: "Green Index is the dashboard’s combined sustainability score across energy, water, and waste behavior.",
             points: [
-              `Current Green Index: ${data.green_index}%`,
+              indexUnavailable ? "Green Index: Not available" : `Current Green Index: ${data.green_index}%`,
+              ...(indexNote ? [indexNote] : []),
+              ...(data.green_index_details?.assessed_resources ? [`Assessed resources: ${data.green_index_details.assessed_resources.join(", ")}`] : []),
               "Higher values are better because they indicate more efficient overall campus behavior.",
             ],
           })

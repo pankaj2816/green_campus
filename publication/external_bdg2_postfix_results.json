@@ -1,0 +1,1399 @@
+{
+  "source_commit": "9b97ccbe90096aff42ed4fd6493bf7ae692d7118",
+  "buildings": [
+    "Bobcat_education_Alissa",
+    "Bobcat_education_Coleman",
+    "Bobcat_education_Dylan",
+    "Bobcat_office_Justine",
+    "Bobcat_other_Timothy"
+  ],
+  "source_files": {
+    "electricity": {
+      "url": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/electricity.csv",
+      "bytes": 174239039,
+      "sha256": "039d909d8981e2d69eaeb366144e6ab7e84fa5e7e216aee42bddd95384a66418",
+      "verified": true
+    },
+    "water": {
+      "url": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/water.csv",
+      "bytes": 15641460,
+      "sha256": "fa51cc382f3edc185bd6e232631c01b41ebd05adc51b5af5e5026d7beffdfd01",
+      "verified": true
+    },
+    "solar": {
+      "url": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/meters/raw/solar.csv",
+      "bytes": 743887,
+      "sha256": "efa65f32b1661b733bd29818c097a2ddc2f36034bdce7bd757d87bfe13af0ead",
+      "verified": true
+    },
+    "metadata": {
+      "url": "https://media.githubusercontent.com/media/buds-lab/building-data-genome-project-2/9b97ccbe90096aff42ed4fd6493bf7ae692d7118/data/metadata/metadata.csv",
+      "bytes": 272024,
+      "sha256": "992d0b29f24f96ad4332bc4dbb534b7bdd7dd2689aad093f94e93068ecddca02",
+      "verified": true
+    }
+  },
+  "reviewed_at_utc": "2026-10-26T07:06:01.447624+00:00",
+  "profiles": {
+    "electricity": {
+      "rows": 17544,
+      "start": "2016-01-01 00:00:00",
+      "end": "2017-12-31 23:00:00",
+      "duplicate_timestamps": 0,
+      "missing_timestamp_count": 0,
+      "expected_hour_count": 17544,
+      "buildings": {
+        "Bobcat_education_Alissa": {
+          "rows": 17544,
+          "missing_or_nonfinite": 31,
+          "negative": 0,
+          "zero": 1009,
+          "valid_nonnegative_percent": 99.823,
+          "longest_missing_run_hours": 7,
+          "longest_zero_run_hours": 661,
+          "minimum": 0.0,
+          "maximum": 403.5,
+          "sum_valid_nonnegative": 997406.6746999999,
+          "extreme_high_3iqr_flags": 3,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2016-12-23 10:00:00",
+              "value": 403.5
+            },
+            {
+              "timestamp": "2017-11-10 15:00:00",
+              "value": 255.0
+            },
+            {
+              "timestamp": "2017-04-25 07:00:00",
+              "value": 254.5
+            }
+          ]
+        },
+        "Bobcat_education_Coleman": {
+          "rows": 17544,
+          "missing_or_nonfinite": 1366,
+          "negative": 0,
+          "zero": 20,
+          "valid_nonnegative_percent": 92.214,
+          "longest_missing_run_hours": 662,
+          "longest_zero_run_hours": 11,
+          "minimum": 0.0,
+          "maximum": 395.25,
+          "sum_valid_nonnegative": 1967619.1853999998,
+          "extreme_high_3iqr_flags": 0,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-11-22 08:00:00",
+              "value": 395.25
+            },
+            {
+              "timestamp": "2016-04-12 18:00:00",
+              "value": 388.75
+            },
+            {
+              "timestamp": "2017-11-22 09:00:00",
+              "value": 318.5
+            }
+          ]
+        },
+        "Bobcat_education_Dylan": {
+          "rows": 17544,
+          "missing_or_nonfinite": 2501,
+          "negative": 0,
+          "zero": 45,
+          "valid_nonnegative_percent": 85.744,
+          "longest_missing_run_hours": 699,
+          "longest_zero_run_hours": 45,
+          "minimum": 0.0,
+          "maximum": 355.5,
+          "sum_valid_nonnegative": 2028145.2402,
+          "extreme_high_3iqr_flags": 2,
+          "first_valid": "2016-01-02 17:00:00",
+          "last_valid": "2017-12-11 09:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2016-04-12 18:00:00",
+              "value": 355.5
+            },
+            {
+              "timestamp": "2017-11-22 09:00:00",
+              "value": 350.0
+            },
+            {
+              "timestamp": "2016-04-12 21:00:00",
+              "value": 332.25
+            }
+          ]
+        },
+        "Bobcat_office_Justine": {
+          "rows": 17544,
+          "missing_or_nonfinite": 3693,
+          "negative": 0,
+          "zero": 17,
+          "valid_nonnegative_percent": 78.95,
+          "longest_missing_run_hours": 2563,
+          "longest_zero_run_hours": 8,
+          "minimum": 0.0,
+          "maximum": 95.0,
+          "sum_valid_nonnegative": 273916.64749999996,
+          "extreme_high_3iqr_flags": 14,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-12-19 07:00:00",
+              "value": 95.0
+            },
+            {
+              "timestamp": "2016-12-26 12:00:00",
+              "value": 94.63
+            },
+            {
+              "timestamp": "2017-11-22 08:00:00",
+              "value": 89.13
+            }
+          ]
+        },
+        "Bobcat_other_Timothy": {
+          "rows": 17544,
+          "missing_or_nonfinite": 25,
+          "negative": 0,
+          "zero": 1045,
+          "valid_nonnegative_percent": 99.858,
+          "longest_missing_run_hours": 8,
+          "longest_zero_run_hours": 661,
+          "minimum": 0.0,
+          "maximum": 100.6,
+          "sum_valid_nonnegative": 321394.1259,
+          "extreme_high_3iqr_flags": 5,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-04-25 07:00:00",
+              "value": 100.6
+            },
+            {
+              "timestamp": "2017-04-27 01:00:00",
+              "value": 84.84
+            },
+            {
+              "timestamp": "2017-12-19 05:00:00",
+              "value": 78.01
+            }
+          ]
+        }
+      }
+    },
+    "water": {
+      "rows": 17544,
+      "start": "2016-01-01 00:00:00",
+      "end": "2017-12-31 23:00:00",
+      "duplicate_timestamps": 0,
+      "missing_timestamp_count": 0,
+      "expected_hour_count": 17544,
+      "buildings": {
+        "Bobcat_education_Alissa": {
+          "rows": 17544,
+          "missing_or_nonfinite": 17544,
+          "negative": 0,
+          "zero": 0,
+          "valid_nonnegative_percent": 0.0,
+          "longest_missing_run_hours": 17544,
+          "longest_zero_run_hours": 0,
+          "minimum": null,
+          "maximum": null,
+          "sum_valid_nonnegative": 0.0,
+          "extreme_high_3iqr_flags": 0,
+          "first_valid": null,
+          "last_valid": null,
+          "largest_three_readings": []
+        },
+        "Bobcat_education_Coleman": {
+          "rows": 17544,
+          "missing_or_nonfinite": 22,
+          "negative": 0,
+          "zero": 2986,
+          "valid_nonnegative_percent": 99.875,
+          "longest_missing_run_hours": 8,
+          "longest_zero_run_hours": 661,
+          "minimum": 0.0,
+          "maximum": 194569.2401,
+          "sum_valid_nonnegative": 34676358.588,
+          "extreme_high_3iqr_flags": 10,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-07-11 13:00:00",
+              "value": 194569.2401
+            },
+            {
+              "timestamp": "2017-12-13 07:00:00",
+              "value": 177912.55899999998
+            },
+            {
+              "timestamp": "2016-12-23 10:00:00",
+              "value": 30283.2845
+            }
+          ]
+        },
+        "Bobcat_education_Dylan": {
+          "rows": 17544,
+          "missing_or_nonfinite": 31,
+          "negative": 0,
+          "zero": 3809,
+          "valid_nonnegative_percent": 99.823,
+          "longest_missing_run_hours": 9,
+          "longest_zero_run_hours": 1599,
+          "minimum": 0.0,
+          "maximum": 23603.9241,
+          "sum_valid_nonnegative": 24328069.362000003,
+          "extreme_high_3iqr_flags": 4118,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-07-24 17:00:00",
+              "value": 23603.9241
+            },
+            {
+              "timestamp": "2017-11-10 15:00:00",
+              "value": 17037.1841
+            },
+            {
+              "timestamp": "2017-08-16 03:00:00",
+              "value": 13590.5683
+            }
+          ]
+        },
+        "Bobcat_office_Justine": {
+          "rows": 17544,
+          "missing_or_nonfinite": 27,
+          "negative": 0,
+          "zero": 11379,
+          "valid_nonnegative_percent": 99.846,
+          "longest_missing_run_hours": 9,
+          "longest_zero_run_hours": 668,
+          "minimum": 0.0,
+          "maximum": 1438.4603,
+          "sum_valid_nonnegative": 872045.1381999999,
+          "extreme_high_3iqr_flags": 646,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-07-19 08:00:00",
+              "value": 1438.4603
+            },
+            {
+              "timestamp": "2017-07-18 07:00:00",
+              "value": 1362.7476
+            },
+            {
+              "timestamp": "2017-09-13 12:00:00",
+              "value": 1324.8893
+            }
+          ]
+        },
+        "Bobcat_other_Timothy": {
+          "rows": 17544,
+          "missing_or_nonfinite": 104,
+          "negative": 0,
+          "zero": 14893,
+          "valid_nonnegative_percent": 99.407,
+          "longest_missing_run_hours": 7,
+          "longest_zero_run_hours": 677,
+          "minimum": 0.0,
+          "maximum": 75.712,
+          "sum_valid_nonnegative": 110079.75140000001,
+          "extreme_high_3iqr_flags": 2547,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2016-12-08 16:00:00",
+              "value": 75.712
+            },
+            {
+              "timestamp": "2016-01-12 12:00:00",
+              "value": 75.7108
+            },
+            {
+              "timestamp": "2016-12-08 15:00:00",
+              "value": 75.7105
+            }
+          ]
+        }
+      }
+    },
+    "solar": {
+      "rows": 17544,
+      "start": "2016-01-01 00:00:00",
+      "end": "2017-12-31 23:00:00",
+      "duplicate_timestamps": 0,
+      "missing_timestamp_count": 0,
+      "expected_hour_count": 17544,
+      "buildings": {
+        "Bobcat_education_Alissa": {
+          "rows": 17544,
+          "missing_or_nonfinite": 48,
+          "negative": 0,
+          "zero": 9738,
+          "valid_nonnegative_percent": 99.726,
+          "longest_missing_run_hours": 20,
+          "longest_zero_run_hours": 661,
+          "minimum": 0.0,
+          "maximum": 2359.2901,
+          "sum_valid_nonnegative": 1316307.3246,
+          "extreme_high_3iqr_flags": 2,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2016-12-23 10:00:00",
+              "value": 2359.2901
+            },
+            {
+              "timestamp": "2017-11-10 15:00:00",
+              "value": 786.43
+            },
+            {
+              "timestamp": "2017-12-18 19:00:00",
+              "value": 524.2808
+            }
+          ],
+          "local_22_to_04_positive_energy_share_percent": 33.333,
+          "local_22_to_04_positive_readings": 2544,
+          "complete_nonzero_constant_days": 0
+        },
+        "Bobcat_education_Coleman": {
+          "rows": 17544,
+          "missing_or_nonfinite": 23,
+          "negative": 0,
+          "zero": 4315,
+          "valid_nonnegative_percent": 99.869,
+          "longest_missing_run_hours": 7,
+          "longest_zero_run_hours": 1887,
+          "minimum": 0.0,
+          "maximum": 29.28,
+          "sum_valid_nonnegative": 52373.2221,
+          "extreme_high_3iqr_flags": 1690,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2016-10-09 12:00:00",
+              "value": 29.28
+            },
+            {
+              "timestamp": "2016-04-12 13:00:00",
+              "value": 26.42
+            },
+            {
+              "timestamp": "2016-09-09 14:00:00",
+              "value": 21.37
+            }
+          ],
+          "local_22_to_04_positive_energy_share_percent": 2.765,
+          "local_22_to_04_positive_readings": 3853,
+          "complete_nonzero_constant_days": 0
+        },
+        "Bobcat_education_Dylan": {
+          "rows": 17544,
+          "missing_or_nonfinite": 21,
+          "negative": 0,
+          "zero": 6199,
+          "valid_nonnegative_percent": 99.88,
+          "longest_missing_run_hours": 8,
+          "longest_zero_run_hours": 699,
+          "minimum": 0.0,
+          "maximum": 359.3366,
+          "sum_valid_nonnegative": 97713.93779999999,
+          "extreme_high_3iqr_flags": 5,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-06-15 10:00:00",
+              "value": 359.3366
+            },
+            {
+              "timestamp": "2016-10-09 12:00:00",
+              "value": 49.78
+            },
+            {
+              "timestamp": "2016-04-12 13:00:00",
+              "value": 43.81
+            }
+          ],
+          "local_22_to_04_positive_energy_share_percent": 0.086,
+          "local_22_to_04_positive_readings": 2255,
+          "complete_nonzero_constant_days": 0
+        },
+        "Bobcat_office_Justine": {
+          "rows": 17544,
+          "missing_or_nonfinite": 17544,
+          "negative": 0,
+          "zero": 0,
+          "valid_nonnegative_percent": 0.0,
+          "longest_missing_run_hours": 17544,
+          "longest_zero_run_hours": 0,
+          "minimum": null,
+          "maximum": null,
+          "sum_valid_nonnegative": 0.0,
+          "extreme_high_3iqr_flags": 0,
+          "first_valid": null,
+          "last_valid": null,
+          "largest_three_readings": [],
+          "local_22_to_04_positive_energy_share_percent": null,
+          "local_22_to_04_positive_readings": 0,
+          "complete_nonzero_constant_days": 0
+        },
+        "Bobcat_other_Timothy": {
+          "rows": 17544,
+          "missing_or_nonfinite": 20,
+          "negative": 0,
+          "zero": 3601,
+          "valid_nonnegative_percent": 99.886,
+          "longest_missing_run_hours": 7,
+          "longest_zero_run_hours": 661,
+          "minimum": 0.0,
+          "maximum": 1229.133,
+          "sum_valid_nonnegative": 59185.7543,
+          "extreme_high_3iqr_flags": 4,
+          "first_valid": "2016-01-01 00:00:00",
+          "last_valid": "2017-12-31 23:00:00",
+          "largest_three_readings": [
+            {
+              "timestamp": "2017-03-16 10:00:00",
+              "value": 1229.133
+            },
+            {
+              "timestamp": "2017-12-12 00:00:00",
+              "value": 57.5094
+            },
+            {
+              "timestamp": "2016-10-09 12:00:00",
+              "value": 29.76
+            }
+          ],
+          "local_22_to_04_positive_energy_share_percent": 0.185,
+          "local_22_to_04_positive_readings": 3610,
+          "complete_nonzero_constant_days": 0
+        }
+      }
+    }
+  },
+  "metadata_columns": [
+    "building_id",
+    "site_id",
+    "building_id_kaggle",
+    "site_id_kaggle",
+    "primaryspaceusage",
+    "sub_primaryspaceusage",
+    "sqm",
+    "sqft",
+    "lat",
+    "lng",
+    "timezone",
+    "electricity",
+    "hotwater",
+    "chilledwater",
+    "steam",
+    "water",
+    "irrigation",
+    "solar",
+    "gas",
+    "industry",
+    "subindustry",
+    "heatingtype",
+    "yearbuilt",
+    "date_opened",
+    "numberoffloors",
+    "occupants",
+    "energystarscore",
+    "eui",
+    "site_eui",
+    "source_eui",
+    "leed_level",
+    "rating"
+  ],
+  "building_metadata": [
+    {
+      "building_id": "Bobcat_education_Coleman",
+      "site_id": "Bobcat",
+      "building_id_kaggle": 999.0,
+      "site_id_kaggle": 10.0,
+      "primaryspaceusage": "Education",
+      "sub_primaryspaceusage": "Academic",
+      "sqm": 10551.9,
+      "sqft": 113580.0,
+      "lat": null,
+      "lng": null,
+      "timezone": "US/Mountain",
+      "electricity": "Yes",
+      "hotwater": null,
+      "chilledwater": null,
+      "steam": null,
+      "water": "Yes",
+      "irrigation": null,
+      "solar": "Yes",
+      "gas": null,
+      "industry": null,
+      "subindustry": null,
+      "heatingtype": null,
+      "yearbuilt": null,
+      "date_opened": null,
+      "numberoffloors": 2.0,
+      "occupants": 0.0,
+      "energystarscore": null,
+      "eui": null,
+      "site_eui": null,
+      "source_eui": null,
+      "leed_level": null,
+      "rating": null
+    },
+    {
+      "building_id": "Bobcat_education_Alissa",
+      "site_id": "Bobcat",
+      "building_id_kaggle": 1000.0,
+      "site_id_kaggle": 10.0,
+      "primaryspaceusage": "Education",
+      "sub_primaryspaceusage": "Academic",
+      "sqm": 11254.8,
+      "sqft": 121146.0,
+      "lat": null,
+      "lng": null,
+      "timezone": "US/Mountain",
+      "electricity": "Yes",
+      "hotwater": "Yes",
+      "chilledwater": "Yes",
+      "steam": null,
+      "water": "Yes",
+      "irrigation": null,
+      "solar": "Yes",
+      "gas": "Yes",
+      "industry": null,
+      "subindustry": null,
+      "heatingtype": null,
+      "yearbuilt": null,
+      "date_opened": null,
+      "numberoffloors": 2.0,
+      "occupants": 0.0,
+      "energystarscore": null,
+      "eui": null,
+      "site_eui": null,
+      "source_eui": null,
+      "leed_level": null,
+      "rating": null
+    },
+    {
+      "building_id": "Bobcat_office_Justine",
+      "site_id": "Bobcat",
+      "building_id_kaggle": 1005.0,
+      "site_id_kaggle": 10.0,
+      "primaryspaceusage": "Office",
+      "sub_primaryspaceusage": "Office",
+      "sqm": 2445.7,
+      "sqft": 26325.0,
+      "lat": null,
+      "lng": null,
+      "timezone": "US/Mountain",
+      "electricity": "Yes",
+      "hotwater": null,
+      "chilledwater": null,
+      "steam": null,
+      "water": "Yes",
+      "irrigation": null,
+      "solar": "Yes",
+      "gas": "Yes",
+      "industry": null,
+      "subindustry": null,
+      "heatingtype": null,
+      "yearbuilt": null,
+      "date_opened": null,
+      "numberoffloors": 1.0,
+      "occupants": 0.0,
+      "energystarscore": null,
+      "eui": null,
+      "site_eui": null,
+      "source_eui": null,
+      "leed_level": null,
+      "rating": null
+    },
+    {
+      "building_id": "Bobcat_other_Timothy",
+      "site_id": "Bobcat",
+      "building_id_kaggle": 1016.0,
+      "site_id_kaggle": 10.0,
+      "primaryspaceusage": "Other",
+      "sub_primaryspaceusage": "Other",
+      "sqm": 938.6,
+      "sqft": 10103.0,
+      "lat": null,
+      "lng": null,
+      "timezone": "US/Mountain",
+      "electricity": "Yes",
+      "hotwater": null,
+      "chilledwater": null,
+      "steam": null,
+      "water": "Yes",
+      "irrigation": null,
+      "solar": "Yes",
+      "gas": null,
+      "industry": null,
+      "subindustry": null,
+      "heatingtype": null,
+      "yearbuilt": null,
+      "date_opened": null,
+      "numberoffloors": 1.0,
+      "occupants": 0.0,
+      "energystarscore": null,
+      "eui": null,
+      "site_eui": null,
+      "source_eui": null,
+      "leed_level": null,
+      "rating": null
+    },
+    {
+      "building_id": "Bobcat_education_Dylan",
+      "site_id": "Bobcat",
+      "building_id_kaggle": 1018.0,
+      "site_id_kaggle": 10.0,
+      "primaryspaceusage": "Education",
+      "sub_primaryspaceusage": "Student Center",
+      "sqm": 17358.0,
+      "sqft": 186840.0,
+      "lat": null,
+      "lng": null,
+      "timezone": "US/Mountain",
+      "electricity": "Yes",
+      "hotwater": "Yes",
+      "chilledwater": "Yes",
+      "steam": null,
+      "water": "Yes",
+      "irrigation": null,
+      "solar": "Yes",
+      "gas": null,
+      "industry": null,
+      "subindustry": null,
+      "heatingtype": null,
+      "yearbuilt": null,
+      "date_opened": null,
+      "numberoffloors": 2.0,
+      "occupants": 0.0,
+      "energystarscore": null,
+      "eui": null,
+      "site_eui": null,
+      "source_eui": null,
+      "leed_level": null,
+      "rating": null
+    }
+  ],
+  "joint_coverage": {
+    "Bobcat_education_Alissa": {
+      "joint_valid_hours": 0,
+      "complete_24h_days": 0,
+      "candidate_days": 731,
+      "days_by_month": {}
+    },
+    "Bobcat_education_Coleman": {
+      "joint_valid_hours": 16174,
+      "complete_24h_days": 649,
+      "candidate_days": 731,
+      "days_by_month": {
+        "2016-01": 27,
+        "2016-02": 28,
+        "2016-03": 30,
+        "2016-04": 30,
+        "2016-05": 31,
+        "2016-06": 20,
+        "2016-07": 31,
+        "2016-08": 21,
+        "2016-09": 30,
+        "2016-10": 30,
+        "2016-11": 30,
+        "2016-12": 30,
+        "2017-01": 3,
+        "2017-02": 28,
+        "2017-03": 15,
+        "2017-04": 27,
+        "2017-05": 30,
+        "2017-06": 30,
+        "2017-07": 29,
+        "2017-08": 30,
+        "2017-09": 30,
+        "2017-10": 31,
+        "2017-11": 29,
+        "2017-12": 29
+      }
+    },
+    "Bobcat_education_Dylan": {
+      "joint_valid_hours": 15029,
+      "complete_24h_days": 600,
+      "candidate_days": 731,
+      "days_by_month": {
+        "2016-01": 22,
+        "2016-02": 3,
+        "2016-03": 26,
+        "2016-04": 18,
+        "2016-05": 31,
+        "2016-06": 30,
+        "2016-07": 31,
+        "2016-08": 31,
+        "2016-09": 30,
+        "2016-10": 30,
+        "2016-11": 30,
+        "2016-12": 30,
+        "2017-01": 3,
+        "2017-02": 28,
+        "2017-03": 15,
+        "2017-04": 25,
+        "2017-05": 29,
+        "2017-06": 29,
+        "2017-07": 30,
+        "2017-08": 30,
+        "2017-09": 30,
+        "2017-10": 31,
+        "2017-11": 28,
+        "2017-12": 10
+      }
+    },
+    "Bobcat_office_Justine": {
+      "joint_valid_hours": 0,
+      "complete_24h_days": 0,
+      "candidate_days": 731,
+      "days_by_month": {}
+    },
+    "Bobcat_other_Timothy": {
+      "joint_valid_hours": 17434,
+      "complete_24h_days": 649,
+      "candidate_days": 731,
+      "days_by_month": {
+        "2016-01": 29,
+        "2016-02": 27,
+        "2016-03": 29,
+        "2016-04": 25,
+        "2016-05": 27,
+        "2016-06": 26,
+        "2016-07": 29,
+        "2016-08": 30,
+        "2016-09": 27,
+        "2016-10": 20,
+        "2016-11": 23,
+        "2016-12": 26,
+        "2017-01": 30,
+        "2017-02": 27,
+        "2017-03": 28,
+        "2017-04": 27,
+        "2017-05": 29,
+        "2017-06": 28,
+        "2017-07": 26,
+        "2017-08": 29,
+        "2017-09": 24,
+        "2017-10": 30,
+        "2017-11": 25,
+        "2017-12": 28
+      }
+    }
+  },
+  "complete_days_shared_by_all_five": 0,
+  "common_day_start": null,
+  "common_day_end": null,
+  "limitations": [
+    "No waste readings exist in these source files.",
+    "24-hour local-calendar completeness is an explicit selection rule, not a timezone/DST certification.",
+    "Positive values and complete timestamps do not prove calibration or gross/grid-import semantics.",
+    "Extreme-high flags are diagnostics only; no flagged reading was silently removed.",
+    "Raw files and selected measurement subsets are local only; licensing discrepancies remain unresolved."
+  ],
+  "evaluation_buildings": [
+    "Bobcat_education_Coleman",
+    "Bobcat_education_Dylan",
+    "Bobcat_other_Timothy"
+  ],
+  "excluded_buildings": {
+    "Bobcat_education_Alissa": "Fewer than 180 complete three-resource days; no complete three-resource day exists for this candidate",
+    "Bobcat_office_Justine": "Fewer than 180 complete three-resource days; no complete three-resource day exists for this candidate"
+  },
+  "evaluation_common_days": 518,
+  "evaluation_common_day_start": "2016-01-03 00:00:00",
+  "evaluation_common_day_end": "2017-12-10 00:00:00",
+  "evaluation_fraction_of_731_source_days_percent": 70.862,
+  "netting_sensitivity": {
+    "whole_selected_window_kwh": 3227406.5987,
+    "sum_day_netted_cohort_kwh": 3227406.5987,
+    "sum_hour_netted_cohort_kwh": 3227406.5987,
+    "hours_cohort_solar_exceeds_electricity": 0,
+    "per_building_solar_exceeds_electricity_hours": {
+      "Bobcat_education_Coleman": 0,
+      "Bobcat_education_Dylan": 0,
+      "Bobcat_other_Timothy": 1950
+    },
+    "meaning": "Arithmetic sensitivity only; no gross/grid meter-boundary certification, storage model or tariff/net-metering assumption is established."
+  },
+  "api_verification": {
+    "status": "passed",
+    "checks": [
+      "Actual derived-data workbook validation, with empty optional waste",
+      "Actual API workbook import and all resource row counts",
+      "Independent campus totals, carbon, cost and Green Index arithmetic",
+      "Independent totals and derived calculations for each of 3 eligible buildings",
+      "Date filters, reversed dates and independently calculated previous-period comparison",
+      "Every monthly energy, solar and net-energy chart point",
+      "Building ranks and independent relative-efficiency formula",
+      "Daily bundle: all sections, history, horizon, bounds, absent-waste forecast and risk arithmetic",
+      "Monthly bundle: all sections, history, horizon, bounds, absent-waste forecast and risk arithmetic",
+      "Seasonal bundle: all sections, history, horizon, bounds, absent-waste forecast and risk arithmetic",
+      "Yearly bundle: all sections, history, horizon, bounds, absent-waste forecast and risk arithmetic",
+      "Export-ready day count independently calculated from matched daily readings",
+      "Data-quality resource counts and explicit absent optional waste",
+      "0%, 25% and 100% scenarios checked against independent source totals",
+      "Actual Excel export, every preserved date/building/value, and re-import",
+      "Settings and action persistence, recalculation, unchanged raw totals and audit events",
+      "Duplicate actual-data row rejected without erasing the loaded dataset",
+      "Reset in the isolated database and unassessed empty state"
+    ],
+    "cohort": "Only local calendar days with 24 finite nonnegative readings per resource, shared across the eligible buildings; all-zero runs and spikes are flagged, not silently removed",
+    "evaluation_buildings": [
+      "Bobcat_education_Coleman",
+      "Bobcat_education_Dylan",
+      "Bobcat_other_Timothy"
+    ],
+    "imported_rows": {
+      "energy": 1554,
+      "water": 1554,
+      "solar": 1554,
+      "waste": 0
+    },
+    "baseline_summary": {
+      "scope": "Campus",
+      "has_data": true,
+      "record_count": 4662,
+      "energy": 3393627.19,
+      "solar": 166220.59,
+      "net_energy": 3227406.6,
+      "export_to_grid_kwh": 0,
+      "water": 42950.05,
+      "waste": 0,
+      "waste_by_type": {},
+      "carbon": 2646473.41,
+      "energy_cost_per_kwh": 8.0,
+      "gross_carbon": 2782774.29,
+      "solar_avoided_carbon": 136300.88,
+      "green_index": 0.0,
+      "green_index_details": {
+        "energy_score": 0,
+        "water_score": 0,
+        "waste_score": null,
+        "green_index": 0.0,
+        "assessment": "partial",
+        "assessed_resources": [
+          "energy",
+          "water"
+        ],
+        "unavailable_resources": [
+          "waste"
+        ],
+        "note": "Missing resources are excluded and available weights renormalized. Partial scores are not directly comparable to complete scores; benchmarks are configured assumptions."
+      },
+      "resource_availability": {
+        "energy": true,
+        "water": true,
+        "waste": false,
+        "solar": true
+      },
+      "accounting_note": "Carbon/cost are assumption-based estimates using period-level electricity-minus-solar netting. Verify meter boundaries, tariff and emission factor before operational decisions. A touched-month average is not a full-month bill.",
+      "date_from": null,
+      "date_to": null,
+      "months_covered": 24,
+      "active_population": 7069,
+      "energy_per_student_kwh": 456.56,
+      "water_per_student_kl": 6.0758,
+      "waste_per_student_kg": 0.0,
+      "energy_per_sqm_kwh": 25.8193,
+      "monthly_energy_cost_rs": 1075802.2,
+      "monthly_energy_budget_rs": 2500000,
+      "energy_budget_variance_rs": -1424197.8,
+      "occupancy_average": 0.83,
+      "solar_offset_percent": 4.9,
+      "goal_progress": [
+        {
+          "key": "green_index_target",
+          "label": "Green Index",
+          "current": 0.0,
+          "target": 88.0,
+          "unit": "%",
+          "completion_percent": 0.0,
+          "variance": -88.0,
+          "higher_is_better": true,
+          "status": "watch"
+        },
+        {
+          "key": "solar_offset_target_percent",
+          "label": "Solar Offset",
+          "current": 4.9,
+          "target": 18.0,
+          "unit": "%",
+          "completion_percent": 27.2,
+          "variance": -13.1,
+          "higher_is_better": true,
+          "status": "watch"
+        },
+        {
+          "key": "water_per_student_target_kl",
+          "label": "Water Per Student",
+          "current": 6.08,
+          "target": 0.22,
+          "unit": "kl",
+          "completion_percent": 3.6,
+          "variance": 5.86,
+          "higher_is_better": false,
+          "status": "watch"
+        },
+        {
+          "key": "monthly_energy_cost_target_rs",
+          "label": "Monthly Energy Cost",
+          "current": 1075802.2,
+          "target": 1800000.0,
+          "unit": "Rs",
+          "completion_percent": 100,
+          "variance": -724197.8,
+          "higher_is_better": false,
+          "status": "on_track"
+        }
+      ],
+      "sustainability_goals": {
+        "green_index_target": 88,
+        "solar_offset_target_percent": 18,
+        "water_per_student_target_kl": 0.22,
+        "monthly_energy_cost_target_rs": 1800000
+      },
+      "action_tracker": {}
+    },
+    "comparison_window": {
+      "date_from": "2017-02-08",
+      "date_to": "2017-12-10"
+    },
+    "first_evaluation_day": "2016-01-03",
+    "last_evaluation_day": "2017-12-10",
+    "distinct_evaluation_days": 518,
+    "export_ready_day_count": 0,
+    "data_quality": {
+      "scope": "Campus",
+      "date_from": "2016-01-03",
+      "date_to": "2017-12-10",
+      "overall_score": 84.2,
+      "trust_level": "Medium",
+      "issue_count": 3,
+      "history_months": 24,
+      "forecast_readiness": 73.2,
+      "history_availability_percent": 100,
+      "forecast_readiness_coverage_cap": 73.2,
+      "history_availability_explanation": "Minimum required-resource observed month count / 12, capped at 100%; not interval completeness.",
+      "forecast_readiness_explanation": "Data-sufficiency heuristic, not prediction accuracy. History availability is capped by the lowest required-resource building coverage; unknown cadence or missing required data gives zero readiness. Forecast accuracy requires independent backtesting.",
+      "overall_score_explanation": "Coverage (50%), positive values (30%), and non-duplicates (20%). Unknown coverage is excluded from resource scoring, not treated as complete. Required resources carry 75% when optional data exists, otherwise 100%; absent optional resources are excluded. Buildings are those observed in scoped history.",
+      "resources": [
+        {
+          "resource": "energy",
+          "unit": "kWh",
+          "required": true,
+          "row_count": 1554,
+          "building_count": 3,
+          "first_date": "2016-01-03",
+          "last_date": "2017-12-10",
+          "covered_months": 24,
+          "missing_month_count": 0,
+          "missing_building_month_count": 0,
+          "missing_months": [],
+          "duplicate_readings": 0,
+          "zero_or_negative_values": 1,
+          "average_value": 2183.8,
+          "status": "strong",
+          "score": 86.6,
+          "cadence": "daily",
+          "coverage_status": "known",
+          "coverage_percent": 73.2,
+          "observed_intervals": 1554,
+          "expected_intervals": 2124,
+          "missing_interval_count": 570,
+          "longest_gap_intervals": 31,
+          "known_cadence_building_count": 3,
+          "unknown_cadence_building_count": 0,
+          "building_coverage": [
+            {
+              "building": "Bobcat_education_Coleman",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_education_Dylan",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_other_Timothy",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            }
+          ],
+          "coverage_explanation": "Unique calendar slots per building, including boundary gaps; counts aggregate only known cadences. Cadence uses scoped resource history (including outside the selected range), at least four timestamps, and at least two unit steps comprising 60% of gaps, with all other gaps aligned to that cadence. The full window is expected for every scoped building. Unknown cadence is not assumed complete. Mixed-cadence gap lengths use each building's cadence."
+        },
+        {
+          "resource": "water",
+          "unit": "kl",
+          "required": true,
+          "row_count": 1554,
+          "building_count": 3,
+          "first_date": "2016-01-03",
+          "last_date": "2017-12-10",
+          "covered_months": 24,
+          "missing_month_count": 0,
+          "missing_building_month_count": 0,
+          "missing_months": [],
+          "duplicate_readings": 0,
+          "zero_or_negative_values": 267,
+          "average_value": 27.64,
+          "status": "usable",
+          "score": 81.4,
+          "cadence": "daily",
+          "coverage_status": "known",
+          "coverage_percent": 73.2,
+          "observed_intervals": 1554,
+          "expected_intervals": 2124,
+          "missing_interval_count": 570,
+          "longest_gap_intervals": 31,
+          "known_cadence_building_count": 3,
+          "unknown_cadence_building_count": 0,
+          "building_coverage": [
+            {
+              "building": "Bobcat_education_Coleman",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_education_Dylan",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_other_Timothy",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            }
+          ],
+          "coverage_explanation": "Unique calendar slots per building, including boundary gaps; counts aggregate only known cadences. Cadence uses scoped resource history (including outside the selected range), at least four timestamps, and at least two unit steps comprising 60% of gaps, with all other gaps aligned to that cadence. The full window is expected for every scoped building. Unknown cadence is not assumed complete. Mixed-cadence gap lengths use each building's cadence."
+        },
+        {
+          "resource": "waste",
+          "unit": "kg",
+          "required": false,
+          "row_count": 0,
+          "building_count": 0,
+          "first_date": null,
+          "last_date": null,
+          "covered_months": 0,
+          "missing_month_count": 24,
+          "missing_months": [
+            "2016-01",
+            "2016-02",
+            "2016-03",
+            "2016-04",
+            "2016-05",
+            "2016-06",
+            "2016-07",
+            "2016-08",
+            "2016-09",
+            "2016-10",
+            "2016-11",
+            "2016-12"
+          ],
+          "duplicate_readings": 0,
+          "zero_or_negative_values": 0,
+          "average_value": 0,
+          "status": "optional_missing",
+          "score": 0,
+          "cadence": "unknown",
+          "coverage_status": "unknown",
+          "coverage_percent": null,
+          "observed_intervals": null,
+          "expected_intervals": null,
+          "missing_interval_count": null,
+          "longest_gap_intervals": null,
+          "known_cadence_building_count": 0,
+          "unknown_cadence_building_count": 3,
+          "building_coverage": [
+            {
+              "building": "Bobcat_education_Coleman",
+              "cadence": "unknown",
+              "observed_intervals": null,
+              "expected_intervals": null,
+              "missing_interval_count": null,
+              "longest_gap_intervals": null,
+              "coverage_percent": null
+            },
+            {
+              "building": "Bobcat_education_Dylan",
+              "cadence": "unknown",
+              "observed_intervals": null,
+              "expected_intervals": null,
+              "missing_interval_count": null,
+              "longest_gap_intervals": null,
+              "coverage_percent": null
+            },
+            {
+              "building": "Bobcat_other_Timothy",
+              "cadence": "unknown",
+              "observed_intervals": null,
+              "expected_intervals": null,
+              "missing_interval_count": null,
+              "longest_gap_intervals": null,
+              "coverage_percent": null
+            }
+          ],
+          "coverage_explanation": "Unique calendar slots per building, including boundary gaps; counts aggregate only known cadences. Cadence uses scoped resource history (including outside the selected range), at least four timestamps, and at least two unit steps comprising 60% of gaps, with all other gaps aligned to that cadence. The full window is expected for every scoped building. Unknown cadence is not assumed complete. Mixed-cadence gap lengths use each building's cadence.",
+          "missing_building_month_count": 72
+        },
+        {
+          "resource": "solar",
+          "unit": "kWh",
+          "required": false,
+          "row_count": 1554,
+          "building_count": 3,
+          "first_date": "2016-01-03",
+          "last_date": "2017-12-10",
+          "covered_months": 24,
+          "missing_month_count": 0,
+          "missing_building_month_count": 0,
+          "missing_months": [],
+          "duplicate_readings": 0,
+          "zero_or_negative_values": 101,
+          "average_value": 106.96,
+          "status": "usable",
+          "score": 84.7,
+          "cadence": "daily",
+          "coverage_status": "known",
+          "coverage_percent": 73.2,
+          "observed_intervals": 1554,
+          "expected_intervals": 2124,
+          "missing_interval_count": 570,
+          "longest_gap_intervals": 31,
+          "known_cadence_building_count": 3,
+          "unknown_cadence_building_count": 0,
+          "building_coverage": [
+            {
+              "building": "Bobcat_education_Coleman",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_education_Dylan",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            },
+            {
+              "building": "Bobcat_other_Timothy",
+              "cadence": "daily",
+              "observed_intervals": 518,
+              "expected_intervals": 708,
+              "missing_interval_count": 190,
+              "longest_gap_intervals": 31,
+              "coverage_percent": 73.2
+            }
+          ],
+          "coverage_explanation": "Unique calendar slots per building, including boundary gaps; counts aggregate only known cadences. Cadence uses scoped resource history (including outside the selected range), at least four timestamps, and at least two unit steps comprising 60% of gaps, with all other gaps aligned to that cadence. The full window is expected for every scoped building. Unknown cadence is not assumed complete. Mixed-cadence gap lengths use each building's cadence."
+        }
+      ],
+      "recommendations": [
+        "Review Energy missing intervals per building (570 total).",
+        "Check zero or negative Energy values because they can distort trends.",
+        "Review Water missing intervals per building (570 total).",
+        "Check zero or negative Water values because they can distort trends.",
+        "Some buildings have missing Waste months even though other buildings cover that period.",
+        "Review Solar missing intervals per building (570 total)."
+      ]
+    },
+    "rounding_note": "Each independently aggregated historical bucket and summary uses tolerance .011; selected rounded derived differences use .02. Exported reading values use 1e-7.",
+    "note": "These checks establish implemented arithmetic, not gross-demand semantics, applicable tariffs/emission factors, calibrated sensors or field performance."
+  },
+  "backtest": {
+    "protocol": "Expanding-window campus aggregate; first 180 available complete days are warm-up; origins every seventh available day; matched observed targets at 1 and 7 calendar days; only observations <= origin used. Identical cases for all models. Post-fix regression benchmark on previously inspected data, not an untouched external test. No parameter search performed.",
+    "selection_limit": "Complete-day cohort is selected using coverage across the full source window. This is retrospective quality-conditioned evaluation, not prospective operational availability. Missing days are not imputed.",
+    "interpretation": "Default occupancy factors are not measured for this external site. Bands have no nominal confidence level. Units are kWh for energy/solar and kl for water.",
+    "results": {
+      "energy_1day": {
+        "paired_test_cases": 44,
+        "models": {
+          "mgcd_current": {
+            "mae": 397.1591,
+            "rmse": 542.0605,
+            "wape_percent": 6.763
+          },
+          "neutral_occupancy_control": {
+            "mae": 397.1591,
+            "rmse": 542.0605,
+            "wape_percent": 6.763
+          },
+          "seasonal_naive_7day": {
+            "mae": 397.1591,
+            "rmse": 542.0608,
+            "wape_percent": 6.763
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 88.636
+      },
+      "energy_7day": {
+        "paired_test_cases": 42,
+        "models": {
+          "mgcd_current": {
+            "mae": 353.4217,
+            "rmse": 548.4562,
+            "wape_percent": 5.774
+          },
+          "neutral_occupancy_control": {
+            "mae": 353.4217,
+            "rmse": 548.4562,
+            "wape_percent": 5.774
+          },
+          "seasonal_naive_7day": {
+            "mae": 353.422,
+            "rmse": 548.4561,
+            "wape_percent": 5.774
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 95.238
+      },
+      "water_1day": {
+        "paired_test_cases": 44,
+        "models": {
+          "mgcd_current": {
+            "mae": 12.2625,
+            "rmse": 20.8669,
+            "wape_percent": 12.596
+          },
+          "neutral_occupancy_control": {
+            "mae": 12.2625,
+            "rmse": 20.8669,
+            "wape_percent": 12.596
+          },
+          "seasonal_naive_7day": {
+            "mae": 12.2617,
+            "rmse": 20.867,
+            "wape_percent": 12.595
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 88.636
+      },
+      "water_7day": {
+        "paired_test_cases": 42,
+        "models": {
+          "mgcd_current": {
+            "mae": 12.1452,
+            "rmse": 23.8485,
+            "wape_percent": 12.807
+          },
+          "neutral_occupancy_control": {
+            "mae": 12.1452,
+            "rmse": 23.8485,
+            "wape_percent": 12.807
+          },
+          "seasonal_naive_7day": {
+            "mae": 12.1448,
+            "rmse": 23.848,
+            "wape_percent": 12.806
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 95.238
+      },
+      "solar_1day": {
+        "paired_test_cases": 44,
+        "models": {
+          "mgcd_current": {
+            "mae": 103.9211,
+            "rmse": 138.8541,
+            "wape_percent": 34.132
+          },
+          "neutral_occupancy_control": {
+            "mae": 103.9211,
+            "rmse": 138.8541,
+            "wape_percent": 34.132
+          },
+          "seasonal_naive_7day": {
+            "mae": 103.9211,
+            "rmse": 138.8541,
+            "wape_percent": 34.132
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 88.636
+      },
+      "solar_7day": {
+        "paired_test_cases": 42,
+        "models": {
+          "mgcd_current": {
+            "mae": 90.354,
+            "rmse": 120.3961,
+            "wape_percent": 28.807
+          },
+          "neutral_occupancy_control": {
+            "mae": 90.354,
+            "rmse": 120.3961,
+            "wape_percent": 28.807
+          },
+          "seasonal_naive_7day": {
+            "mae": 90.3541,
+            "rmse": 120.3961,
+            "wape_percent": 28.807
+          }
+        },
+        "current_spread_band_empirical_coverage_percent": 92.857
+      }
+    }
+  },
+  "implementation_sha256": {
+    "green-campus/app/ai/forecast.py": "c793ec7f11247a7315385b398bd8827fe1b87d5d91140da574a13276d6369dd2",
+    "green-campus/app/ai/risk.py": "687111e91109c4c8bceae24c7f31afb7d75fe82eded00f14beaadac2ec4d2409",
+    "green-campus/app/services/data_quality.py": "a514df61f24be99e1268ffabd9390520a8ea81ecbeab21b37485ec8fd10865f1",
+    "green-campus/app/services/green_index.py": "fbe8d66f350c7029bb043f19964c8d4740885c470060f874d518ca0664290bf8",
+    "green-campus/app/routers/dashboard.py": "afc269543ba7fbc337ea3c735e0d0502a36ece6cdc598a806e6198c2ca802fdd",
+    "green-campus/app/services/simulator.py": "f1ffa1d6c7018a9f340a4ee653d3330d6ce01aa1446021cd2aa88dfa1641c0ba",
+    "publication/verify_external_bdg2.py": "9de7a060b367a6a05b1f359dbc98df006741bef02242c3d3238c74fc8a12ec44"
+  }
+}

@@ -1,5 +1,6 @@
 import React from "react";
 import { dashboardCopy } from "../config/dashboardConfig";
+import { greenIndexNote } from "./assessmentPresentation";
 
 function CampusPulseBar({ data, riskData, forecastData, seasonalOutlook, insightsData }) {
   if (!data) {
@@ -14,10 +15,11 @@ function CampusPulseBar({ data, riskData, forecastData, seasonalOutlook, insight
   const topOpportunity = insightsData?.opportunities?.[0];
   const nextAction = insightsData?.recommendations?.[0];
   const message = [
-    `Current Green Index is ${data.green_index}%.`,
+    data.green_index_details?.assessment === "unavailable" ? "Green Index is not available." : `Current Green Index is ${data.green_index}%.`,
+    greenIndexNote(data),
     risk ? `Risk is ${risk.risk_level.toLowerCase()} with ${risk.growth_percent}% projected change.` : "Not enough data to assess forecast risk.",
     seasonalOutlook ? seasonalOutlook.headline : `Future occupancy is modeled around ${occupancy}%.`,
-  ].join(" ");
+  ].filter(Boolean).join(" ");
 
   return (
     <div style={styles.container} className="premium-card lift-card stagger-in stagger-in-delay-1">

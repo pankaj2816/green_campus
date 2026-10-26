@@ -2,6 +2,8 @@
 
 Verified on 26 October 2026 against the current local working tree.
 
+**Follow-up:** The checks below describe the earlier local-workbook verification. Public BDG2 readings subsequently exposed gaps in readiness scoring, missing-resource interpretation and forecast accuracy. Those issues were corrected and retested; see [post-fix validation](publication/BDG2_FIX_VALIDATION.md). Earlier statements about the implementation's forecast/score rules are historical, not the current method.
+
 ## 1. Result and Scope
 
 The tested source-to-API arithmetic reconciles with the workbooks under the application's existing calculation rules. This does not establish that every source value has the correct physical unit, that forecasts are accurate, or that planning estimates match utility bills.

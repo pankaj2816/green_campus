@@ -2,6 +2,20 @@
 
 This file is a fast handoff guide for any AI agent, teammate, or automation that needs to understand this repository without reading every file first.
 
+## Verification Corrections (26 October 2026)
+
+Current behavior supersedes earlier descriptions of occupancy-adjusted forecasts and confidence ranges:
+
+- Baseline forecasts use an observed seasonal reference (previous week for daily predictions; previous annual cycle for monthly/seasons), with a recent-cycle fallback. Assumed occupancy is a separate `occupancy_scenario_values` what-if series, not an automatic baseline adjustment.
+- Forecast bands are historical-error spreads, not calibrated confidence intervals. `nominal_coverage_percent` is null. Risk is a heuristic, not a probability.
+- Data quality infers hourly/daily/monthly cadence conservatively per building. It reports observed/expected intervals, missing slots, longest gaps and unknown cadence. `history_availability_percent` measures month history; `forecast_readiness` is capped by required-resource interval coverage, not prediction accuracy.
+- Green Index distinguishes missing resources from measured zero: unavailable components are excluded and remaining weights normalized. `green_index_details` identifies partial/unavailable assessments. Do not compare partial and complete scores directly.
+- Summary and scenarios expose `resource_availability`. Carbon, net energy and cost remain assumption-based period-netting calculations; validate meter boundaries, site factors and full-month completeness before physical use.
+- Comparison deltas expose `comparable` and `comparison_note`. A false value means arithmetic deltas should not be presented as measured changes.
+- Evidence: `publication/BDG2_FIX_VALIDATION.md`, the original `external_bdg2_results.json` snapshot, and separate `external_bdg2_postfix_results.json`. External data remains in ignored `tmp/`; tests use isolated SQLite databases, not production.
+
+The IEEE PDF predates these corrections and must be revised before submission. The post-fix benchmark reuses inspected data and is not an untouched external-test claim.
+
 It explains:
 
 - what the project is
@@ -236,7 +250,7 @@ Contains forecast/risk helper logic.
 Important files:
 
 - `forecast.py`
-  occupancy-aware forecasting with confidence range
+  seasonal-reference baseline forecasts, separate occupancy what-if values, and uncalibrated error spreads
 - `risk.py`
   risk scoring from forecast behavior
 
@@ -448,8 +462,8 @@ These are the components most likely to matter to another agent.
 ### AI / smart features
 
 - daily / monthly / yearly / seasonal forecast
-- occupancy-aware forecast adjustment
-- confidence range in forecast
+- separate occupancy what-if scenario (does not silently alter baseline predictions)
+- historical-error forecast spread (not calibrated confidence)
 - forecast explanation
 - AI risk scoring
 - alert center

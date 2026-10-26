@@ -67,7 +67,12 @@ def _summary_payload(
     active_population = max(round(context["student_population"] * occupancy_average), 1)
     net_energy = max(total_energy - total_solar, 0)
     carbon = calculate_carbon(net_energy, emission_factor)
-    green_index = calculate_green_index(net_energy, total_water, total_waste, constants)["green_index"]
+    availability = {"energy": bool(energy_rows), "water": bool(water_rows),
+                    "waste": bool(waste_rows), "solar": bool(solar_rows)}
+    green_details = calculate_green_index(net_energy if energy_rows else None,
+                                         total_water if water_rows else None,
+                                         total_waste if waste_rows else None, constants)
+    green_index = green_details["green_index"]
 
     monthly_energy_cost = (net_energy / months_covered) * energy_cost_per_kwh
     energy_budget_variance = monthly_energy_cost - context["monthly_energy_budget_rs"]
@@ -91,6 +96,9 @@ def _summary_payload(
         "gross_carbon": round(calculate_carbon(total_energy, emission_factor), 2),
         "solar_avoided_carbon": round(calculate_carbon(min(total_solar, total_energy), emission_factor), 2),
         "green_index": green_index if date_pool else None,
+        "green_index_details": green_details,
+        "resource_availability": availability,
+        "accounting_note": "Carbon/cost are assumption-based estimates using period-level electricity-minus-solar netting. Verify meter boundaries, tariff and emission factor before operational decisions. A touched-month average is not a full-month bill.",
         "date_from": date_from,
         "date_to": date_to,
         "months_covered": months_covered,
@@ -371,7 +379,18 @@ def build_comparison_response(
             previous_value = float(previous.get(metric, 0) or 0)
             absolute_change = current_value - previous_value
             percent_change = ((absolute_change / previous_value) * 100) if previous_value else None
+            comparable = current.get("has_data", False) and previous.get("has_data", False)
+            if metric in {"water", "waste"}:
+                comparable = comparable and current["resource_availability"][metric] and previous["resource_availability"][metric]
+            elif metric == "green_index":
+                comparable = comparable and current.get(metric) is not None and previous.get(metric) is not None
+                comparable = comparable and (current["green_index_details"]["assessed_resources"] == previous["green_index_details"]["assessed_resources"])
+            else:
+                comparable = comparable and current["resource_availability"]["energy"] and previous["resource_availability"]["energy"]
+                comparable = comparable and current["resource_availability"]["solar"] == previous["resource_availability"]["solar"]
             delta[metric] = {
+                "comparable": bool(comparable),
+                "comparison_note": None if comparable else "Not comparable: missing observations or different assessed resources. Arithmetic differences are not evidence of measured change.",
                 "current": round(current_value, 2),
                 "previous": round(previous_value, 2),
                 "change": round(absolute_change, 2),

@@ -37,12 +37,12 @@ def generate_seasonal_outlook(summary, forecast_payload, building: str | None = 
     if low_occupancy:
         headline = (
             f"{MONTH_LABELS[next_month]} is modeled as a low-occupancy campus month, "
-            "so electricity and water demand are expected to soften."
+            "based on saved activity assumptions, not measured attendance. Baseline forecasts are shown separately."
         )
     else:
         headline = (
             f"{MONTH_LABELS[next_month]} is modeled as a normal-to-high occupancy period, "
-            "so resource planning should assume standard campus activity."
+            "based on saved activity assumptions; verify the campus calendar before planning."
         )
 
     recommendations = []

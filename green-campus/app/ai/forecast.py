@@ -117,6 +117,7 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
             current = latest_timestamp + timedelta(days=offset)
             points.append({
                 "label": current.strftime("%d %b"),
+                "period_index": current.date().toordinal(),
                 "cycle_key": current.weekday(),
                 "occupancy_factor": occupancy_factors.get(current.month, 1.0),
             })
@@ -130,6 +131,7 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
             current = datetime(year, month, 1)
             points.append({
                 "label": current.strftime("%b %Y"),
+                "period_index": year * 12 + month - 1,
                 "cycle_key": month,
                 "occupancy_factor": occupancy_factors.get(month, 1.0),
             })
@@ -141,6 +143,7 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
             year = latest_timestamp.year + offset
             points.append({
                 "label": str(year),
+                "period_index": year,
                 "cycle_key": "yearly",
                 "occupancy_factor": avg_occupancy,
             })
@@ -155,6 +158,7 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
         year = season_year + (season_index // len(SEASON_ORDER))
         points.append({
             "label": f"{season} {year}",
+            "period_index": year * 4 + SEASON_ORDER.index(season),
             "cycle_key": season,
             "occupancy_factor": _season_occupancy_factor(season, occupancy_factors),
         })
@@ -162,7 +166,32 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
     return points
 
 
+def _period_index(timestamp, granularity):
+    if granularity == "daily":
+        return timestamp.date().toordinal()
+    if granularity == "monthly":
+        return timestamp.year * 12 + timestamp.month - 1
+    if granularity == "yearly":
+        return timestamp.year
+    year = timestamp.year + (timestamp.month == 12)
+    return year * 4 + SEASON_ORDER.index(get_season(timestamp))
+
+
+def _baseline_prediction(history, target, cycle_length):
+    """Use an observed seasonal reference, never a missing day or future value."""
+    reference = target - cycle_length
+    latest = max(history)
+    while reference > latest:
+        reference -= cycle_length
+    if reference in history:
+        return history[reference]
+    matching = [value for index, value in sorted(history.items())
+                if (target - index) % cycle_length == 0]
+    return _mean(matching[-8:] if matching else list(history.values())[-8:])
+
+
 def build_resource_payload(records, field_name: str, granularity: str, periods: int, occupancy_factors: dict, occupancy_sensitive=True):
+    records = sorted(records, key=lambda record: record.timestamp)
     historical_labels, historical_values, cycle_keys, cycle_meta = aggregate_records(records, field_name, granularity)
     latest_timestamp = records[-1].timestamp if records else None
     future_points = _future_points(latest_timestamp, granularity, periods, occupancy_factors) if records else []
@@ -172,8 +201,18 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         cycle_buckets[cycle_key].append(float(value))
 
     cycle_means = [_mean(bucket) for bucket in cycle_buckets.values() if bucket]
-    global_mean = _mean(historical_values)
-    average_occupancy = _mean(list(occupancy_factors.values())) or 1.0
+    cycle_length = {"daily": 7, "monthly": 12, "seasonal": 4, "yearly": 1}[granularity]
+    indexes = sorted({_period_index(record.timestamp, granularity) for record in records})
+    history = dict(zip(indexes, historical_values))
+    # Errors are computed only from earlier observations, not fitted residuals.
+    errors = []
+    for position in range(max(cycle_length, len(indexes) - 56), len(indexes)):
+        earlier = {index: history[index] for index in indexes[:position]}
+        target = indexes[position]
+        errors.append(abs(history[target] - _baseline_prediction(earlier, target, cycle_length)))
+    ordered_errors = sorted(errors)
+    radius = ordered_errors[math.ceil(.9 * len(ordered_errors)) - 1] if ordered_errors else None
+    historical_occupancy = _mean([occupancy_factors.get(record.timestamp.month, 1.0) for record in records])
 
     forecast_values = []
     lower_bounds = []
@@ -181,26 +220,23 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
     forecast_labels = []
     occupancy_points = []
     confidence_reasons = []
+    occupancy_scenario_values = []
 
     for point in future_points:
-        cycle_key = point["cycle_key"]
-        history_for_cycle = cycle_buckets.get(cycle_key, historical_values or [0.0])
-        baseline_mean = _mean(history_for_cycle) or global_mean
-        variability = _stddev(history_for_cycle) or (max(baseline_mean * 0.08, 1.0) if baseline_mean else 0.0)
+        baseline_mean = _baseline_prediction(history, point["period_index"], cycle_length)
+        variability = radius if radius is not None else _stddev(historical_values)
+        variability *= math.sqrt(max(1, (point["period_index"] - indexes[-1]) / cycle_length))
         occupancy_factor = point["occupancy_factor"]
-        occupancy_multiplier = occupancy_factor / average_occupancy if occupancy_sensitive and average_occupancy else 1.0
+        occupancy_multiplier = occupancy_factor / historical_occupancy if occupancy_sensitive and historical_occupancy else 1.0
 
-        adjusted_forecast = max(round(baseline_mean * occupancy_multiplier, 2), 0)
+        adjusted_forecast = max(round(baseline_mean, 2), 0)
         lower_bound = max(round(adjusted_forecast - variability, 2), 0)
         upper_bound = max(round(adjusted_forecast + variability, 2), adjusted_forecast)
 
-        confidence_band = upper_bound - lower_bound
-        if confidence_band <= max(adjusted_forecast * 0.12, 20):
-            confidence_reason = "Stable history for this cycle keeps the confidence range narrow."
-        elif confidence_band <= max(adjusted_forecast * 0.24, 40):
-            confidence_reason = "Moderate variation exists in similar past periods, so the range stays mid-width."
-        else:
-            confidence_reason = "High variation in similar periods widens the confidence range, so treat this forecast as more uncertain."
+        confidence_reason = (
+            "Spread uses earlier seasonal-reference errors; it is not a calibrated confidence interval."
+            if errors else "Insufficient backtest history: spread uses observed variation, not a calibrated confidence interval."
+        )
 
         forecast_labels.append(point["label"])
         forecast_values.append(adjusted_forecast)
@@ -208,6 +244,7 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         upper_bounds.append(upper_bound)
         occupancy_points.append(round(occupancy_factor, 2))
         confidence_reasons.append(confidence_reason)
+        occupancy_scenario_values.append(round(max(baseline_mean * occupancy_multiplier, 0), 2))
 
     recent_slice = historical_values[-6:] if historical_values else []
     baseline_mean = round(_mean(historical_values), 2) if historical_values else 0.0
@@ -227,6 +264,14 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         "variability_score": round(_stddev(historical_values), 2) if historical_values else 0.0,
         "seasonality_strength": seasonality_strength,
         "confidence_reasons": confidence_reasons,
+        "forecast_method": "seasonal_naive_with_recent_cycle_fallback",
+        "method_description": "Previous observed week/year cycle; recent same-cycle mean when the reference is absent. Missing periods are not zero-filled.",
+        "spread_type": "historical_error_spread" if errors else "historical_variation_only",
+        "nominal_coverage_percent": None,
+        "spread_backtest_cases": len(errors),
+        "occupancy_adjustment_applied": False,
+        "occupancy_scenario_values": occupancy_scenario_values,
+        "occupancy_note": "Occupancy factors are assumptions shown as a separate what-if scenario, not measured predictors. All-zero historical factors disable the scenario adjustment.",
     }
 
 
