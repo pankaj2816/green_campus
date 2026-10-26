@@ -12,14 +12,27 @@ function ResourceOverview({ data, darkMode = false }) {
   const cardBackground = darkMode
     ? "linear-gradient(180deg, rgba(20,38,34,0.98), rgba(18,32,29,0.96))"
     : "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(247,251,249,0.94))";
+  const electricity = [
+    { label: "Energy", value: Number(data.energy || 0), unit: "kWh", color: "#f59e0b" },
+    { label: "Solar", value: Number(data.solar || 0), unit: "kWh", color: "#84cc16" },
+    { label: "Net grid", value: Number(data.net_energy || 0), unit: "kWh", color: "#2563eb" },
+  ];
+  const resources = [
+    ...electricity,
+    { label: "Water", value: Number(data.water || 0), unit: "kl", color: "#0284c7" },
+    { label: "Waste", value: Number(data.waste || 0), unit: "kg", color: "#14b8a6" },
+  ];
+  const solarCoverage = Number(data.energy || 0) > 0
+    ? ((Number(data.solar || 0) / Number(data.energy || 0)) * 100).toFixed(1)
+    : "0.0";
 
   const chartData = {
     labels: dashboardCopy.chart.resourceOverviewLabels,
     datasets: [
       {
-        label: "Campus Total",
-        data: [data.energy, data.water, data.waste, data.solar],
-        backgroundColor: ["#f59e0b", "#0284c7", "#14b8a6", "#84cc16"],
+        label: "Electricity",
+        data: electricity.map((item) => item.value),
+        backgroundColor: electricity.map((item) => item.color),
         borderRadius: 14,
         maxBarThickness: 48,
       },
@@ -45,8 +58,7 @@ function ResourceOverview({ data, darkMode = false }) {
             const value = Number(context.raw || 0).toLocaleString(undefined, {
               maximumFractionDigits: 2,
             });
-            const unitMap = ["kWh", "kl", "kg", "kWh"];
-            return `${context.label}: ${value} ${unitMap[context.dataIndex] || ""}`;
+            return `${context.label}: ${value} kWh`;
           },
         },
       },
@@ -113,12 +125,34 @@ function ResourceOverview({ data, darkMode = false }) {
             color: darkMode ? "#f4fbf8" : "#35514a",
           }}
         >
-          4 tracked streams
+          Solar coverage {solarCoverage}%
         </div>
       </div>
       <p style={{ ...styles.subtitle, color: subtitleColor }}>{dashboardCopy.chart.resourceOverviewSubtitle}</p>
       <div style={styles.chartWrap}>
         <Bar data={chartData} options={options} />
+      </div>
+      <div style={styles.metricGrid}>
+        {resources.map((item) => (
+          <div key={item.label} style={styles.metricCard}>
+            <div style={styles.metricTop}>
+              <span style={{ ...styles.metricDot, background: item.color }} />
+              <span style={{ ...styles.metricName, color: titleColor }}>{item.label}</span>
+            </div>
+            <strong style={{ ...styles.metricValue, color: titleColor }}>
+              {item.value.toLocaleString()} {item.unit}
+            </strong>
+          </div>
+        ))}
+      </div>
+      <div
+        style={{
+          ...styles.footerNote,
+          background: darkMode ? "rgba(255,255,255,0.05)" : "rgba(239,247,243,0.9)",
+          color: subtitleColor,
+        }}
+      >
+        The bars compare electricity only, in kWh. Water and waste stay in the figures below because they use different units.
       </div>
     </div>
   );
@@ -163,6 +197,50 @@ const styles = {
   chartWrap: {
     height: "360px",
     marginTop: "10px",
+  },
+  metricGrid: {
+    marginTop: "14px",
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "10px",
+  },
+  metricCard: {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(243,249,246,0.9))",
+    borderRadius: "16px",
+    padding: "12px 14px",
+    border: "1px solid rgba(160, 190, 180, 0.18)",
+    boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
+  },
+  metricTop: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  metricDot: {
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    flexShrink: 0,
+  },
+  metricName: {
+    fontSize: "12px",
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+  metricValue: {
+    display: "block",
+    marginTop: "8px",
+    fontSize: "18px",
+    lineHeight: 1.35,
+    letterSpacing: "-0.02em",
+  },
+  footerNote: {
+    marginTop: "12px",
+    borderRadius: "14px",
+    padding: "10px 12px",
+    fontSize: "12px",
+    lineHeight: 1.55,
   },
 };
 

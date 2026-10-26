@@ -35,7 +35,7 @@ function safeNumber(value) {
   return Number.isFinite(numeric) ? numeric : 0;
 }
 
-export default function AssumptionsPanel({ assumptions, settings, onSaved }) {
+export default function AssumptionsPanel({ assumptions, settings, onSaved, canManage = false }) {
   const [metricOverrides, setMetricOverrides] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -163,9 +163,10 @@ export default function AssumptionsPanel({ assumptions, settings, onSaved }) {
           </div>
 
           <div style={styles.footer}>
-            <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving}>
+            <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving || !canManage}>
               {saving ? "Saving..." : "Save Parameters"}
             </button>
+            {!canManage ? <span style={styles.message}>Only an administrator can save parameters.</span> : null}
             {message ? <span style={styles.message}>{message}</span> : null}
           </div>
 

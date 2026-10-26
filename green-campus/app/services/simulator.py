@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from app import models
 from app.services.carbon import calculate_carbon
+from app.services.green_index import calculate_green_index
 from app.services.date_filters import apply_date_range
 from app.services.metrics_config import (
     get_runtime_constants,
@@ -62,15 +63,7 @@ def _totals(db: Session, building: str | None, date_from: str | None = None, dat
 
 
 def _green_index(net_energy: float, water: float, waste: float, constants: dict):
-    energy_score = min(net_energy / constants["energy_benchmark"], 1) if constants["energy_benchmark"] else 0
-    water_score = min(water / constants["water_benchmark"], 1) if constants["water_benchmark"] else 0
-    waste_score = min(waste / constants["waste_benchmark"], 1) if constants["waste_benchmark"] else 0
-    efficiency_score = (
-        (constants["weights"]["energy"] * energy_score) +
-        (constants["weights"]["water"] * water_score) +
-        (constants["weights"]["waste"] * waste_score)
-    )
-    return round((1 - efficiency_score) * 100, 2)
+    return calculate_green_index(net_energy, water, waste, constants)["green_index"]
 
 
 def simulate_sustainability_impact(db: Session, building: str | None, inputs: dict):

@@ -7,6 +7,9 @@ _live_frontend_bundle.js
 **/__pycache__/
 **/*.pyc
 **/.env
+**/.local_secret
+**/.admin_password
 **/.venv/
 **/dist/
 frontend_green_campus/green-campus-frontend/.git_frontend_backup/
+output/pdf/*preview*.png

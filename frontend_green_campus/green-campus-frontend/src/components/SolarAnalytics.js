@@ -7,7 +7,7 @@ function SolarAnalytics({ data }) {
   const solarPercent =
     data.energy > 0 ? ((data.solar / data.energy) * 100).toFixed(2) : 0;
   const carbonSaved = (data.solar_avoided_carbon || 0).toFixed(0);
-  const moneySaved = (data.solar * 8).toFixed(0);
+  const moneySaved = (Number(data.solar || 0) * Number(data.energy_cost_per_kwh || 0)).toFixed(0);
 
   return (
     <div style={styles.grid}>

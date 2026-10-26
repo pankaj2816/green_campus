@@ -5,10 +5,6 @@ ENERGY_BENCHMARK = 100000
 WATER_BENCHMARK = 20000
 WASTE_BENCHMARK = 30000
 
-COMPLIANCE_ENERGY_LIMIT = 500
-COMPLIANCE_WATER_LIMIT = 200
-COMPLIANCE_WASTE_LIMIT = 300
-
 GREEN_INDEX_WEIGHTS = {
     "energy": 0.5,
     "water": 0.3,
@@ -39,9 +35,6 @@ DEFAULT_RUNTIME_CONSTANTS = {
     "energy_benchmark": ENERGY_BENCHMARK,
     "water_benchmark": WATER_BENCHMARK,
     "waste_benchmark": WASTE_BENCHMARK,
-    "compliance_energy_limit": COMPLIANCE_ENERGY_LIMIT,
-    "compliance_water_limit": COMPLIANCE_WATER_LIMIT,
-    "compliance_waste_limit": COMPLIANCE_WASTE_LIMIT,
     "weights": GREEN_INDEX_WEIGHTS,
     "anomaly_threshold_percent": ANOMALY_THRESHOLD_PERCENT,
     "high_anomaly_threshold_percent": HIGH_ANOMALY_THRESHOLD_PERCENT,

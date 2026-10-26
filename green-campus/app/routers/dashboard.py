@@ -7,6 +7,7 @@ from app.database import get_db
 from app.routers.auth import get_current_user
 from app.services.carbon import calculate_carbon
 from app.services.date_filters import apply_date_range, previous_period_range
+from app.services.green_index import calculate_green_index
 from app.services.metrics_config import (
     get_runtime_constants,
 )
@@ -38,10 +39,6 @@ def _summary_payload(
     occupancy_map = settings["academic_occupancy_factors"]
     constants = get_runtime_constants(settings)
     emission_factor = constants["emission_factor_kg_per_kwh"]
-    energy_benchmark = constants["energy_benchmark"]
-    water_benchmark = constants["water_benchmark"]
-    waste_benchmark = constants["waste_benchmark"]
-    green_index_weights = constants["weights"]
     energy_cost_per_kwh = constants["energy_cost_per_kwh"]
 
     energy_rows = _resource_query(db, models.EnergyData, building, date_from, date_to).all()
@@ -53,6 +50,10 @@ def _summary_payload(
     total_water = sum(entry.consumption_kl for entry in water_rows)
     total_waste = sum(entry.quantity_kg for entry in waste_rows)
     total_solar = sum(entry.solar_kwh for entry in solar_rows)
+    waste_by_type = {}
+    for entry in waste_rows:
+        waste_label = (entry.waste_type or "general").strip() or "general"
+        waste_by_type[waste_label] = waste_by_type.get(waste_label, 0) + float(entry.quantity_kg or 0)
 
     date_pool = [entry.timestamp for entry in [*energy_rows, *water_rows, *waste_rows, *solar_rows]]
     months_covered = max(len({(item.year, item.month) for item in date_pool}), 1) if date_pool else 1
@@ -65,16 +66,7 @@ def _summary_payload(
     active_population = max(round(context["student_population"] * occupancy_average), 1)
     net_energy = max(total_energy - total_solar, 0)
     carbon = calculate_carbon(net_energy, emission_factor)
-
-    energy_score = min(net_energy / energy_benchmark, 1) if energy_benchmark else 0
-    water_score = min(total_water / water_benchmark, 1) if water_benchmark else 0
-    waste_score = min(total_waste / waste_benchmark, 1) if waste_benchmark else 0
-    efficiency_score = (
-        (green_index_weights["energy"] * energy_score) +
-        (green_index_weights["water"] * water_score) +
-        (green_index_weights["waste"] * waste_score)
-    )
-    green_index = round((1 - efficiency_score) * 100, 2)
+    green_index = calculate_green_index(net_energy, total_water, total_waste, constants)["green_index"]
 
     monthly_energy_cost = (net_energy / months_covered) * energy_cost_per_kwh
     energy_budget_variance = monthly_energy_cost - context["monthly_energy_budget_rs"]
@@ -88,7 +80,11 @@ def _summary_payload(
         "export_to_grid_kwh": round(max(total_solar - total_energy, 0), 2),
         "water": round(total_water, 2),
         "waste": round(total_waste, 2),
+        "waste_by_type": {
+            label: round(quantity, 2) for label, quantity in sorted(waste_by_type.items())
+        },
         "carbon": round(carbon, 2),
+        "energy_cost_per_kwh": round(float(energy_cost_per_kwh or 0), 2),
         "gross_carbon": round(calculate_carbon(total_energy, emission_factor), 2),
         "solar_avoided_carbon": round(calculate_carbon(min(total_solar, total_energy), emission_factor), 2),
         "green_index": green_index,
@@ -324,13 +320,11 @@ def get_all_buildings(
     return sorted(building_names)
 
 
-@router.get("/summary")
-def get_summary(
+def build_summary_response(
+    db: Session,
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
 ):
     summary = _summary_payload(db, building=building, date_from=date_from, date_to=date_to)
     settings = get_dashboard_settings(db)
@@ -340,15 +334,20 @@ def get_summary(
     return summary
 
 
-@router.get("/comparison")
-def get_comparison(
+def build_comparison_response(
+    db: Session,
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current: dict | None = None,
 ):
-    current = _summary_payload(db, building=building, date_from=date_from, date_to=date_to)
+    if current is None:
+        current = _summary_payload(db, building=building, date_from=date_from, date_to=date_to)
+    else:
+        current = {
+            key: value for key, value in current.items()
+            if key not in {"goal_progress", "sustainability_goals", "action_tracker"}
+        }
     previous_from, previous_to = previous_period_range(date_from, date_to)
 
     if previous_from and previous_to:
@@ -388,3 +387,45 @@ def get_comparison(
         "previous": previous,
         "delta": delta,
     }
+
+
+@router.get("/summary")
+def get_summary(
+    building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return build_summary_response(db, building=building, date_from=date_from, date_to=date_to)
+
+
+@router.get("/comparison")
+def get_comparison(
+    building: str | None = None,
+    date_from: str | None = None,
+    date_to: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    return build_comparison_response(db, building=building, date_from=date_from, date_to=date_to)
+
+
+@router.get("/bundle")
+def dashboard_bundle(
+    building: str | None = None,
+    granularity: str = "monthly",
+    date_from: str | None = None,
+    date_to: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
+    from app.services.dashboard_bundle import build_dashboard_bundle
+
+    return build_dashboard_bundle(
+        db,
+        building=building,
+        granularity=granularity,
+        date_from=date_from,
+        date_to=date_to,
+    )

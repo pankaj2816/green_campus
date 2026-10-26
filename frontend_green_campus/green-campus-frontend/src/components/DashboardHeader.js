@@ -48,6 +48,7 @@ function DashboardHeader({
   riskData,
   insightsData,
   onLogout,
+  canManage = false,
 }) {
   const navigate = useNavigate();
   const primaryRisk = riskData?.[0];
@@ -242,7 +243,11 @@ function DashboardHeader({
       </div>
 
       <div style={styles.sidePanel}>
-        <DataUploadPanel onUploadSuccess={refresh} />
+        {canManage ? (
+          <DataUploadPanel onUploadSuccess={refresh} />
+        ) : (
+          <p style={styles.viewerNote}>Data import, export, and reset are limited to administrators.</p>
+        )}
       </div>
     </div>
   );
@@ -529,6 +534,13 @@ const styles = {
     display: "flex",
     alignItems: "stretch",
     justifyContent: "center",
+  },
+  viewerNote: {
+    margin: 0,
+    maxWidth: "280px",
+    color: theme.colors.secondaryText,
+    lineHeight: 1.5,
+    alignSelf: "center",
   },
 };
 

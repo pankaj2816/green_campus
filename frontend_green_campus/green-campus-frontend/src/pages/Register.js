@@ -66,7 +66,7 @@ function Register() {
             {dashboardCopy.branding.appName} access for {dashboardCopy.branding.organization}
           </h1>
           <p style={styles.sideText}>
-            New users can access live dashboards, export-ready data views, smart forecasts, and executive reporting in one place.
+            The first account created here becomes the administrator. After an account exists, registration closes and new people need an administrator.
           </p>
 
           <div style={styles.featureGrid}>

@@ -19,7 +19,7 @@ const monthLabels = [
   { key: 12, label: "Dec" },
 ];
 
-export default function OccupancySettingsPanel({ settings, onSaved }) {
+export default function OccupancySettingsPanel({ settings, onSaved, canManage = false }) {
   const [occupancy, setOccupancy] = useState({});
   const [context, setContext] = useState({});
   const [saving, setSaving] = useState(false);
@@ -137,9 +137,10 @@ export default function OccupancySettingsPanel({ settings, onSaved }) {
       </div>
 
       <div style={styles.footer}>
-        <button onClick={handleSave} style={styles.saveButton} disabled={saving}>
+        <button onClick={handleSave} style={styles.saveButton} disabled={saving || !canManage}>
           {saving ? dashboardCopy.occupancy.savingLabel : dashboardCopy.occupancy.saveLabel}
         </button>
+        {!canManage ? <span style={styles.message}>Only an administrator can save occupancy settings.</span> : null}
         {message ? <span style={styles.message}>{message}</span> : null}
       </div>
     </div>

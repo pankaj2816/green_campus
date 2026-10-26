@@ -28,7 +28,7 @@ function toneForStatus(status) {
   };
 }
 
-export default function StrategicGoalsPanel({ summaryData, settings, onSaved, onOpenDetail }) {
+export default function StrategicGoalsPanel({ summaryData, settings, onSaved, onOpenDetail, canManage = false }) {
   const [goals, setGoals] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -167,9 +167,10 @@ export default function StrategicGoalsPanel({ summaryData, settings, onSaved, on
       </div>
 
       <div style={styles.footer}>
-        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving}>
+        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving || !canManage}>
           {saving ? "Saving..." : "Save Goals"}
         </button>
+        {!canManage ? <span style={styles.message}>Only an administrator can save goals.</span> : null}
         {message ? <span style={styles.message}>{message}</span> : null}
       </div>
     </div>

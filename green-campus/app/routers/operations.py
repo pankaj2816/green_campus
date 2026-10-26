@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.models import User
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_admin
 from app.services.audit import log_audit_event
 from app.services.device_readiness import (
     build_device_readiness_payload,
@@ -45,7 +45,7 @@ def get_device_readiness(
 def save_device_readiness(
     request: DeviceRegistryRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     saved_devices = replace_device_registry(
         db,

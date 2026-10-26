@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
@@ -38,6 +38,13 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
             detail="Username and password are required"
         )
 
+    # Serialize first-account setup so simultaneous requests cannot create two admins.
+    dialect = db.get_bind().dialect.name
+    if dialect == "postgresql":
+        db.execute(text("SELECT pg_advisory_xact_lock(772601)"))
+    elif dialect == "sqlite":
+        db.execute(text("BEGIN IMMEDIATE"))
+
     existing_user = db.query(models.User).filter(
         func.lower(models.User.username) == username
     ).first()
@@ -48,9 +55,16 @@ def register(request: RegisterRequest, db: Session = Depends(get_db)):
             detail="Username already exists"
         )
 
+    if db.query(models.User).count():
+        raise HTTPException(
+            status_code=403,
+            detail="Registration is closed. Ask an administrator for an account.",
+        )
+
     user = models.User(
         username=username,
-        hashed_password=hash_password(request.password)
+        hashed_password=hash_password(request.password),
+        role="admin",
     )
 
     db.add(user)
@@ -91,7 +105,9 @@ def login(
 
     return {
         "access_token": access_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "role": user.role or "viewer",
+        "username": user.username,
     }
 
 
@@ -126,3 +142,20 @@ def get_current_user(
         raise credentials_exception
 
     return user
+
+
+def require_admin(current_user: models.User = Depends(get_current_user)):
+    if (current_user.role or "").lower() != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access is required for this action.",
+        )
+    return current_user
+
+
+@router.get("/me")
+def current_account(current_user: models.User = Depends(get_current_user)):
+    return {
+        "username": current_user.username,
+        "role": current_user.role or "viewer",
+    }

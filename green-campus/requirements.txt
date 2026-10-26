@@ -6,9 +6,6 @@ pydantic
 python-dotenv
 pandas
 openpyxl
-numpy
-scikit-learn
-prophet
 python-multipart
 python-jose
 passlib

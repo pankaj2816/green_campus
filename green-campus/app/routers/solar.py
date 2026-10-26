@@ -1,29 +1,48 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.database import get_db
+
 from app import models
+from app.database import get_db
+from app.routers.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/solar", tags=["Solar"])
 
 
+def _serialize_solar(entry: models.SolarData):
+    return {
+        "id": entry.id,
+        "building": entry.building,
+        "solar_kwh": entry.solar_kwh,
+        "timestamp": entry.timestamp.isoformat() if entry.timestamp else None,
+    }
+
+
 @router.post("/")
-def add_solar(building: str, solar_kwh: float, db: Session = Depends(get_db)):
+def add_solar(
+    building: str,
+    solar_kwh: float,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(require_admin),
+):
     solar = models.SolarData(
         building=building,
-        solar_kwh=solar_kwh
+        solar_kwh=solar_kwh,
     )
     db.add(solar)
     db.commit()
     db.refresh(solar)
-    return {"message": "Solar data added"}
+    return _serialize_solar(solar)
 
 
 @router.get("/")
-def get_solar(db: Session = Depends(get_db)):
+def get_solar(
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user),
+):
     solar = db.query(models.SolarData).all()
-    total_solar = sum(s.solar_kwh for s in solar)
+    total_solar = sum(item.solar_kwh for item in solar)
 
     return {
         "total_solar_kwh": round(total_solar, 2),
-        "records": solar
+        "records": [_serialize_solar(item) for item in solar],
     }

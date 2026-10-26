@@ -27,7 +27,7 @@ import StatusNotice from "../components/StatusNotice";
 import DeviceReadinessPanel from "../components/DeviceReadinessPanel";
 import AuditTrailPanel from "../components/AuditTrailPanel";
 import { dashboardCopy } from "../config/dashboardConfig";
-import { fetchAssumptions, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
+import { fetchAssumptions, fetchCurrentUser, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
 
 function SectionIntro({ kicker, title, subtitle, helpText, darkMode = false }) {
   return (
@@ -82,6 +82,7 @@ function Dashboard({ onLogout }) {
   const [loading, setLoading] = useState(true);
   const [settingsData, setSettingsData] = useState(null);
   const [loadError, setLoadError] = useState("");
+  const [canManage, setCanManage] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -109,6 +110,10 @@ function Dashboard({ onLogout }) {
       setDataQuality(bundle.dataQuality);
       setDeviceReadiness(bundle.deviceReadiness);
       setAuditTrail(bundle.auditTrail);
+      const failedSections = Object.keys(bundle.sectionErrors || {});
+      if (failedSections.length) {
+        setLoadError(`Some sections could not be loaded: ${failedSections.join(", ")}.`);
+      }
     } catch (error) {
       console.error("Dashboard fetch error:", error);
       setLoadError(error.message || "Unable to load dashboard data. Please check the backend service and try again.");
@@ -120,6 +125,19 @@ function Dashboard({ onLogout }) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    const loadCurrentUser = async () => {
+      try {
+        const user = await fetchCurrentUser();
+        setCanManage(user?.role === "admin");
+      } catch (error) {
+        setCanManage(false);
+      }
+    };
+
+    loadCurrentUser();
+  }, []);
 
   useEffect(() => {
     const loadAssumptions = async () => {
@@ -235,6 +253,7 @@ function Dashboard({ onLogout }) {
                   setExecutiveDarkMode={setExecutiveDarkMode}
                   onPrintReport={handlePrintReport}
                   onLogout={onLogout}
+                  canManage={canManage}
                 />
 
                 <div style={styles.mobileTabs} className="dashboard-mobile-tabs">
@@ -284,14 +303,18 @@ function Dashboard({ onLogout }) {
                       settings={settingsData}
                       onSaved={refreshSettings}
                       onOpenDetail={setSelectedDetail}
-                    />
-                    <ActionTrackerPanel
-                      recommendations={insightsData?.recommendations}
-                      settings={settingsData}
-                      onSaved={refreshSettings}
-                      onOpenDetail={setSelectedDetail}
+                      canManage={canManage}
                     />
                   </div>
+                </div>
+                <div style={styles.fullWidthSection}>
+                  <ActionTrackerPanel
+                    recommendations={insightsData?.recommendations}
+                    settings={settingsData}
+                    onSaved={refreshSettings}
+                    onOpenDetail={setSelectedDetail}
+                    canManage={canManage}
+                  />
                 </div>
               </section>
             ) : null}
@@ -348,13 +371,14 @@ function Dashboard({ onLogout }) {
                 <SectionIntro {...dashboardCopy.layout.governanceSection} darkMode={executiveDarkMode} />
                 <div style={styles.governanceStack} className="governance-stack">
                   <RankingSection performanceData={performanceData} />
-                  <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} />
+                  <OccupancySettingsPanel settings={settingsData} onSaved={refreshSettings} canManage={canManage} />
                   <AssumptionsPanel
                     assumptions={assumptions}
                     settings={settingsData}
                     onSaved={refreshSettings}
+                    canManage={canManage}
                   />
-                  <DeviceReadinessPanel deviceReadiness={deviceReadiness} onSaved={fetchData} />
+                  <DeviceReadinessPanel deviceReadiness={deviceReadiness} onSaved={fetchData} canManage={canManage} />
                   <AuditTrailPanel auditTrail={auditTrail} />
                 </div>
               </section>
@@ -487,6 +511,9 @@ const styles = {
     display: "grid",
     gap: "14px",
     alignSelf: "start",
+  },
+  fullWidthSection: {
+    marginTop: "16px",
   },
   sectionIntro: {
     marginBottom: "14px",

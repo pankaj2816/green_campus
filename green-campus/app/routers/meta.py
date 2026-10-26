@@ -7,13 +7,16 @@ from app.services.metrics_config import get_assumptions_payload
 from app.services.settings_service import get_dashboard_settings, save_dashboard_settings
 from app.database import get_db
 from app.models import AuditEvent, User
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/meta", tags=["Metadata"])
 
 
 @router.get("/assumptions")
-def get_assumptions(db: Session = Depends(get_db)):
+def get_assumptions(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
     settings = get_dashboard_settings(db)
     payload = get_assumptions_payload(settings)
     payload["settings"] = settings
@@ -40,7 +43,7 @@ def get_settings(
 def update_settings(
     request: SettingsRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_admin),
 ):
     return save_dashboard_settings(
         db,

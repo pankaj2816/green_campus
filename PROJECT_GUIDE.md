@@ -1,5 +1,27 @@
 # Green Campus Project Guide
 
+## Latest Reviewed Changes
+
+- Dashboard loading now uses the authenticated `/dashboard/bundle` endpoint. Forecast results are reused within each request, and section failures are reported while other sections continue loading.
+- Electricity charts compare kWh with kWh. The doughnut shows solar used versus grid draw; water (kl) and waste (kg) remain separate. Waste totals also include a breakdown by type.
+- The first registered account becomes an administrator. Public registration closes once any account exists. Existing accounts keep their current roles.
+- Only administrators can import, export, reset data, save settings, or update the device registry. Other authenticated users can view the dashboard.
+- Hosted backends require a private `SECRET_KEY`. The Blueprint generates it automatically for a new configuration; existing manually configured services must have it set before deployment. Keep the same value across restarts. Changing it signs out existing sessions.
+- Existing databases with viewer accounts do not automatically gain an administrator. An operator can provision a new account using `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and `python -m app.scripts.create_admin` in the backend environment. Use a new username; the script does not change existing accounts.
+- Dashboard and compliance now use the same Green Index calculation and configured benchmarks.
+
+Deploy the backend before the frontend because the updated frontend requires `/dashboard/bundle` and `/auth/me`.
+
+Backend regression checks use an isolated SQLite database and never connect to the deployed database:
+
+```powershell
+cd D:\working_green_campus\green-campus
+python -m pip install -r requirements-dev.txt
+python -m unittest discover -s tests -v
+```
+
+The tests cover administrator setup, duplicate/closed registration, login, access restrictions, Excel import/export/reset, settings audit records, all forecast modes, comparison consistency, and partial dashboard failures. Production PostgreSQL and visual browser checks remain separate deployment checks.
+
 ## Purpose
 
 This system is built for professional campus sustainability monitoring and planning across:

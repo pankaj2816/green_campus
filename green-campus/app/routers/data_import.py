@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app import models
-from app.routers.auth import get_current_user
+from app.routers.auth import require_admin
 from app.routers.dashboard import calculate_building_performance
 from app.services.audit import log_audit_event
 
@@ -155,7 +155,7 @@ def _clear_existing_data(db: Session):
 async def validate_campus_excel(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_admin),
 ):
     validation, _ = _validate_workbook(file.file)
     return validation
@@ -165,7 +165,7 @@ async def validate_campus_excel(
 async def upload_campus_excel(
     file: UploadFile = File(...),
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_admin),
 ):
     validation, dataframes = _validate_workbook(file.file)
     if not validation["ready"]:
@@ -203,7 +203,11 @@ async def upload_campus_excel(
         db.add(models.WasteData(
             building=row["building"],
             quantity_kg=float(row["waste_kg"]),
-            waste_type=row.get("waste_type", "general") if isinstance(row, pd.Series) else "general",
+            waste_type=(
+                str(row["waste_type"]).strip()
+                if "waste_type" in row and pd.notna(row["waste_type"]) and str(row["waste_type"]).strip()
+                else "general"
+            ),
             timestamp=pd.to_datetime(row["date"]),
         ))
 
@@ -242,7 +246,7 @@ async def upload_campus_excel(
 @router.post("/reset-campus-data")
 def reset_campus_data(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_admin),
 ):
     _clear_existing_data(db)
     log_audit_event(
@@ -260,7 +264,7 @@ def reset_campus_data(
 @router.get("/export-campus-excel")
 def export_campus_excel(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_admin),
 ):
     energy_rows = db.query(models.EnergyData).order_by(models.EnergyData.timestamp).all()
     water_rows = db.query(models.WaterData).order_by(models.WaterData.timestamp).all()

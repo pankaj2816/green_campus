@@ -26,6 +26,7 @@ def build_alert_overview(
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    forecast_payload: dict | None = None,
 ):
     energy_records = apply_date_range(
         _filter_query(db.query(EnergyData), EnergyData, building).order_by(EnergyData.timestamp),
@@ -128,13 +129,14 @@ def build_alert_overview(
                 "surplus_kwh": round(solar_total - energy_total, 2),
             })
 
-    forecast_payload = forecast_resources(
-        db,
-        granularity="daily",
-        building=building,
-        date_from=date_from,
-        date_to=date_to,
-    )
+    if forecast_payload is None:
+        forecast_payload = forecast_resources(
+            db,
+            granularity="daily",
+            building=building,
+            date_from=date_from,
+            date_to=date_to,
+        )
     risk_data = evaluate_resource_risk(forecast_payload)
 
     if risk_data and risk_data[0]["risk_level"] == "HIGH":

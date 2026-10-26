@@ -1,19 +1,46 @@
+import logging
 import os
+import secrets
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
+logger = logging.getLogger(__name__)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
+_LOCAL_SECRET_PATH = Path(__file__).resolve().parents[2] / ".local_secret"
 
-# Support both legacy bcrypt hashes and new PBKDF2 hashes.
 pwd_context = CryptContext(schemes=["pbkdf2_sha256", "bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+def _resolve_secret_key() -> str:
+    configured = (os.getenv("SECRET_KEY") or "").strip()
+    if configured and configured != "supersecretkey":
+        return configured
+
+    if os.getenv("RENDER"):
+        raise RuntimeError("Set SECRET_KEY in the environment before starting the hosted API.")
+
+    if _LOCAL_SECRET_PATH.exists():
+        existing = _LOCAL_SECRET_PATH.read_text(encoding="utf-8").strip()
+        if existing:
+            return existing
+
+    generated = secrets.token_urlsafe(48)
+    _LOCAL_SECRET_PATH.write_text(generated, encoding="utf-8")
+    logger.warning(
+        "SECRET_KEY is not set. A local signing key was written to %s.",
+        _LOCAL_SECRET_PATH.name,
+    )
+    return generated
+
+
+SECRET_KEY = _resolve_secret_key()
 
 
 def normalize_username(username: str) -> str:
@@ -35,7 +62,6 @@ def create_access_token(data: dict):
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-# 🔐 VERIFY TOKEN FUNCTION
 def verify_token(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
@@ -51,40 +77,3 @@ def verify_token(token: str = Depends(oauth2_scheme)):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid token",
         )
-
-from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.orm import Session
-from app.database import get_db
-from app import models
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-):
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-
-        if username is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid authentication credentials"
-            )
-
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token"
-        )
-
-    user = db.query(models.User).filter(models.User.username == username).first()
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-
-    return user

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 
 def create_energy(db: Session, energy: schemas.EnergyCreate):
-    db_energy = models.EnergyData(**energy.dict())
+    db_energy = models.EnergyData(**energy.model_dump())
     db.add(db_energy)
     db.commit()
     db.refresh(db_energy)
@@ -14,7 +14,7 @@ def get_all_energy(db: Session):
 # ---------------- WATER ----------------
 
 def create_water(db: Session, water: schemas.WaterCreate):
-    db_water = models.WaterData(**water.dict())
+    db_water = models.WaterData(**water.model_dump())
     db.add(db_water)
     db.commit()
     db.refresh(db_water)
@@ -26,7 +26,7 @@ def get_all_water(db: Session):
 # ---------------- WASTE ----------------
 
 def create_waste(db: Session, waste: schemas.WasteCreate):
-    db_waste = models.WasteData(**waste.dict())
+    db_waste = models.WasteData(**waste.model_dump())
     db.add(db_waste)
     db.commit()
     db.refresh(db_waste)

@@ -5,12 +5,10 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
 
-const resourceItems = [
-  { key: "energy", label: "Electricity", color: "#f59e0b", unit: "kWh" },
-  { key: "water", label: "Water", color: "#0ea5e9", unit: "kl" },
-  { key: "waste", label: "Waste", color: "#14b8a6", unit: "kg" },
-  { key: "solar", label: "Solar", color: "#84cc16", unit: "kWh" },
-];
+const electricityColors = {
+  solar: "#84cc16",
+  grid: "#f59e0b",
+};
 
 function ResourceMixChart({ data, darkMode = false }) {
   if (!data) {
@@ -33,16 +31,33 @@ function ResourceMixChart({ data, darkMode = false }) {
     ? "linear-gradient(135deg, rgba(29,138,103,0.24), rgba(37,99,235,0.22))"
     : "linear-gradient(135deg, #eef7f2, #edf4ff)";
 
-  const total = resourceItems.reduce((sum, item) => sum + (Number(data[item.key]) || 0), 0);
-  const largestItem = [...resourceItems].sort(
-    (a, b) => (Number(data[b.key]) || 0) - (Number(data[a.key]) || 0)
-  )[0];
+  const grossEnergy = Number(data.energy || 0);
+  const solar = Number(data.solar || 0);
+  const solarUsed = Math.min(solar, grossEnergy);
+  const gridDraw = Math.max(grossEnergy - solar, 0);
+  const exportKwh = Math.max(solar - grossEnergy, 0);
+  const water = Number(data.water || 0);
+  const waste = Number(data.waste || 0);
+  const resourceItems = [
+    { key: "solar", label: "Solar used", rawValue: solarUsed, unit: "kWh", color: electricityColors.solar },
+    { key: "grid", label: "Grid draw", rawValue: gridDraw, unit: "kWh", color: electricityColors.grid },
+  ];
+  const total = solarUsed + gridDraw;
+  const solarShare = total > 0 ? (solarUsed / total) * 100 : 0;
+  const largestItem = [...resourceItems].sort((a, b) => b.rawValue - a.rawValue)[0];
+  const rankedItems = resourceItems
+    .map((item) => ({
+      ...item,
+      percentage: total > 0 ? (item.rawValue / total) * 100 : 0,
+    }))
+    .sort((a, b) => b.percentage - a.percentage);
+  const wasteTypes = Object.entries(data.waste_by_type || {});
 
   const chartData = {
     labels: resourceItems.map((item) => item.label),
     datasets: [
       {
-        data: resourceItems.map((item) => data[item.key]),
+        data: resourceItems.map((item) => item.rawValue),
         backgroundColor: resourceItems.map((item) => item.color),
         borderColor: darkMode ? "#18332d" : "#f8fbfa",
         borderWidth: 4,
@@ -90,16 +105,15 @@ function ResourceMixChart({ data, darkMode = false }) {
           <div style={styles.chartWrap}>
             <Doughnut data={chartData} options={options} />
             <div style={styles.centerLabel}>
-              <strong style={styles.centerValue}>{total.toLocaleString()}</strong>
+              <strong style={styles.centerValue}>{solarShare.toFixed(0)}%</strong>
               <span style={styles.centerText}>{dashboardCopy.chart.resourceMixCenterLabel}</span>
             </div>
           </div>
         </div>
 
         <div style={styles.legendList}>
-          {resourceItems.map((item) => {
-            const rawValue = Number(data[item.key]) || 0;
-            const percentage = total > 0 ? ((rawValue / total) * 100).toFixed(1) : "0.0";
+          {rankedItems.map((item) => {
+            const percentage = item.percentage.toFixed(1);
 
             return (
               <div
@@ -111,9 +125,18 @@ function ResourceMixChart({ data, darkMode = false }) {
                   <strong style={{ color: legendTextColor }}>{item.label}</strong>
                 </div>
                 <div style={{ ...styles.legendValue, color: legendTextColor }}>
-                  {rawValue.toLocaleString()} {item.unit}
+                  {item.rawValue.toLocaleString()} {item.unit}
                 </div>
-                <div style={{ ...styles.legendPercent, color: mutedTextColor }}>{percentage}% of current mix</div>
+                <div style={{ ...styles.legendPercent, color: mutedTextColor }}>{percentage}% of electricity</div>
+                <div style={styles.shareRail}>
+                  <span
+                    style={{
+                      ...styles.shareFill,
+                      width: `${item.percentage}%`,
+                      background: item.color,
+                    }}
+                  />
+                </div>
               </div>
             );
           })}
@@ -122,10 +145,22 @@ function ResourceMixChart({ data, darkMode = false }) {
             <strong>{dashboardCopy.chart.resourceMixLargestPrefix}</strong>
             <div style={{ ...styles.highlightValue, color: legendTextColor }}>{largestItem.label}</div>
             <div style={{ ...styles.highlightText, color: mutedTextColor }}>
-              {Number(data[largestItem.key] || 0).toLocaleString()} {largestItem.unit}
+              {largestItem.rawValue.toLocaleString()} {largestItem.unit}
             </div>
           </div>
         </div>
+      </div>
+      <div style={{ ...styles.highlightCard, background: highlightBackground, marginTop: "16px" }}>
+        <strong>Other resources, kept in their own units</strong>
+        <div style={{ ...styles.highlightText, color: mutedTextColor }}>
+          Water {water.toLocaleString()} kl · Waste {waste.toLocaleString()} kg
+          {exportKwh > 0 ? ` · Solar export ${exportKwh.toLocaleString()} kWh` : ""}
+        </div>
+        {wasteTypes.length ? (
+          <div style={{ ...styles.highlightText, color: mutedTextColor }}>
+            Waste types: {wasteTypes.map(([label, quantity]) => `${label} ${Number(quantity).toLocaleString()} kg`).join(" · ")}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -237,6 +272,19 @@ const styles = {
   legendPercent: {
     color: theme.colors.secondaryText,
     marginTop: "4px",
+  },
+  shareRail: {
+    marginTop: "10px",
+    width: "100%",
+    height: "7px",
+    borderRadius: "999px",
+    background: "rgba(159, 188, 178, 0.18)",
+    overflow: "hidden",
+  },
+  shareFill: {
+    display: "block",
+    height: "100%",
+    borderRadius: "999px",
   },
   highlightCard: {
     background: "linear-gradient(135deg, #eef7f2, #edf4ff)",

@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.ai.forecast import forecast_resources
+from app.models import User
+from app.routers.auth import get_current_user
 
 router = APIRouter(prefix="/ai", tags=["AI Forecast"])
 
@@ -13,6 +15,7 @@ def resource_forecast(
     date_from: str | None = None,
     date_to: str | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     return forecast_resources(
         db,

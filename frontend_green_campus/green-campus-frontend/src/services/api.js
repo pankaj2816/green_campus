@@ -202,62 +202,45 @@ export const fetchDashboardBundle = async ({
   dateFrom,
   dateTo,
 }) => {
-  const params = { building, date_from: dateFrom, date_to: dateTo };
+  const bundle = await apiGet("/dashboard/bundle", {
+    building,
+    granularity,
+    date_from: dateFrom,
+    date_to: dateTo,
+  });
 
-  const [
-    summary,
-    comparisonData,
-    trendData,
-    buildingOptions,
-    buildingData,
-    performanceData,
-    riskData,
-    forecastData,
-    insightsData,
-    seasonalOutlook,
-    alertsData,
-    dataQuality,
-    deviceReadiness,
-    auditTrail,
-  ] = await Promise.all([
-    apiGet("/dashboard/summary", params),
-    apiGet("/dashboard/comparison", params),
-    apiGet("/energy/trend", params),
-    apiGet("/dashboard/all-buildings"),
-    apiGet("/energy/by-building", params),
-    apiGet("/dashboard/building-performance", params),
-    apiGet("/ai/risk/energy", { ...params, granularity }),
-    apiGet("/ai/forecast/resources", { ...params, granularity }),
-    apiGet("/insights", { ...params, granularity }),
-    apiGet("/ai/seasonal-outlook", params),
-    apiGet("/ai/alerts/overview", params),
-    apiGet("/ai/data-quality", params),
-    apiGet("/operations/devices"),
-    apiGet("/meta/audit-trail", { limit: 12 }),
-  ]);
+  const sectionErrors = bundle?.errors || {};
+  if (!bundle?.summary) {
+    const failedSections = Object.keys(sectionErrors);
+    throw new Error(
+      failedSections.length
+        ? `Unable to load the dashboard. Failed sections: ${failedSections.join(", ")}.`
+        : "Unable to load the dashboard."
+    );
+  }
 
   return {
-    summary,
-    comparisonData,
-    trendData,
-    buildingOptions,
-    buildingData,
-    performanceData,
-    riskData,
-    forecastData,
-    insightsData,
-    seasonalOutlook,
-    alertsData,
-    dataQuality,
-    deviceReadiness,
-    auditTrail,
+    summary: bundle.summary,
+    comparisonData: bundle.comparison,
+    trendData: bundle.trend || [],
+    buildingOptions: bundle.buildings || [],
+    buildingData: bundle.building_energy || [],
+    performanceData: bundle.performance || [],
+    riskData: bundle.risk || [],
+    forecastData: bundle.forecast,
+    insightsData: bundle.insights,
+    seasonalOutlook: bundle.seasonal,
+    alertsData: bundle.alerts,
+    dataQuality: bundle.data_quality,
+    deviceReadiness: bundle.devices,
+    auditTrail: bundle.audit,
+    sectionErrors,
   };
 };
 
 export const fetchAssumptions = async () => apiGet("/meta/assumptions");
 export const fetchDashboardSettings = async () => apiGet("/meta/settings");
-export const fetchAuditTrail = async (limit = 20) => apiGet("/meta/audit-trail", { limit });
-export const fetchDeviceReadiness = async () => apiGet("/operations/devices");
+export const fetchCurrentUser = async () => apiGet("/auth/me");
 export const saveDashboardSettings = async (payload) => apiPost("/meta/settings", payload);
 export const saveDeviceReadiness = async (payload) => apiPost("/operations/devices", payload);
 

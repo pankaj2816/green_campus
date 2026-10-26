@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
 from app.database import get_db
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_admin
 from app.services.carbon import calculate_carbon
 from app.services.date_filters import apply_date_range
 
@@ -20,7 +20,7 @@ def _apply_building_filter(query, building: str | None):
 @router.post("/")
 def add_energy(
     data: schemas.EnergyCreate,
-    current_user: models.User = Depends(get_current_user),
+    current_user: models.User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
     return crud.create_energy(db, data)
@@ -51,6 +51,7 @@ def energy_trend(
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     energy_query = db.query(
@@ -120,6 +121,7 @@ def monthly_energy(
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     query = db.query(
@@ -150,6 +152,7 @@ def daily_energy(
     building: str | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
+    current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     query = db.query(

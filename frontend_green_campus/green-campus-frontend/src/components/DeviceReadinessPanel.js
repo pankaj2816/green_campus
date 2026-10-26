@@ -78,7 +78,7 @@ function blankDevice() {
   };
 }
 
-export default function DeviceReadinessPanel({ deviceReadiness, onSaved }) {
+export default function DeviceReadinessPanel({ deviceReadiness, onSaved, canManage = false }) {
   const [devices, setDevices] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -309,9 +309,10 @@ export default function DeviceReadinessPanel({ deviceReadiness, onSaved }) {
       </div>
 
       <div style={styles.footer}>
-        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving}>
+        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving || !canManage}>
           {saving ? "Saving..." : "Save Device Registry"}
         </button>
+        {!canManage ? <span style={styles.message}>Only an administrator can save the device registry.</span> : null}
         {message ? <span style={styles.message}>{message}</span> : null}
       </div>
     </div>

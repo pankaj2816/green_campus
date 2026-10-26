@@ -24,7 +24,7 @@ function statusTone(status) {
   return { bg: "#f0f5f3", color: "#35514a" };
 }
 
-export default function ActionTrackerPanel({ recommendations, settings, onSaved, onOpenDetail }) {
+export default function ActionTrackerPanel({ recommendations, settings, onSaved, onOpenDetail, canManage = false }) {
   const [tracker, setTracker] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,6 +41,21 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
       })),
     [recommendations, tracker]
   );
+
+  const summary = useMemo(() => {
+    const initial = {
+      total: items.length,
+      suggested: 0,
+      planned: 0,
+      in_progress: 0,
+      completed: 0,
+    };
+
+    return items.reduce((accumulator, item) => {
+      accumulator[item.currentStatus] = (accumulator[item.currentStatus] || 0) + 1;
+      return accumulator;
+    }, initial);
+  }, [items]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -92,66 +107,106 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
         </div>
       </div>
 
+      <div style={styles.summaryGrid}>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Total Actions</span>
+          <strong style={styles.summaryValue}>{summary.total}</strong>
+          <span style={styles.summaryNote}>Live recommendations available in this view.</span>
+        </div>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Ready To Decide</span>
+          <strong style={styles.summaryValue}>{summary.suggested + summary.planned}</strong>
+          <span style={styles.summaryNote}>Suggestions that should be assigned or approved next.</span>
+        </div>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Execution Progress</span>
+          <strong style={styles.summaryValue}>{summary.in_progress + summary.completed}</strong>
+          <span style={styles.summaryNote}>Actions already moving or fully closed by the team.</span>
+        </div>
+      </div>
+
       <div style={styles.list}>
         {items.length > 0 ? (
           items.map((item) => {
             const tone = statusTone(item.currentStatus);
             return (
-              <div key={item.action_key} style={styles.row}>
-                <button
-                  type="button"
-                  style={styles.rowInfo}
-                  onClick={() =>
-                    onOpenDetail?.({
-                      title: item.title,
-                      category: "Action Board",
-                      summary: item.message,
-                      points: [
-                        `Priority: ${item.priority}`,
-                        `Estimated savings: ${item.estimated_savings_kwh} kWh`,
-                        `Estimated cost impact: Rs ${item.estimated_savings_rs}`,
-                        `Estimated carbon impact: ${item.estimated_savings_carbon} kg CO2`,
-                      ],
-                    })
-                  }
-                >
-                  <div style={styles.rowTop}>
-                    <strong style={styles.rowTitle}>{item.title}</strong>
-                    <span style={{ ...styles.statusPill, background: tone.bg, color: tone.color }}>
-                      {statuses.find((status) => status.value === item.currentStatus)?.label}
-                    </span>
-                  </div>
-                  <p style={styles.rowText}>{item.message}</p>
-                  <div style={styles.impactText}>
-                    Impact {item.impact_score} | {item.estimated_savings_kwh} kWh | Rs {item.estimated_savings_rs}
-                  </div>
-                  <div style={styles.expectationText}>
-                    {item.currentStatus === "completed"
-                      ? "Expected outcome: this change should begin reducing future energy, cost, or carbon in later comparisons."
-                      : item.currentStatus === "in_progress"
-                        ? "Expected outcome: implementation is underway, so watch the next comparison window and alerts."
-                        : item.currentStatus === "planned"
-                          ? "Expected outcome: assign responsibility and timeline so the idea becomes an operational change."
-                          : "Expected outcome: review this suggestion and decide whether it should become a planned action."}
-                  </div>
-                </button>
+              <div key={item.action_key} style={styles.actionCard}>
+                <div style={styles.rowTop}>
+                  <strong style={styles.rowTitle}>{item.title}</strong>
+                  <span style={{ ...styles.statusPill, background: tone.bg, color: tone.color }}>
+                    {statuses.find((status) => status.value === item.currentStatus)?.label}
+                  </span>
+                </div>
 
-                <select
-                  value={item.currentStatus}
-                  onChange={(event) =>
-                    setTracker((current) => ({
-                      ...current,
-                      [item.action_key]: event.target.value,
-                    }))
-                  }
-                  style={styles.select}
-                >
-                  {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
+                <p style={styles.rowText}>{item.message}</p>
+
+                <div style={styles.metricsGrid}>
+                  <div style={styles.metricTile}>
+                    <span style={styles.metricLabel}>Priority</span>
+                    <strong style={styles.metricValue}>{item.priority}</strong>
+                  </div>
+                  <div style={styles.metricTile}>
+                    <span style={styles.metricLabel}>Impact Score</span>
+                    <strong style={styles.metricValue}>{item.impact_score}</strong>
+                  </div>
+                  <div style={styles.metricTile}>
+                    <span style={styles.metricLabel}>Energy Saving</span>
+                    <strong style={styles.metricValue}>{item.estimated_savings_kwh} kWh</strong>
+                  </div>
+                  <div style={styles.metricTile}>
+                    <span style={styles.metricLabel}>Cost Saving</span>
+                    <strong style={styles.metricValue}>Rs {item.estimated_savings_rs}</strong>
+                  </div>
+                </div>
+
+                <div style={styles.expectationText}>
+                  {item.currentStatus === "completed"
+                    ? "Expected outcome: this change should begin reducing future energy, cost, or carbon in later comparisons."
+                    : item.currentStatus === "in_progress"
+                      ? "Expected outcome: implementation is underway, so watch the next comparison window and alerts."
+                      : item.currentStatus === "planned"
+                        ? "Expected outcome: assign responsibility and timeline so the idea becomes an operational change."
+                        : "Expected outcome: review this suggestion and decide whether it should become a planned action."}
+                </div>
+
+                <div style={styles.cardActions}>
+                  <select
+                    value={item.currentStatus}
+                    onChange={(event) =>
+                      setTracker((current) => ({
+                        ...current,
+                        [item.action_key]: event.target.value,
+                      }))
+                    }
+                    style={styles.select}
+                  >
+                    {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    style={styles.detailButton}
+                    onClick={() =>
+                      onOpenDetail?.({
+                        title: item.title,
+                        category: "Action Board",
+                        summary: item.message,
+                        points: [
+                          `Priority: ${item.priority}`,
+                          `Impact score: ${item.impact_score}`,
+                          `Estimated savings: ${item.estimated_savings_kwh} kWh`,
+                          `Estimated cost impact: Rs ${item.estimated_savings_rs}`,
+                          `Estimated carbon impact: ${item.estimated_savings_carbon} kg CO2`,
+                        ],
+                      })
+                    }
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
             );
           })
@@ -161,9 +216,10 @@ export default function ActionTrackerPanel({ recommendations, settings, onSaved,
       </div>
 
       <div style={styles.footer}>
-        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving}>
+        <button type="button" onClick={handleSave} style={styles.saveButton} disabled={saving || !canManage}>
           {saving ? "Saving..." : "Save Actions"}
         </button>
+        {!canManage ? <span style={styles.message}>Only an administrator can save actions.</span> : null}
         {message ? <span style={styles.message}>{message}</span> : null}
       </div>
     </div>
@@ -198,7 +254,40 @@ const styles = {
   },
   list: {
     display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+    gap: "14px",
+  },
+  summaryGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))",
     gap: "12px",
+    marginBottom: "14px",
+  },
+  summaryCard: {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(240,247,244,0.94))",
+    border: "1px solid #deebe6",
+    borderRadius: "18px",
+    padding: "14px 16px",
+    display: "grid",
+    gap: "4px",
+    boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
+  },
+  summaryLabel: {
+    color: "#60756f",
+    fontSize: "12px",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    fontWeight: "700",
+  },
+  summaryValue: {
+    color: "#17342d",
+    fontSize: "24px",
+    lineHeight: 1.1,
+  },
+  summaryNote: {
+    color: "#60756f",
+    fontSize: "12px",
+    lineHeight: 1.5,
   },
   legendBox: {
     display: "grid",
@@ -217,19 +306,13 @@ const styles = {
     fontSize: "13px",
     lineHeight: 1.5,
   },
-  row: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr) 160px",
-    gap: "12px",
-    alignItems: "stretch",
-  },
-  rowInfo: {
+  actionCard: {
     border: "1px solid #deebe6",
     borderRadius: "18px",
     background: "linear-gradient(180deg, #ffffff 0%, #f7fbf9 100%)",
     padding: "14px",
-    textAlign: "left",
-    cursor: "pointer",
+    display: "grid",
+    gap: "12px",
     boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
   },
   rowTop: {
@@ -241,6 +324,7 @@ const styles = {
   },
   rowTitle: {
     color: "#17342d",
+    fontSize: "16px",
   },
   statusPill: {
     padding: "6px 10px",
@@ -253,17 +337,44 @@ const styles = {
     color: "#60756f",
     lineHeight: 1.55,
   },
-  impactText: {
-    marginTop: "10px",
-    color: "#1b7f62",
-    fontSize: "13px",
-    fontWeight: "600",
-  },
   expectationText: {
-    marginTop: "10px",
     color: "#35514a",
     fontSize: "12px",
     lineHeight: 1.5,
+    background: "rgba(232, 247, 241, 0.7)",
+    borderRadius: "14px",
+    padding: "10px 12px",
+  },
+  metricsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+    gap: "10px",
+  },
+  metricTile: {
+    background: "rgba(244, 248, 246, 0.92)",
+    border: "1px solid #e3eeea",
+    borderRadius: "14px",
+    padding: "10px 12px",
+    display: "grid",
+    gap: "4px",
+  },
+  metricLabel: {
+    color: "#60756f",
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    fontWeight: "700",
+  },
+  metricValue: {
+    color: "#17342d",
+    fontSize: "15px",
+    lineHeight: 1.35,
+  },
+  cardActions: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "10px",
+    alignItems: "center",
   },
   select: {
     padding: "12px 14px",
@@ -272,7 +383,17 @@ const styles = {
     background: "#ffffff",
     color: "#17342d",
     fontWeight: "600",
-    alignSelf: "start",
+    minWidth: 0,
+  },
+  detailButton: {
+    padding: "12px 14px",
+    borderRadius: "14px",
+    border: "1px solid #d5e1dc",
+    background: "#eff7f3",
+    color: "#17342d",
+    fontWeight: "700",
+    cursor: "pointer",
+    width: "100%",
   },
   footer: {
     display: "flex",

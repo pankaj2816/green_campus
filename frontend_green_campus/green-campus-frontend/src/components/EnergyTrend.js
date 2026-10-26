@@ -16,6 +16,16 @@ export default function EnergyTrend({ trendData, darkMode = false }) {
   const energy = trendData.map((item) => item.energy);
   const solar = trendData.map((item) => item.solar);
   const net = trendData.map((item) => item.net);
+  const latest = trendData[trendData.length - 1];
+  const previous = trendData.length > 1 ? trendData[trendData.length - 2] : null;
+  const deltaText = (current, before) => {
+    if (before === null || before === undefined) {
+      return "Baseline point";
+    }
+    const diff = Number(current || 0) - Number(before || 0);
+    const direction = diff > 0 ? "up" : diff < 0 ? "down" : "flat";
+    return `${direction} ${Math.abs(diff).toLocaleString()} kWh vs last point`;
+  };
 
   const data = {
     labels,
@@ -29,6 +39,8 @@ export default function EnergyTrend({ trendData, darkMode = false }) {
         fill: true,
         pointRadius: 3,
         pointHoverRadius: 5,
+        pointBackgroundColor: "#f59e0b",
+        pointBorderWidth: 0,
       },
       {
         label: dashboardCopy.chart.trendSeries.solar,
@@ -39,6 +51,8 @@ export default function EnergyTrend({ trendData, darkMode = false }) {
         fill: true,
         pointRadius: 3,
         pointHoverRadius: 5,
+        pointBackgroundColor: "#65a30d",
+        pointBorderWidth: 0,
       },
       {
         label: dashboardCopy.chart.trendSeries.net,
@@ -49,6 +63,8 @@ export default function EnergyTrend({ trendData, darkMode = false }) {
         fill: true,
         pointRadius: 3,
         pointHoverRadius: 5,
+        pointBackgroundColor: "#0284c7",
+        pointBorderWidth: 0,
       },
     ],
   };
@@ -134,6 +150,23 @@ export default function EnergyTrend({ trendData, darkMode = false }) {
       <p style={{ ...styles.subtitle, color: subtitleColor }}>
         {dashboardCopy.chart.trendSubtitle}
       </p>
+      <div style={styles.summaryGrid}>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Latest Energy</span>
+          <strong style={styles.summaryValue}>{Number(latest?.energy || 0).toLocaleString()} kWh</strong>
+          <span style={styles.summaryNote}>{deltaText(latest?.energy, previous?.energy)}</span>
+        </div>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Latest Solar</span>
+          <strong style={styles.summaryValue}>{Number(latest?.solar || 0).toLocaleString()} kWh</strong>
+          <span style={styles.summaryNote}>{deltaText(latest?.solar, previous?.solar)}</span>
+        </div>
+        <div style={styles.summaryCard}>
+          <span style={styles.summaryLabel}>Latest Net Grid</span>
+          <strong style={styles.summaryValue}>{Number(latest?.net || 0).toLocaleString()} kWh</strong>
+          <span style={styles.summaryNote}>{deltaText(latest?.net, previous?.net)}</span>
+        </div>
+      </div>
       <div style={styles.chartWrap}>
         <Line data={data} options={options} />
       </div>
@@ -172,6 +205,39 @@ const styles = {
     color: "#35514a",
     fontSize: "12px",
     fontWeight: "700",
+  },
+  summaryGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))",
+    gap: "10px",
+    marginBottom: "16px",
+  },
+  summaryCard: {
+    background: "linear-gradient(180deg, rgba(255,255,255,0.98), rgba(243,249,246,0.92))",
+    borderRadius: "16px",
+    padding: "12px 14px",
+    border: "1px solid rgba(160, 190, 180, 0.18)",
+    boxShadow: "0 10px 22px rgba(12, 24, 21, 0.04)",
+    display: "grid",
+    gap: "4px",
+  },
+  summaryLabel: {
+    color: "#60756f",
+    fontSize: "11px",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    fontWeight: "800",
+  },
+  summaryValue: {
+    color: "#17342d",
+    fontSize: "20px",
+    lineHeight: 1.2,
+    letterSpacing: "-0.03em",
+  },
+  summaryNote: {
+    color: "#60756f",
+    fontSize: "12px",
+    lineHeight: 1.45,
   },
   chartWrap: {
     height: "360px",
