@@ -1,0 +1,337 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs,array}
+\usepackage{cite}
+\usepackage[hidelinks]{hyperref}
+\newcommand{\pos}[1]{\left[#1\right]_{+}}
+\title{MGCD: An Auditable Multi-Resource Dashboard for Campus Sustainability Planning}
+\author{\IEEEauthorblockN{Author Names to Be Added}
+\IEEEauthorblockA{Departments and Affiliations to Be Added\\
+City, Country\\Corresponding Author Email to Be Added}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Campus utility records are often maintained in separate spreadsheets, making management indicators difficult to trace to their inputs. This paper presents the MAHE Green Campus Dashboard, a web-based planning system for electricity, water, waste, and solar records. Its contribution is an auditable analytical workflow rather than a new prediction algorithm. Four compatible workbook versions, containing 8,980 resource records in aggregate, were independently reconciled through import, calculation, and export--reimport checks. An additional Building Data Genome 2 study examined actual hourly readings for five header-matched buildings; two had an entirely missing resource. The qualified three-building subset contained 518 shared complete days and 4,662 daily resource records. Verification exposed misleading missing-waste scoring, month-only readiness, and unsupported occupancy adjustment. Following correction, 55 backend tests, 28 frontend tests, and 18 public-data workflow check groups passed. On previously inspected chronological cases, one-day electricity WAPE decreased from 22.242\% to 6.763\% by adopting the previous-week baseline. This result matches that baseline and is post-correction regression evidence, not an untouched-test demonstration of model superiority. The study also identifies a thousand-fold sample-water discrepancy and temporal-netting sensitivity. Measurement semantics, site-specific factors, data licensing, and an independent predictive evaluation remain prerequisites for operational or generalization claims.
+\end{abstract}
+
+\begin{IEEEkeywords}
+campus sustainability, decision support, data verification, resource monitoring, seasonal forecasting
+\end{IEEEkeywords}
+
+\section{Introduction}
+An electricity total is easy to display. Explaining whether it represents gross consumption, grid purchases, or consumption after solar adjustment is more difficult. Similar ambiguities arise when water records mix liters and kiloliters, when a blank waste sheet is interpreted as zero waste, or when a yearly sustainability score is compared with a monthly score. These are not merely presentation problems. They change the conclusions that a facility manager may draw from the same records.
+
+Campus dashboards already support energy and water monitoring in operational settings, including the public dashboards maintained by the University of California San Diego \cite{ucsd}. SmartEle demonstrates interactive exploration of campus electricity patterns \cite{smartele}, while more recent work at the University of Algarve combines electrical monitoring, forecasting, and anomaly detection \cite{sousa}. The existence of such systems means that displaying campus consumption is not itself a research contribution. A useful systems contribution must specify how records become indicators and how that transformation is checked.
+
+This paper presents the MAHE Green Campus Dashboard (MGCD), a prototype intended to support campus sustainability planning. Its institutional label identifies the application, not a completed field trial or an independently verified institutional inventory. The implementation accepts spreadsheet records and exposes five working views: Overview, Intelligence, Planning Studio, Governance, and Executive Report. It is designed for facilities staff and management users who need both a compact summary and a way to inspect the assumptions behind it.
+
+The study addresses three questions. First, can imported records, filtered indicators, and exports be reconciled independently? Second, do settings and scenarios propagate without modifying historical readings? Third, what does an actual public-data evaluation reveal that successful arithmetic checks do not? The contributions are:
+\begin{enumerate}
+\item an integrated, inspectable workflow connecting four resource streams to planning indicators and governance records;
+\item an explicit specification of the implemented aggregation, scoring, forecasting, and scenario calculations; and
+\item local workbook reconciliation and a public-data diagnostic study separating software correctness, missing-data coverage, and predictive performance.
+\end{enumerate}
+No claim is made that the prototype reduces campus consumption, outperforms forecasting baselines, or constitutes a certified greenhouse-gas inventory.
+
+\section{Related Work and Study Position}
+\subsection{Campus Monitoring and Feedback}
+Jing et al. developed SmartEle to explore spatial and temporal differences in electricity consumption across campus user groups \cite{smartele}. Their work supports the importance of interactive inspection rather than a single campus-wide total. MGCD uses building and date selectors for a related operational need, but adds water, waste, scenario inputs, and settings history. This comparison concerns system scope; it is not an experimental performance comparison.
+
+Sousa et al. describe a campus monitoring architecture with electrical telemetry, Prophet-based forecasting, and a hybrid anomaly-detection layer \cite{sousa}. Their metered deployment differs substantially from the workbook-based verification reported here. MGCD's device registry records operational readiness, but it does not demonstrate an equivalent acquisition network. Consequently, the present evaluation concentrates on data transformations that can be reproduced without installed hardware.
+
+\subsection{Forecasting and Accounting Requirements}
+Building-load prediction can use occupancy, environmental measurements, and calendar variables. Candanedo et al. investigated measured appliance demand using several data-driven models \cite{candanedo}. MGCD does not implement or evaluate those models in its active path. Following the diagnostic study, it uses a seasonal-reference baseline and presents academic-activity multipliers as a separate what-if scenario. An assumed campus calendar is not equivalent to a measured predictor.
+
+Hyndman and Athanasopoulos distinguish forecast evaluation from training fit and describe seasonal-naive baselines, rolling origins, and prediction intervals \cite{fpp}. These distinctions guide the time-ordered diagnostic experiment here. Because the corrected method was informed by the inspected results, its repeated-data evaluation is not described as an independent untouched test.
+
+The Building Data Genome Project 2 (BDG2) provides public building-meter records for reproducible analysis \cite{bdg2}. The present study uses a qualified subset, not the entire release, and does not equate its anonymous building identifiers with a MAHE deployment. Source-file coverage and physical interpretation are evaluated separately from numerical import compatibility.
+
+The GHG Protocol Scope 2 Guidance addresses emissions associated with purchased electricity and distinguishes accounting approaches and factor selection \cite{ghg}. MGCD's fixed-factor electricity estimate does not implement the full requirements of that guidance. In particular, period-level solar subtraction is not a substitute for verified grid-import records or contractual evidence. The application therefore needs to be interpreted as a planning tool rather than a regulatory accounting product.
+
+\section{System Design}
+\subsection{Architecture and Persistent State}
+The browser interface is implemented in React. A FastAPI service provides authenticated endpoints, and SQLAlchemy separates application logic from database access. PostgreSQL is used by the hosted configuration; the verification study uses isolated SQLite databases. Resource readings, users, dashboard preferences, device records, and audit events are persistent entities. Historical records are kept separate from editable planning assumptions.
+
+Figure~\ref{fig:architecture} summarizes the implemented flow. Imports are first parsed and validated. An accepted workbook replaces the resource dataset and creates an audit event within one transaction. Analytical services then apply the selected building and date window. Their outputs are collected into a dashboard response; a failed section is reported without suppressing all other sections. Export returns resource records and their timestamps for subsequent inspection or re-import.
+
+\begin{figure}[t]
+\centering
+\setlength{\fboxsep}{6pt}
+\fbox{\begin{minipage}{0.88\columnwidth}\centering
+Workbook records\\
+$\downarrow$\\
+Validation and explicit unit handling\\
+$\downarrow$\\
+Transactional database update + audit event\\
+$\downarrow$\\
+Building/date scope and analytical services\\
+$\downarrow$\\
+Overview / Intelligence / Planning / Governance\\
+$\downarrow$\\
+Executive presentation and Excel export
+\end{minipage}}
+\caption{Implemented analytical workflow. Device readiness is a registry alongside this workflow, not an evaluated telemetry-ingestion channel.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Input Contract and Validation}
+Every resource sheet associates a timestamp and building with a nonnegative quantity. The required sheets are \texttt{energy} and \texttt{water}; \texttt{solar} and \texttt{waste} are optional. Electricity and solar quantities are expressed in kWh, water in kl, and waste in kg. A water column explicitly named \texttt{water\_liters} is divided by 1,000. Values labeled \texttt{water\_kl} are not rescaled according to magnitude.
+
+Validation rejects malformed workbooks, absent required columns, empty required sheets, invalid dates, nonfinite or negative readings, and duplicate resource keys. The usual duplicate key is timestamp--building; waste type is included when supplied. An optional sheet may be absent or contain headers without data. These rules prevent silent partial replacement, but they cannot determine whether a plausible numeric value is physically correct. A properly formatted but incorrectly labeled unit can still pass.
+
+\subsection{Interaction and Governance}
+Overview presents resource totals, comparisons, and building performance. Intelligence groups forecasts, risk indicators, anomalies, and seasonal guidance. Planning Studio supports scenarios, targets, and action status. Governance contains assumptions, occupancy context, data quality, device readiness, and audit history. Executive Report provides a management-oriented presentation without the explanatory material used in the interactive interface.
+
+Administrator-only operations include replacing or resetting resource data and modifying settings or devices. Viewer permissions allow inspection without those writes. The recommendation workflow records states such as planned, in progress, and completed. It does not infer that a completed task caused a reduction in consumption. Audit events record the actor and action; settings events include changed values. These database records support traceability but are not an externally immutable log.
+
+\section{Analytical Methods}
+\subsection{Scope and Resource Aggregation}
+Let $\mathcal{R}_r(b,T)$ denote records for resource $r$, building scope $b$, and inclusive date window $T$. The selected total is
+\begin{equation}
+Q_r(b,T)=\sum_{i\in\mathcal{R}_r(b,T)}q_i.
+\end{equation}
+The building restriction is omitted for campus scope. Invalid date strings are rejected; reversed valid boundaries are normalized for filtering. Denote gross energy by $E$, solar generation by $S$, water by $W$, and waste by $Z$. With $\pos{x}=\max(x,0)$, the current planning estimates are
+\begin{align}
+E_{\mathrm{net}}&=\pos{E-S},\\
+S_{\mathrm{surplus}}&=\pos{S-E}.
+\end{align}
+They are window-level arithmetic estimates. They do not establish instantaneous self-consumption, storage behavior, or permission to export electricity.
+
+\subsection{Carbon and Cost}
+For a configurable emission factor $f$ and electricity rate $p$,
+\begin{align}
+C_{\mathrm{gross}}&=fE, & C_{\mathrm{net}}&=fE_{\mathrm{net}},\\
+C_{\mathrm{solar}}&=f\min(E,S), & K_T&=pE_{\mathrm{net}}.
+\end{align}
+Carbon outputs are in kg when $f$ is in kg/kWh. Division by 1,000 gives tonnes. The evaluated defaults are $f=0.82$ kg/kWh and $p=8$ INR/kWh. They are software assumptions, not factors newly established for a particular grid, reporting year, or utility contract.
+
+The displayed monthly cost is $K_T/M$, where $M$ is the number of distinct covered calendar months across the selected resource records, with a minimum denominator of one. This is a bucket-based average, not a prorated bill. A short selection crossing a month boundary can count as two months. Changing $p$ affects estimated cost without rewriting readings.
+
+\subsection{Green Index and Building Ranking}
+The dashboard's Green Index is a configurable resource-pressure score, not an externally standardized university rating. For $x=(E_{\mathrm{net}},W,Z)$, positive benchmarks $B_r$, and the set $\mathcal{A}$ of available resource components,
+\begin{equation}
+G=100\left(1-\frac{\sum_{r\in\mathcal{A}}w_r\min(x_r/B_r,1)}{\sum_{r\in\mathcal{A}}w_r}\right).
+\label{eq:green}
+\end{equation}
+Default benchmarks are 100,000 kWh, 20,000 kl, and 30,000 kg; weights are 0.5, 0.3, and 0.2. An unavailable component is excluded, whereas a measured zero remains available. The response identifies a partial score and lists unavailable resources. No available positive weight produces an unassessed result. Partial and complete scores are not directly comparable. Capping a ratio limits outliers but makes consumption beyond a benchmark indistinguishable within that component.
+
+Building ranking uses a different normalization. For buildings in the current comparison set $\mathcal{B}$,
+\begin{equation}
+R_b=\sum_r w_r\frac{x_{b,r}}{\max_{j\in\mathcal{B}}x_{j,r}},
+\end{equation}
+with a denominator of one when all values for that resource are zero. Buildings are sorted by increasing $R_b$. This ranks absolute resource pressure relative to the selected peers; it does not adjust for floor area, function, or building occupancy. It must not be equated with the Green Index or a causal measure of operational efficiency.
+
+\subsection{Comparisons and Occupancy Context}
+For a date window of $n$ inclusive days, the baseline is the immediately preceding $n$ days. Absolute change is current minus previous; percentage change divides that difference by a nonzero previous value. The interface suppresses measured-change claims when observations are absent, Green Index assessed sets differ, or solar availability changes the net-energy accounting basis. Legacy arithmetic fields remain in the API alongside an explicit comparability flag.
+
+Each calendar month has an editable activity factor $a_m$. A value of one represents the reference activity level; 0.5 represents half that reference activity in the planning model. It is not a measured statement that half of all students are present. The summary averages factors once per covered month and combines that average with campus population for per-student indicators. When only one building is selected, the current denominator still comes from campus context, which limits building-level interpretation.
+
+\subsection{Cycle Forecasting and Spread Bands}
+The active implementation supports daily, monthly, seasonal, and yearly aggregation with horizons of 14 days, 12 months, 8 seasons, and 5 years. Daily cycles use weekdays; monthly cycles use month-of-year; seasonal cycles use Winter, Summer, Monsoon, and Post-Monsoon. December is assigned to the following winter year.
+
+Let $q_t$ denote an observed aggregate, $t_0$ the last observed period, and $s$ the cycle length: seven days, twelve months, four seasons, or one year. For target $t=t_0+h$, the reference is
+\begin{equation}
+r(t)=t-s\left\lceil\frac{t-t_0}{s}\right\rceil.
+\end{equation}
+The prediction is $\widehat q_t=\max(q_{r(t)},0)$ when that reference was observed. Otherwise it uses the mean of up to eight recent observations in the same calendar cycle, or up to eight recent observations overall if none match. Missing dates are not treated as observed zeros, and genuine zero references are preserved. Records are sorted before identifying $t_0$. Empty history produces no forecast points.
+
+Assumed occupancy is separated from the baseline. For energy, water, and waste, a what-if value is $\widehat q_t a_t/\bar a_{\mathrm{hist}}$, where the denominator averages configured month factors over historical input records. Solar is not adjusted. A zero denominator disables the adjustment. This proportional scenario is not a learned occupancy response and can still duplicate seasonal influences; it is labeled as an assumption rather than substituted for the baseline.
+
+Spread bands are formed as
+\begin{equation}
+L_h=\max(\widehat q_h-d_h,0),\qquad U_h=\widehat q_h+d_h,
+\end{equation}
+where $d_h=e_{0.9}\sqrt{\max(1,h/s)}$. The term $e_{0.9}$ is the nearest-rank 90th empirical percentile of absolute earlier seasonal-reference errors, using up to 56 cases after an initial cycle-length warm-up. Each earlier prediction uses only its preceding observations. With insufficient error history, observed standard deviation replaces $e_{0.9}$. This percentile and horizon scaling are engineering rules, not calibration guarantees; no nominal confidence level is asserted. Values are rounded for presentation.
+
+\subsection{Risk, Recommendations, and Scenarios}
+Energy risk combines projected growth, historical range relative to a baseline mean, and spread width. Growth above 8\% or 18\%, volatility above 18\% or 35\%, and a spread above 30\% add rule-based points. Scores of at least four indicate high risk; at least two indicate medium risk. Assumed occupancy adds no points or causal demand explanation when it was not applied to the baseline. Risk uses the final forecast point; projected net energy subtracts the solar forecast with the matching label. This indicator is not a probability of failure or excess demand.
+
+Daily anomalies compare recent readings with a baseline and generate inspection recommendations. Suggested savings are heuristics, not measured outcomes. Recommendations may overlap and therefore cannot be summed as independent guaranteed benefits.
+
+For the insight anomaly rule, at least five daily values are required. The newest daily value is compared with the mean of the preceding four available daily values. A nonzero baseline permits a percentage deviation; the default attention and high-severity thresholds are 15\% and 30\%. These are available observation days, not necessarily consecutive calendar days. A zero baseline currently returns zero deviation, which can miss the onset of a new load. Some operational alert rules use separate fixed thresholds, so editing an insight threshold does not uniformly retune every alert.
+
+For reduction fractions $u_e,u_w,u_z$ and solar-increase fraction $v_s$, a scenario computes
+\begin{align}
+E'&=E(1-u_e), & W'&=W(1-u_w),\\
+Z'&=Z(1-u_z), & S'&=S(1+v_s).
+\end{align}
+Net energy, carbon, cost, and Green Index are recomputed from these projected totals. Reductions are constrained to 0--100\%, and solar increase to 0--1,000\%. The simulator does not optimize interventions, model installation cost, or predict financial payback.
+
+\subsection{Data Quality and Device Readiness}
+Cadence is inferred per building from scoped resource history. At least four distinct timestamps are needed. Calendar-aligned monthly records take precedence; otherwise hourly or daily cadence requires aligned gaps with at least two unit steps comprising at least 60\% of gaps. Ambiguous cadence remains unknown. For a declared window, unique observed slots are compared with expected slots, including boundary gaps; missing counts and longest runs are exposed. These rules do not establish sensor calibration, commissioning dates, or unseen-building inventories.
+
+For known cadence, a resource score assigns 50 points to interval coverage, 30 to strictly positive values, and 20 to nonduplicate records. Unknown coverage is excluded and the two remaining health components are rescaled; unknown status remains explicit. Missing required resources receive zero. Required-resource scores carry 75\% and available optional scores 25\%; if no optional data exists, required resources carry all weight. Absent optional resources earn no credit. Measured zeros may require review, not rejection.
+
+Month-history availability is the minimum required-resource observed month count divided by twelve, capped at 100\%. Readiness is the smaller of this value and the lowest required-resource building interval coverage. Unknown required cadence or missing required readings gives zero readiness. Neither readiness nor the quality score establishes forecast accuracy.
+
+Device readiness assigns base scores of 100, 65, 55, 40, and 15 to healthy, warning, manual, planned, and offline states. A sync is stale when its age exceeds the larger of twice the expected frequency and 60 minutes. Staleness reduces the base score by 20, with a floor of 10; missing synchronization caps it at 40. The registry summary averages device scores. Only a healthy device with an acceptable sync state is counted as healthy. Since these timestamps and states can be entered manually, readiness is a maintenance indicator rather than evidence of measured telemetry completeness.
+
+\section{Evaluation Design}
+\subsection{Data and Reproducibility Boundary}
+The corrected implementation is commit \texttt{e5c8f20} \cite{repository}; pre-correction evidence is retained separately. Table~\ref{tab:data} distinguishes supplied workbook versions. Dataset A is a demonstration workbook with six building labels over 2025 and 2,190 rows per resource. Its field provenance is not independently established. Datasets B--D are related versions, not independent campuses. A separate BDG2 subset provides published observations for diagnostic evaluation.
+
+\begin{table}[t]
+\caption{Compatible Workbook Versions Used in Local Verification}
+\label{tab:data}
+\centering\footnotesize
+\begin{tabular}{lrrrr}
+\toprule
+Version & Energy & Water & Solar & Waste\\
+\midrule
+A: realistic demo & 2,190 & 2,190 & 2,190 & 2,190\\
+B: prepared workbook & 22 & 22 & 22 & 0\\
+C: original sample & 22 & 22 & 22 & absent\\
+D: backend copy & 22 & 22 & 22 & 22\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Across these versions, 8,980 resource records were processed. Two additional source files, with presentation-style or standalone solar layouts, were inspected and rejected for direct import because required resource sheets were missing. They were not counted as successfully imported datasets.
+
+\subsection{Public-Data Qualification}
+The electricity, water, solar, and metadata files were retrieved from BDG2 revision \texttt{9b97ccbe} \cite{bdgsource}. All four matched the publisher's SHA-256 file hashes; exact hashes are retained in the evidence package. The audit inspected all 17,544 hourly positions in each of fifteen candidate series, not every meter in the release. Timestamp labels span 2016--2017 without duplicate or missing hourly labels, but 43,000 of the 263,160 candidate reading cells are missing or nonfinite.
+
+Five identifiers intersected the three resource headers. Alissa had entirely missing water and Justine entirely missing solar. Coleman, Dylan, and Timothy had 649, 600, and 649 individually complete three-resource days. Eligibility required at least 180 complete days per building; this engineering threshold does not establish statistical sufficiency. A complete day required 24 finite nonnegative readings for each resource. Intersecting eligible dates retained 518 days, 70.862\% of the 731-day source window, noncontiguously between 3 January 2016 and 10 December 2017. No interpolation, missing-to-zero conversion, or outlier removal was applied. Published water liters were divided by 1,000 to obtain kl.
+
+The subset contains 1,554 daily records per measured resource, or 4,662 records, and no waste observations. It is an anonymous Bobcat-site subset, not MAHE data. Numeric zeros and extreme values remain diagnostic concerns: Coleman solar includes a 1,887-hour zero run, while Timothy water has 14,893 zero hourly positions. The source files alone cannot establish whether these are operational zeros or unavailable measurements. Publisher-released raw files are not independently calibrated instrument logs.
+
+\subsection{Independent Numerical Checks}
+The test harness reads source cells using openpyxl and calculates expected totals with Decimal arithmetic, separately from the application's pandas importer and analytics services. Tests import each compatible workbook into an isolated database, authenticate requests, and compare outputs against independent expectations. Checks include campus totals, every available building, selected date windows, reversed boundaries, previous-period totals, carbon, cost, scoring, and ranking. Display comparisons allow small rounding tolerances, commonly 0.011 in the output unit; aggregated-history checks allow 0.02.
+
+Each workbook is exported and re-imported. Timestamp--building--value sequences are compared with the original source rows, and summary calculations are checked again. This tests data preservation rather than merely checking that an export is a readable ZIP container. Duplicate workbook versions are retained only to exercise schema and missing-resource differences.
+
+\subsection{State Changes and Failure Cases}
+Scenario checks use 0\%, 25\%, and 100\% reductions, with matching solar increases, and independently recompute projected quantities. Settings tests change the rate from 8 to 12 INR/kWh, the carbon factor from 0.82 to 0.5 kg/kWh, and activity factors to 0.2. Cost, carbon, and occupancy what-if values respond, while historical totals and baseline forecasts remain unchanged by occupancy assumptions. Separate cases verify missing versus measured-zero waste and matching Green Index calculations across summary, compliance, and scenarios.
+
+Additional regressions cover invalid workbooks, protected operations, duplicate registration, concurrent administrator bootstrap, invalid settings, datetime boundaries, intraday records, device timestamps, audit atomicity, and section-level failures. Frontend tests cover error handling, loading and retry behavior, file validation state, explanatory overlays, keyboard interaction, and the distinction between no data and a genuinely measured zero.
+
+Forecast structural checks establish conservation of aggregated history, finite values, horizon length, and $0\leq L_h\leq\widehat q_h\leq U_h$. Calendar-cycle reference values, zero handling, unsorted input, gap fallbacks, year boundaries, and separation from occupancy assumptions are checked independently. No user study, sensor-calibration experiment, or measured intervention trial was performed.
+
+\subsection{Chronological Forecast Diagnostics}
+For each public-data resource, daily values were aggregated across the three eligible buildings on retained dates. The first 180 available complete days formed warm-up history. Origins occurred every seventh available day thereafter. Targets were one or seven calendar days later; a case required both an observed target and an observed target-minus-seven-day reference, with the reference no later than the origin. All comparators used identical cases: 44 at one day and 42 at seven days. Training used observations at or before the origin only.
+
+The initial diagnostic compared the previous cycle-mean predictor with default occupancy, a neutral-occupancy cycle mean, and a previous-week seasonal-naive baseline. The first method multiplied a historical cycle mean by the target configured activity factor divided by the mean of all twelve configured factors. Those factors were not measured for the external site. The corrected implementation was then rerun on the same cases. Thus, its results are post-correction regression evidence: the method choice was informed by the earlier benchmark, and cohort qualification used full-window availability. Neither constitutes an untouched prospective evaluation.
+
+For observed targets $y_i$ and predictions $\widehat y_i$, the reported metric is
+\begin{equation}
+\mathrm{WAPE}=100\frac{\sum_i|y_i-\widehat y_i|}{\sum_i|y_i|}.
+\end{equation}
+A zero denominator would be reported as undefined. MAE, RMSE, and empirical spread coverage are retained in the evidence files. No parameter search or claim of statistical significance is made.
+
+\section{Results}
+\subsection{Numerical Reconciliation}
+Table~\ref{tab:results} reports independently reconciled results for representative workbooks using default factors. All specified scope and state-change cases passed on the corrected implementation. The full suite comprised 55 backend and 28 frontend tests, and the production build succeeded. Eighteen additional public-data workflow check groups passed, covering import, independent calculations, comparisons, forecast structures, scenarios, audit records, export/reimport, duplicate rejection, and isolated reset. These groups overlap suite functionality and are not added to test counts as independent experiments.
+
+\begin{table}[t]
+\caption{Reconciled Whole-Window Results with Default Assumptions}
+\label{tab:results}
+\centering\footnotesize
+\begin{tabular}{p{0.39\columnwidth}rr}
+\toprule
+Metric & Demo A & Prepared B\\
+\midrule
+Energy (kWh) & 359,526.80 & 4,196,128.00\\
+Solar (kWh) & 209,750.63 & 348,087.00\\
+Net energy (kWh) & 149,776.17 & 3,848,041.00\\
+Water (kl) & 25,391.75 & 37,401.00\\
+Waste (kg) & 20,332.68 & not recorded\\
+Net carbon (kg) & 122,816.46 & 3,155,393.62\\
+Monthly cost (INR) & 99,850.78 & 1,399,287.64\\
+Green Index & 6.44 & 0.00 (partial)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For Dataset A, 359,526.80 minus 209,750.63 gives 149,776.17 kWh. Multiplication by 0.82 gives 122,816.46 kg of modeled carbon after rounding. Dividing the period cost by twelve covered months gives 99,850.78 INR/month. This worked reconciliation is useful because a displayed percentage or dial alone does not reveal the accounting basis.
+
+The BDG2 subset reconciled to 3,393,627.19 kWh electricity, 166,220.59 kWh solar, 42,950.05 kl water, and 3,227,406.60 kWh application net energy. Applying the default carbon factor gives 2,646,473.41 kg. These totals cover only retained days; the carbon factor, INR tariff, population, and area defaults are not verified external-site values. They test formulas rather than establish a local emissions inventory or bill.
+
+\subsection{Forecast Diagnostics and Correction}
+Table~\ref{tab:forecast} shows WAPE before and after correction. The previous-week baseline was better than the former occupancy-adjusted predictor in every resource/horizon comparison. For one-day electricity, removing occupancy alone reduced the original cycle-mean WAPE from 22.242\% to 7.464\%; the previous-week baseline reached 6.763\%. Assumed academic activity therefore cannot be credited with predictive value at this site.
+
+\begin{table}[t]
+\caption{Paired Daily Forecast WAPE (\%); Repeated-Data Diagnostics}
+\label{tab:forecast}
+\centering\footnotesize
+\begin{tabular}{llrrr}
+\toprule
+Resource & Horizon & Former & Corrected & Week-naive\\
+\midrule
+Electricity & 1 day & 22.242 & 6.763 & 6.763\\
+Electricity & 7 days & 21.535 & 5.774 & 5.774\\
+Water & 1 day & 51.612 & 12.596 & 12.595\\
+Water & 7 days & 46.540 & 12.807 & 12.806\\
+Solar & 1 day & 44.243 & 34.132 & 34.132\\
+Solar & 7 days & 41.757 & 28.807 & 28.807\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The corrected method deliberately reproduces the seasonal-naive reference where available; it does not outperform that baseline. Small water differences follow two-decimal output rounding. One-day electricity MAE decreased from 1,306.2318 to 397.1591 kWh. Corrected spread coverage was 88.636\% for all one-day resources, 95.238\% for seven-day electricity/water, and 92.857\% for seven-day solar. These are empirical results for this cohort, not a calibrated nominal interval guarantee. No predictive-accuracy result is claimed for monthly, seasonal, or yearly modes.
+
+\subsection{Coverage and Missing-Resource Effects}
+The filtered BDG2 records touch all 24 calendar months, but contain only 1,554 of 2,124 expected building-days per measured resource between their first and last retained dates. Interval coverage is therefore 73.2\%, with 570 missing building-days and a longest gap of 31 days. This within-import-window denominator differs from the full-source 731-day denominator used for the 70.862\% selection fraction. The corrected quality score fell from 97.6 to 84.2, and readiness from 100\% to 73.2\%, while month-history availability remained 100\%.
+
+The previous Green Index awarded 20 points when electricity and water reached their benchmark and waste was absent. Equation~\ref{eq:green} now normalizes only the available weights: $(0.5+0.3)/(0.5+0.3)=1$ pressure, yielding zero and a partial label. A genuine measured-zero waste series would remain a complete score of 20. This is an intentional distinction between missing evidence and measured performance.
+
+\subsection{Format Validity Versus Unit Validity}
+Related original workbooks contain 37,401,000 under the header \texttt{water\_kl}, while the prepared workbook contains 37,401 for the corresponding water series. Both are structurally compatible. Their thousand-fold difference demonstrates that passing schema checks does not establish unit validity. The review did not automatically relabel or alter original records. Resolving the discrepancy requires a source document or meter-unit confirmation.
+
+The Green Index does not reveal the full extent of this error: both water totals exceed the default benchmark, so the capped water contribution is identical. A stable composite score can therefore coexist with a large input error. Resource totals and quality warnings must remain available alongside the composite indicator.
+
+\subsection{Temporal Netting Sensitivity}
+For intervals $t$ that partition a selected period,
+\begin{equation}
+\sum_t\pos{E_t-S_t}\geq\pos{\sum_t(E_t-S_t)}.
+\end{equation}
+In Dataset A, whole-year netting gives 149,776.17 kWh; separately netted monthly totals sum to 151,841.91 kWh; separately netted daily totals sum to 152,199.35 kWh. The annual--monthly difference is 2,065.74 kWh. These values all follow their stated formulas, yet answer different questions about temporal offsetting. The result argues for an explicit accounting boundary, not for treating one aggregation as a universally correct meter reading.
+
+\subsection{Corrections Exposed by Verification}
+Verification corrected several misleading states. Empty selections no longer mark goals as achieved. Missing required readings generate an insufficient-data alert, and rejected sheets are marked as needing attention. Interval gaps now constrain readiness, absent waste earns no index credit, and unsupported occupancy assumptions are separated from baseline predictions. Incomparable periods no longer receive improvement labels. These changes preserve historical source readings while correcting how evidence is interpreted.
+
+These corrections are distinct from changes to the scientific model. They prevent absent or rejected evidence from appearing as favorable operational performance. They also illustrate why status text deserves verification alongside numerical outputs.
+
+\section{Discussion and Limitations}
+The evaluated contribution is an inspectable analytical workflow with reproducible software checks. It is not a field-validated sustainability intervention. Six limits are particularly relevant to interpreting the results.
+
+First, dataset provenance and measurement semantics remain unresolved. A source quantity must be identified as interval consumption or a cumulative counter before summation is meaningful. Passing tests against a source file reproduces that file; it does not certify the underlying meter.
+
+Second, the current netting policy can offset solar surplus across time. Interval grid-import/export measurements, an approved tariff model, and a declared reporting boundary are needed before cost or carbon values can support billing or formal inventory claims. Export-ready days indicate arithmetic surplus only.
+
+Third, the Green Index still combines absolute benchmarks across selected windows and scopes. Longer windows naturally accumulate more consumption. Excluding missing waste removes false component credit, but a partial score describes a different resource set. Period-normalized benchmarks and function/area-adjusted comparisons remain necessary. Peer rankings retain their separate absolute-pressure formula and are not certified efficiency ratings.
+
+Fourth, the forecast experiment uses one anonymous-site aggregate and a retrospectively quality-conditioned subset. Post-correction results reuse inspected targets; a new frozen protocol and unseen site/time data are needed for generalization claims. Bands are heuristic and have no stated probability coverage. Sparse monthly inputs cannot establish daily dynamics; incomplete grouped periods can distort baseline references. Separate occupancy scenarios remain proportional assumptions rather than learned responses.
+
+Fifth, building rankings use absolute quantities and campus-context denominators. They cannot establish that a laboratory is less efficient than a smaller office. Building area, operating hours, function, and occupancy need separate treatment. Likewise, recommendations are inspection prompts rather than demonstrated causes, and scenario savings exclude implementation feasibility and capital cost.
+
+Finally, local database tests do not establish production availability, PostgreSQL concurrency behavior, immutable auditing, or authenticated sensor delivery. Device readiness is descriptive registry state. BDG2 has no matched waste observations in this cohort, and source license/version clarification is required before redistributing adapted records. A campus pilot must verify arrival timestamps, identity, calibration, missing intervals, and bill reconciliation. No user-satisfaction or managerial decision-quality result is claimed.
+
+\section{Conclusion}
+MGCD integrates resource records, inspectable planning calculations, and governance workflows. Four workbook versions were reconciled through independent arithmetic and export--reimport checks; 55 backend tests, 28 frontend tests, and 18 public-data workflow check groups passed. Actual BDG2 readings revealed entirely missing series, overstated readiness, missing-waste score credit, and an occupancy-adjusted predictor that lost to a simple baseline. Correcting the implementation reduced one-day electricity WAPE to 6.763\% on repeated chronological cases by matching that baseline, not by demonstrating a new predictive method.
+
+The contribution is a reproducible decision-support and verification foundation. The next evaluation should resolve provenance and licensing, establish interval accounting, calibrate building/period benchmarks, and freeze an independent predictive test. Those steps are necessary before claiming operational savings, calibrated uncertainty, or institutional-scale validity.
+
+\section*{Data and Code Availability}
+The corrected implementation is archived by repository commit \texttt{e5c8f20} \cite{repository}. The evidence package retains separate pre-/post-correction JSON results, source hashes, verification scripts, and limitations. BDG2 files are pinned to revision \texttt{9b97ccbe} \cite{bdgsource}; original downloads and derived reading files are not redistributed with this study. The repository license uses Attribution-ShareAlike wording, while the Zenodo archive metadata reports CC BY 4.0. Applicable version and permissions must be clarified before adapted-record redistribution; article access does not itself resolve data-license scope. Repository workbook provenance and institutional-label permissions also require author confirmation. No personal login records are reported.
+
+\section*{Acknowledgment of AI Assistance}
+OpenAI Codex assisted with drafting and revising Sections I--VIII, describing implemented methods, creating verification scripts, and organizing the numerical results and documentation. Human authors must review the manuscript, check references and results, and accept responsibility for submission. This disclosure must be confirmed against the actual assistance and target venue requirements; it does not imply that unnamed co-authors have approved this draft.
+
+\IEEEtriggeratref{4}
+\begin{thebibliography}{9}
+\bibitem{ucsd} University of California San Diego, Facility Services, ``Energy and water dashboards.'' Accessed: Oct. 26, 2026. [Online]. Available: \url{https://facilityservices.ucsd.edu/resources/dashboards.html}
+\bibitem{smartele} C. Jing, S. Guo, H. Zhang, X. Lv, and D. Wang, ``SmartEle: Smart electricity dashboard for detecting consumption patterns: A case study at a university campus,'' \emph{ISPRS Int. J. Geo-Inf.}, vol. 11, no. 3, Art. no. 194, 2022, doi: 10.3390/ijgi11030194.
+\bibitem{sousa} \^{A}. Sousa, P. J. S. Cardoso, and J. Monteiro, ``Smart energy monitoring for sustainable campuses: A hybrid anomaly detection approach based on Prophet and Isolation Forest,'' \emph{Sustainability}, vol. 18, no. 5, Art. no. 2589, 2026, doi: 10.3390/su18052589.
+\bibitem{candanedo} L. M. Candanedo, V. Feldheim, and D. Deramaix, ``Data driven prediction models of energy use of appliances in a low-energy house,'' \emph{Energy Build.}, vol. 140, pp. 81--97, 2017, doi: 10.1016/j.enbuild.2017.01.083.
+\bibitem{fpp} R. J. Hyndman and G. Athanasopoulos, \emph{Forecasting: Principles and Practice}, 3rd ed. Melbourne, Australia: OTexts, 2021. Accessed: Oct. 26, 2026. [Online]. Available: \url{https://otexts.com/fpp3/}
+\bibitem{ghg} World Resources Institute and World Business Council for Sustainable Development, \emph{GHG Protocol Scope 2 Guidance}, 2015. Accessed: Oct. 26, 2026. [Online]. Available: \url{https://ghgprotocol.org/scope-2-guidance}
+\bibitem{repository} MGCD project repository, ``Green campus,'' source snapshot \texttt{e5c8f20}, 2026. [Online]. Available: \url{https://github.com/pankaj2816/green_campus/tree/e5c8f20}
+\bibitem{bdg2} C. Miller \emph{et al.}, ``The Building Data Genome Project 2, energy meter data from the ASHRAE Great Energy Predictor III competition,'' \emph{Sci. Data}, vol. 7, Art. no. 368, 2020, doi: 10.1038/s41597-020-00712-x.
+\bibitem{bdgsource} BUDS Lab, ``Building Data Genome Project 2,'' data source revision \texttt{9b97ccbe}, accessed Oct. 26, 2026. [Online]. Available: \url{https://github.com/buds-lab/building-data-genome-project-2/tree/9b97ccbe}
+\end{thebibliography}
+\end{document}

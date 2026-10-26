@@ -112,7 +112,7 @@ Crucially, this is a **post-fix regression benchmark on previously inspected obs
 
 The backend suite prints existing SQLAlchemy UTC-deprecation warnings and a shutdown SQLite resource warning; these did not fail tests. The intentionally injected dashboard-section exception is a passing fault-isolation test, not an unexpected production error.
 
-Original evidence is retained in `external_bdg2_results.json`. New evidence is `external_bdg2_postfix_results.json`, including implementation file hashes. The original IEEE draft predates these corrections; its submission guide explicitly marks it for revision rather than silently presenting outdated methods as current.
+Original evidence is retained in `external_bdg2_results.json`. New evidence is `external_bdg2_postfix_results.json`, including implementation file hashes. A subsequent manuscript revision updates the IEEE TeX/PDF to these methods and results, while retaining the warning that the repeated-data benchmark is not an untouched external evaluation. Author and venue review remain required.
 
 From `D:\working_green_campus`:
 

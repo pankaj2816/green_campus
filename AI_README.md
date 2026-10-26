@@ -14,7 +14,7 @@ Current behavior supersedes earlier descriptions of occupancy-adjusted forecasts
 - Comparison deltas expose `comparable` and `comparison_note`. A false value means arithmetic deltas should not be presented as measured changes.
 - Evidence: `publication/BDG2_FIX_VALIDATION.md`, the original `external_bdg2_results.json` snapshot, and separate `external_bdg2_postfix_results.json`. External data remains in ignored `tmp/`; tests use isolated SQLite databases, not production.
 
-The IEEE PDF predates these corrections and must be revised before submission. The post-fix benchmark reuses inspected data and is not an untouched external-test claim.
+The IEEE TeX/PDF have been revised to describe these corrections and public-data diagnostics. Author details, permissions, venue adaptation and human approval remain pending. The post-fix benchmark reuses inspected data and is not an untouched external-test claim.
 
 It explains:
 
