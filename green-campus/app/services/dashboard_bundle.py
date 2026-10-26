@@ -15,7 +15,8 @@ from app.routers.energy import energy_by_building, energy_trend
 from app.services.alert_service import build_alert_overview
 from app.services.audit import serialize_audit_event
 from app.services.data_quality import build_data_quality_report
-from app.services.device_readiness import build_device_readiness_payload, list_or_seed_devices
+from app.services.date_filters import normalize_date_range
+from app.services.device_readiness import build_device_readiness_payload, list_devices
 from app.services.insights_service import generate_insights
 from app.services.seasonal_outlook import generate_seasonal_outlook
 
@@ -31,6 +32,7 @@ def build_dashboard_bundle(
     date_to: str | None = None,
     audit_limit: int = 12,
 ):
+    normalize_date_range(date_from, date_to)
     sections = {}
     errors = {}
     forecast_cache = {}
@@ -96,11 +98,12 @@ def build_dashboard_bundle(
     )
     forecast = capture("forecast", lambda: forecast_for(granularity))
     risk = capture("risk", lambda: evaluate_resource_risk(forecast or {}))
+    peers = capture("peers", lambda: calculate_building_performance(db, date_from=date_from, date_to=date_to)) if building and performance is not None else performance
     capture(
         "insights",
         lambda: generate_insights(
             db,
-            performance or [],
+            peers or [],
             forecast_payload=forecast or {},
             risk_data=risk or [],
             building=building,
@@ -112,7 +115,7 @@ def build_dashboard_bundle(
         "seasonal",
         lambda: generate_seasonal_outlook(
             summary or {},
-            forecast_for("seasonal"),
+            forecast_for("monthly"),
             building=building,
         ),
     )
@@ -137,7 +140,7 @@ def build_dashboard_bundle(
     )
     capture(
         "devices",
-        lambda: build_device_readiness_payload(list_or_seed_devices(db)),
+        lambda: build_device_readiness_payload(list_devices(db)),
     )
     capture(
         "audit",

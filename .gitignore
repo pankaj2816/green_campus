@@ -13,3 +13,4 @@ _live_frontend_bundle.js
 **/dist/
 frontend_green_campus/green-campus-frontend/.git_frontend_backup/
 output/pdf/*preview*.png
+/tmp/

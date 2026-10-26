@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.services.audit import serialize_audit_event
@@ -24,6 +24,7 @@ def get_assumptions(
 
 
 class SettingsRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     academic_occupancy_factors: dict | None = None
     campus_context: dict | None = None
     sustainability_goals: dict | None = None

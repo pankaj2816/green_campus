@@ -1,5 +1,5 @@
 from app.services.carbon import calculate_carbon
-from app.services.metrics_config import ENERGY_COST_PER_KWH
+from app.services.metrics_config import get_runtime_constants
 
 
 def evaluate_resource_risk(forecast_payload):
@@ -55,8 +55,13 @@ def evaluate_resource_risk(forecast_payload):
         risk_level = "LOW"
 
     trend_direction = "upward" if growth_percent > 0 else "downward" if growth_percent < 0 else "stable"
-    projected_cost = round(future * ENERGY_COST_PER_KWH, 2)
-    projected_carbon = round(calculate_carbon(future), 2)
+    constants = forecast_payload.get("metric_constants") or get_runtime_constants()
+    solar_payload = forecast_payload.get("solar", {})
+    solar_by_label = dict(zip(solar_payload.get("forecast_labels", []), solar_payload.get("forecast_values", [])))
+    energy_label = (energy_payload.get("forecast_labels") or [None])[-1]
+    projected_net = max(future - solar_by_label.get(energy_label, 0), 0)
+    projected_cost = round(projected_net * constants["energy_cost_per_kwh"], 2)
+    projected_carbon = round(calculate_carbon(projected_net, constants["emission_factor_kg_per_kwh"]), 2)
 
     if average_future_occupancy < 0.7:
         primary_driver = "Lower expected campus occupancy is moderating future demand."
@@ -76,6 +81,7 @@ def evaluate_resource_risk(forecast_payload):
         "occupancy_impact_percent": occupancy_impact_percent,
         "average_future_occupancy": round(average_future_occupancy, 2),
         "projected_energy": round(future, 2),
+        "projected_net_energy": round(projected_net, 2),
         "projected_energy_low": round(lower_values[-1], 2) if lower_values else round(future, 2),
         "projected_energy_high": round(upper_values[-1], 2) if upper_values else round(future, 2),
         "projected_cost": projected_cost,

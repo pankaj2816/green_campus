@@ -11,6 +11,9 @@ const goalFields = [
 ];
 
 function toneForStatus(status) {
+  if (status === "no_data" || status === "not_set") {
+    return { bar: "#64748b", badgeBg: "#f1f5f9", badgeText: "#475569", track: "#e2e8f0" };
+  }
   if (status === "on_track") {
     return {
       bar: "#1b7f62",
@@ -97,13 +100,17 @@ export default function StrategicGoalsPanel({ summaryData, settings, onSaved, on
                 onOpenDetail?.({
                   title: goal.label,
                   category: "Strategic Goal",
-                  summary: `Current ${goal.label.toLowerCase()} is ${goal.current} ${goal.unit}. Target is ${goal.target} ${goal.unit}.`,
+                  summary: goal.status === "no_data"
+                    ? "No readings are available in this scope and date window. Select a period with data before assessing this target."
+                    : `Current ${goal.label.toLowerCase()} is ${goal.current} ${goal.unit}. Target is ${goal.target} ${goal.unit}.`,
                   points: [
                     `Completion is ${goal.completion_percent}% toward the selected target.`,
                     goal.higher_is_better
                       ? "A higher value is better for this goal."
                       : "A lower value is better for this goal.",
-                    goal.status === "on_track"
+                    goal.status === "no_data"
+                      ? "This goal has not been assessed because readings are missing."
+                      : goal.status === "on_track"
                       ? "This goal is currently on track."
                       : "This goal needs attention in the current scope.",
                   ],
@@ -119,12 +126,12 @@ export default function StrategicGoalsPanel({ summaryData, settings, onSaved, on
                     color: tone.badgeText,
                   }}
                 >
-                  {goal.status === "on_track" ? "On track" : "Watch"}
+                  {goal.status === "no_data" ? "No data" : goal.status === "not_set" ? "Not set" : goal.status === "on_track" ? "On track" : "Watch"}
                 </span>
               </div>
               <div style={styles.goalMetricRow}>
                 <span style={styles.goalCurrent}>
-                  {goal.current} {goal.unit}
+                  {goal.status === "no_data" ? "Not assessed" : `${goal.current} ${goal.unit}`}
                 </span>
                 <span style={styles.goalTarget}>
                   Target {goal.target} {goal.unit}
@@ -134,7 +141,7 @@ export default function StrategicGoalsPanel({ summaryData, settings, onSaved, on
                 <div
                   style={{
                     ...styles.progressBar,
-                    width: `${Math.max(8, Math.min(goal.completion_percent, 100))}%`,
+                    width: `${Math.max(0, Math.min(goal.completion_percent, 100))}%`,
                     background: tone.bar,
                   }}
                 />

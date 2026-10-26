@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.models import EnergyData, SolarData, WasteData, WaterData
 from app.services.date_filters import apply_date_range
-from app.services.metrics_config import ACADEMIC_OCCUPANCY_FACTORS
+from app.services.metrics_config import ACADEMIC_OCCUPANCY_FACTORS, get_runtime_constants
 from app.services.settings_service import get_dashboard_settings
 
 
@@ -79,9 +79,10 @@ def aggregate_records(records, field_name: str, granularity: str):
             cycle_meta[cycle_key] = {"year": timestamp.year}
         else:
             season = get_season(timestamp)
-            key = (timestamp.year, season)
-            sort_key = (timestamp.year, SEASON_ORDER.index(season))
-            label = f"{season} {timestamp.year}"
+            season_year = timestamp.year + (1 if timestamp.month == 12 else 0)
+            key = (season_year, season)
+            sort_key = (season_year, SEASON_ORDER.index(season))
+            label = f"{season} {season_year}"
             cycle_key = season
             cycle_meta[cycle_key] = {"season": season}
 
@@ -146,11 +147,12 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
         return points
 
     current_season = get_season(latest_timestamp)
+    season_year = latest_timestamp.year + (1 if latest_timestamp.month == 12 else 0)
     current_index = SEASON_ORDER.index(current_season)
     for offset in range(1, periods + 1):
         season_index = current_index + offset
         season = SEASON_ORDER[season_index % len(SEASON_ORDER)]
-        year = latest_timestamp.year + (season_index // len(SEASON_ORDER))
+        year = season_year + (season_index // len(SEASON_ORDER))
         points.append({
             "label": f"{season} {year}",
             "cycle_key": season,
@@ -160,10 +162,10 @@ def _future_points(latest_timestamp: datetime | None, granularity: str, periods:
     return points
 
 
-def build_resource_payload(records, field_name: str, granularity: str, periods: int, occupancy_factors: dict):
+def build_resource_payload(records, field_name: str, granularity: str, periods: int, occupancy_factors: dict, occupancy_sensitive=True):
     historical_labels, historical_values, cycle_keys, cycle_meta = aggregate_records(records, field_name, granularity)
     latest_timestamp = records[-1].timestamp if records else None
-    future_points = _future_points(latest_timestamp, granularity, periods, occupancy_factors)
+    future_points = _future_points(latest_timestamp, granularity, periods, occupancy_factors) if records else []
 
     cycle_buckets = defaultdict(list)
     for value, cycle_key in zip(historical_values, cycle_keys):
@@ -184,9 +186,9 @@ def build_resource_payload(records, field_name: str, granularity: str, periods: 
         cycle_key = point["cycle_key"]
         history_for_cycle = cycle_buckets.get(cycle_key, historical_values or [0.0])
         baseline_mean = _mean(history_for_cycle) or global_mean
-        variability = _stddev(history_for_cycle) or max(baseline_mean * 0.08, 1.0)
+        variability = _stddev(history_for_cycle) or (max(baseline_mean * 0.08, 1.0) if baseline_mean else 0.0)
         occupancy_factor = point["occupancy_factor"]
-        occupancy_multiplier = occupancy_factor / average_occupancy if average_occupancy else 1.0
+        occupancy_multiplier = occupancy_factor / average_occupancy if occupancy_sensitive and average_occupancy else 1.0
 
         adjusted_forecast = max(round(baseline_mean * occupancy_multiplier, 2), 0)
         lower_bound = max(round(adjusted_forecast - variability, 2), 0)
@@ -255,10 +257,13 @@ def forecast_resources(
     energy_payload = build_resource_payload(energy_data, "consumption_kwh", granularity, periods, occupancy_factors)
     water_payload = build_resource_payload(water_data, "consumption_kl", granularity, periods, occupancy_factors)
     waste_payload = build_resource_payload(waste_data, "quantity_kg", granularity, periods, occupancy_factors)
-    solar_payload = build_resource_payload(solar_data, "solar_kwh", granularity, periods, occupancy_factors)
+    solar_payload = build_resource_payload(solar_data, "solar_kwh", granularity, periods, occupancy_factors, occupancy_sensitive=False)
 
     avg_future_occupancy = _mean(energy_payload.get("occupancy_factors", []))
     return {
+        "reference_date": energy_data[-1].timestamp.date().isoformat() if energy_data else None,
+        "academic_occupancy_factors": occupancy_factors,
+        "metric_constants": get_runtime_constants(settings),
         "granularity": granularity,
         "building": building or "Campus",
         "date_from": date_from,

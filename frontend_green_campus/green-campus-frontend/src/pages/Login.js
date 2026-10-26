@@ -111,6 +111,7 @@ function Login({ onLogin }) {
       <label style={styles.field}>
         <span style={styles.label}>{dashboardCopy.auth.usernameLabel}</span>
         <input
+          autoComplete="username"
           placeholder={dashboardCopy.auth.usernameLabel}
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -122,6 +123,8 @@ function Login({ onLogin }) {
         <span style={styles.label}>{dashboardCopy.auth.passwordLabel}</span>
         <div style={styles.passwordField}>
           <input
+            aria-label={dashboardCopy.auth.passwordLabel}
+            autoComplete="current-password"
             type={showPassword ? "text" : "password"}
             placeholder={dashboardCopy.auth.passwordLabel}
             value={password}

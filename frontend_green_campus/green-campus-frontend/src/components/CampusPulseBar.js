@@ -5,6 +5,9 @@ function CampusPulseBar({ data, riskData, forecastData, seasonalOutlook, insight
   if (!data) {
     return null;
   }
+  if (data.has_data === false) {
+    return <div style={styles.container}><strong>No readings in this view</strong><p>Choose dates with recorded data, or ask an administrator to import a workbook. Sustainability performance cannot be assessed from an empty dataset.</p></div>;
+  }
 
   const risk = riskData?.[0];
   const occupancy = Math.round((forecastData?.future_occupancy_average || 0) * 100);
@@ -12,7 +15,7 @@ function CampusPulseBar({ data, riskData, forecastData, seasonalOutlook, insight
   const nextAction = insightsData?.recommendations?.[0];
   const message = [
     `Current Green Index is ${data.green_index}%.`,
-    risk ? `Risk is ${risk.risk_level.toLowerCase()} with ${risk.growth_percent}% projected change.` : "Risk data is stable.",
+    risk ? `Risk is ${risk.risk_level.toLowerCase()} with ${risk.growth_percent}% projected change.` : "Not enough data to assess forecast risk.",
     seasonalOutlook ? seasonalOutlook.headline : `Future occupancy is modeled around ${occupancy}%.`,
   ].join(" ");
 
@@ -26,7 +29,7 @@ function CampusPulseBar({ data, riskData, forecastData, seasonalOutlook, insight
         <div style={styles.signalCard}>
           <span style={styles.signalLabel}>{dashboardCopy.pulse.signalTitle}</span>
           <strong style={styles.signalValue}>
-            {risk ? `${risk.risk_level} risk` : "Stable"}
+            {risk ? `${risk.risk_level} risk` : "Not assessed"}
           </strong>
           <span style={styles.signalNote}>
             {risk?.primary_driver || "No high-priority issue is dominating the campus right now."}

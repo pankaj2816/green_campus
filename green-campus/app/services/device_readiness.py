@@ -1,55 +1,10 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timezone
+from fastapi import HTTPException
 
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 
 from app import models
-
-DEFAULT_DEVICE_BLUEPRINTS = [
-    {
-        "name": "Main Grid Meter",
-        "category": "Energy Meter",
-        "building": "Campus Main Feed",
-        "source_type": "smart_meter",
-        "status": "healthy",
-        "expected_frequency_minutes": 60,
-        "last_sync_at": None,
-        "notes": "Primary incoming electricity meter for total campus draw.",
-        "is_critical": True,
-    },
-    {
-        "name": "Admin Block Water Meter",
-        "category": "Water Meter",
-        "building": "Admin Block",
-        "source_type": "smart_meter",
-        "status": "warning",
-        "expected_frequency_minutes": 180,
-        "last_sync_at": None,
-        "notes": "Useful for validating daytime academic water demand.",
-        "is_critical": True,
-    },
-    {
-        "name": "Solar Plant Inverter Feed",
-        "category": "Solar Inverter",
-        "building": "Solar Plant",
-        "source_type": "inverter_api",
-        "status": "healthy",
-        "expected_frequency_minutes": 30,
-        "last_sync_at": None,
-        "notes": "Tracks solar generation availability and export readiness.",
-        "is_critical": True,
-    },
-    {
-        "name": "Hostel Waste Weighing Log",
-        "category": "Waste Collection",
-        "building": "Hostels",
-        "source_type": "manual_log",
-        "status": "manual",
-        "expected_frequency_minutes": 1440,
-        "last_sync_at": None,
-        "notes": "Daily manual waste entry until digital weighing is installed.",
-        "is_critical": False,
-    },
-]
 
 STATUS_SCORES = {
     "healthy": 100,
@@ -60,37 +15,8 @@ STATUS_SCORES = {
 }
 
 
-def list_or_seed_devices(db: Session):
-    devices = db.query(models.DeviceRegistry).order_by(models.DeviceRegistry.name.asc()).all()
-    if devices:
-        return devices
-
-    seeded_devices = []
-    now = datetime.utcnow()
-    for item in DEFAULT_DEVICE_BLUEPRINTS:
-        last_sync_at = item["last_sync_at"] or (
-            now - timedelta(minutes=max(int(item["expected_frequency_minutes"] / 2), 15))
-            if item["status"] in {"healthy", "warning", "manual"}
-            else None
-        )
-        device = models.DeviceRegistry(
-            name=item["name"],
-            category=item["category"],
-            building=item["building"],
-            source_type=item["source_type"],
-            status=item["status"],
-            expected_frequency_minutes=item["expected_frequency_minutes"],
-            last_sync_at=last_sync_at,
-            notes=item["notes"],
-            is_critical=item["is_critical"],
-        )
-        db.add(device)
-        seeded_devices.append(device)
-
-    db.commit()
-    for device in seeded_devices:
-        db.refresh(device)
-    return seeded_devices
+def list_devices(db: Session):
+    return db.query(models.DeviceRegistry).order_by(models.DeviceRegistry.name.asc()).all()
 
 
 def replace_device_registry(db: Session, payload_devices: list[dict]):
@@ -99,6 +25,12 @@ def replace_device_registry(db: Session, payload_devices: list[dict]):
         for device in db.query(models.DeviceRegistry).all()
     }
     kept_ids = set()
+    names = [item["name"].strip().casefold() for item in payload_devices]
+    ids = [item["id"] for item in payload_devices if item.get("id") is not None]
+    if len(set(names)) != len(names) or len(set(ids)) != len(ids):
+        raise HTTPException(status_code=422, detail="Device names and IDs must be unique.")
+    if any(device_id not in existing for device_id in ids):
+        raise HTTPException(status_code=422, detail="A device ID does not exist. Refresh the registry before saving.")
 
     for item in payload_devices:
         device_id = item.get("id")
@@ -117,21 +49,25 @@ def replace_device_registry(db: Session, payload_devices: list[dict]):
         device.notes = (item.get("notes") or "").strip() or None
         device.is_critical = bool(item.get("is_critical"))
 
-        db.flush()
+        try:
+            db.flush()
+        except IntegrityError:
+            db.rollback()
+            raise HTTPException(status_code=409, detail="Device names conflict with existing records. Refresh before saving.")
         kept_ids.add(device.id)
 
     for device in existing.values():
         if device.id not in kept_ids:
             db.delete(device)
 
-    db.commit()
-    return list_or_seed_devices(db)
+    db.flush()
+    return list_devices(db)
 
 
 def build_device_readiness_payload(devices: list[models.DeviceRegistry]):
     serialized = [serialize_device(device) for device in devices]
     total_devices = len(serialized)
-    healthy_count = sum(1 for device in serialized if device["status"] == "healthy")
+    healthy_count = sum(1 for device in serialized if device["status"] == "healthy" and device["sync_state"] == "ok")
     critical_count = sum(1 for device in serialized if device["is_critical"])
     readiness_score = round(
         sum(device["readiness_score"] for device in serialized) / max(total_devices, 1),
@@ -159,7 +95,7 @@ def serialize_device(device: models.DeviceRegistry):
     if sync_state == "stale":
         base_score = max(base_score - 20, 10)
     elif sync_state == "missing":
-        base_score = max(base_score - 15, 10)
+        base_score = min(base_score, 40)
 
     return {
         "id": device.id,
@@ -169,7 +105,7 @@ def serialize_device(device: models.DeviceRegistry):
         "source_type": device.source_type,
         "status": device.status,
         "expected_frequency_minutes": device.expected_frequency_minutes,
-        "last_sync_at": device.last_sync_at.isoformat() if device.last_sync_at else None,
+        "last_sync_at": _utc_datetime(device.last_sync_at).isoformat() if device.last_sync_at else None,
         "notes": device.notes,
         "is_critical": device.is_critical,
         "sync_state": sync_state,
@@ -178,13 +114,17 @@ def serialize_device(device: models.DeviceRegistry):
 
 
 def _sync_state(last_sync_at: datetime | None, expected_frequency_minutes: int, status: str):
+    if status == "offline":
+        return "offline"
     if status == "planned":
         return "planned"
     if not last_sync_at:
         return "missing"
 
     freshness_limit = max(expected_frequency_minutes * 2, 60)
-    age_minutes = (datetime.utcnow() - last_sync_at).total_seconds() / 60
+    age_minutes = (datetime.now(timezone.utc) - _utc_datetime(last_sync_at)).total_seconds() / 60
+    if age_minutes < -1:
+        return "missing"
     if age_minutes > freshness_limit:
         return "stale"
     return "ok"
@@ -193,6 +133,15 @@ def _sync_state(last_sync_at: datetime | None, expected_frequency_minutes: int, 
 def _parse_datetime(value):
     if not value:
         return None
-    if isinstance(value, datetime):
-        return value
-    return datetime.fromisoformat(str(value))
+    try:
+        parsed = value if isinstance(value, datetime) else datetime.fromisoformat(str(value))
+        parsed = _utc_datetime(parsed)
+        if parsed > datetime.now(timezone.utc):
+            raise ValueError()
+        return parsed.replace(tzinfo=None)
+    except (ValueError, TypeError):
+        raise HTTPException(status_code=422, detail="Last sync must be a valid timestamp that is not in the future.")
+
+
+def _utc_datetime(value):
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)

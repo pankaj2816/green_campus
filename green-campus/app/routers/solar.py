@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app import models
@@ -19,13 +19,13 @@ def _serialize_solar(entry: models.SolarData):
 
 @router.post("/")
 def add_solar(
-    building: str,
-    solar_kwh: float,
+    building: str = Query(min_length=1, max_length=200, pattern=r"\S"),
+    solar_kwh: float = Query(ge=0, allow_inf_nan=False),
     db: Session = Depends(get_db),
     current_user: models.User = Depends(require_admin),
 ):
     solar = models.SolarData(
-        building=building,
+        building=building.strip(),
         solar_kwh=solar_kwh,
     )
     db.add(solar)

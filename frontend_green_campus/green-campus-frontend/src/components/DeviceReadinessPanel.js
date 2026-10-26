@@ -34,6 +34,7 @@ function statusTone(status) {
 }
 
 function syncLabel(syncState) {
+  if (syncState === "offline") return "Offline";
   if (syncState === "ok") return "Sync healthy";
   if (syncState === "stale") return "Sync stale";
   if (syncState === "missing") return "Missing sync";

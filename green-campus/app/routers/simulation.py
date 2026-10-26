@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -11,13 +11,14 @@ router = APIRouter(prefix="/ai", tags=["AI Simulation"])
 
 
 class SimulationRequest(BaseModel):
+    model_config = ConfigDict(allow_inf_nan=False)
     building: str | None = None
     date_from: str | None = None
     date_to: str | None = None
-    energy_reduction_pct: float = 0
-    water_reduction_pct: float = 0
-    waste_reduction_pct: float = 0
-    solar_increase_pct: float = 0
+    energy_reduction_pct: float = Field(default=0, ge=0, le=100)
+    water_reduction_pct: float = Field(default=0, ge=0, le=100)
+    waste_reduction_pct: float = Field(default=0, ge=0, le=100)
+    solar_increase_pct: float = Field(default=0, ge=0, le=1000)
 
 
 @router.post("/simulate/impact")

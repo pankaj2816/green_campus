@@ -45,23 +45,30 @@ const getDetailMessage = (data, fallbackMessage) => {
   return data?.detail || data?.message || fallbackMessage;
 };
 
-const performFetch = async (endpoint, options = {}) => {
+const performFetch = async (endpoint, options = {}, params = {}) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 90000);
   try {
-    return await fetch(buildUrl(endpoint), options);
+    return await fetch(buildUrl(endpoint, params), { ...options, signal: controller.signal });
   } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("The backend took too long to respond. Please try again.");
+    }
     if (error instanceof TypeError) {
       throw new Error(NETWORK_ERROR_MESSAGE);
     }
 
     throw error;
+  } finally {
+    clearTimeout(timer);
   }
 };
 
-const handleResponse = async (response) => {
-  if (response.status === 401) {
+const handleResponse = async (response, redirectOnUnauthorized = true) => {
+  if (response.status === 401 && redirectOnUnauthorized) {
     localStorage.removeItem("token");
-    window.location.href = "/";
-    return null;
+    window.dispatchEvent(new Event("mgcd:session-expired"));
+    throw new Error("Your session has expired. Please log in again.");
   }
 
   const data = await readResponseBody(response);
@@ -95,7 +102,7 @@ export const loginUser = async (username, password) => {
     body: formData,
   });
 
-  return handleResponse(response);
+  return handleResponse(response, false);
 };
 
 export const registerUser = async (username, password) => {
@@ -107,23 +114,12 @@ export const registerUser = async (username, password) => {
     body: JSON.stringify({ username, password }),
   });
 
-  return handleResponse(response);
+  return handleResponse(response, false);
 };
 
 export const apiGet = async (endpoint, params = {}) => {
-  try {
-    const response = await fetch(buildUrl(endpoint, params), {
-      headers: getAuthHeaders(),
-    });
-
-    return handleResponse(response);
-  } catch (error) {
-    if (error instanceof TypeError) {
-      throw new Error(NETWORK_ERROR_MESSAGE);
-    }
-
-    throw error;
-  }
+  const response = await performFetch(endpoint, { headers: getAuthHeaders() }, params);
+  return handleResponse(response);
 };
 
 export const uploadCampusDataset = async (file) => {
@@ -167,6 +163,7 @@ export const exportCampusDataset = async () => {
   });
 
   if (!response.ok) {
+    if (response.status === 401) await handleResponse(response);
     throw new Error(await extractErrorMessage(response, "Export failed"));
   }
 
@@ -239,7 +236,6 @@ export const fetchDashboardBundle = async ({
 };
 
 export const fetchAssumptions = async () => apiGet("/meta/assumptions");
-export const fetchDashboardSettings = async () => apiGet("/meta/settings");
 export const fetchCurrentUser = async () => apiGet("/auth/me");
 export const saveDashboardSettings = async (payload) => apiPost("/meta/settings", payload);
 export const saveDeviceReadiness = async (payload) => apiPost("/operations/devices", payload);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 
@@ -8,6 +8,11 @@ import Dashboard from "./pages/Dashboard";
 
 function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
+  useEffect(() => {
+    const expireSession = () => setToken(null);
+    window.addEventListener("mgcd:session-expired", expireSession);
+    return () => window.removeEventListener("mgcd:session-expired", expireSession);
+  }, []);
 
   const handleLogin = (nextToken) => {
     localStorage.setItem("token", nextToken);

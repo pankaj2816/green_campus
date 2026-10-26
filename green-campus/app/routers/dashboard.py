@@ -56,9 +56,10 @@ def _summary_payload(
         waste_by_type[waste_label] = waste_by_type.get(waste_label, 0) + float(entry.quantity_kg or 0)
 
     date_pool = [entry.timestamp for entry in [*energy_rows, *water_rows, *waste_rows, *solar_rows]]
-    months_covered = max(len({(item.year, item.month) for item in date_pool}), 1) if date_pool else 1
+    covered_months = {(item.year, item.month) for item in date_pool}
+    months_covered = max(len(covered_months), 1)
     occupancy_average = (
-        sum(occupancy_map.get(item.month, 1.0) for item in date_pool) / len(date_pool)
+        sum(occupancy_map.get(month, 1.0) for _, month in covered_months) / len(covered_months)
         if date_pool
         else 1.0
     )
@@ -74,6 +75,8 @@ def _summary_payload(
 
     return {
         "scope": building or "Campus",
+        "has_data": bool(date_pool),
+        "record_count": len(date_pool),
         "energy": round(total_energy, 2),
         "solar": round(total_solar, 2),
         "net_energy": round(net_energy, 2),
@@ -87,7 +90,7 @@ def _summary_payload(
         "energy_cost_per_kwh": round(float(energy_cost_per_kwh or 0), 2),
         "gross_carbon": round(calculate_carbon(total_energy, emission_factor), 2),
         "solar_avoided_carbon": round(calculate_carbon(min(total_solar, total_energy), emission_factor), 2),
-        "green_index": green_index,
+        "green_index": green_index if date_pool else None,
         "date_from": date_from,
         "date_to": date_to,
         "months_covered": months_covered,
@@ -146,7 +149,10 @@ def _goal_progress_payload(summary_payload: dict, settings: dict):
         target = goal["target"]
         current = goal["current"]
         higher_is_better = goal["higher_is_better"]
-        if target <= 0:
+        if not summary_payload.get("has_data", True):
+            completion = 0
+            status = "no_data"
+        elif target <= 0:
             completion = 0
             status = "not_set"
         elif higher_is_better:

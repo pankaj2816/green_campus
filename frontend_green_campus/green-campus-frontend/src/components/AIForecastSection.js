@@ -5,7 +5,7 @@ import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
 
-function ForecastCard({ title, payload, color }) {
+function ForecastCard({ title, payload, color, unit }) {
   if (!payload) {
     return null;
   }
@@ -21,6 +21,7 @@ function ForecastCard({ title, payload, color }) {
         forecastLower={payload.forecast_lower}
         forecastUpper={payload.forecast_upper}
         color={color}
+        unit={unit}
       />
       <p style={styles.caption}>
         Baseline: {payload.baseline_mean} | Recent: {payload.recent_mean} | Variability: {payload.variability_score}
@@ -52,10 +53,10 @@ function AIForecastSection({ forecastData, granularity }) {
       </div>
 
       <div style={styles.grid}>
-        <ForecastCard title={dashboardCopy.forecast.cards.energy} payload={forecastData.energy} color="#d97706" />
-        <ForecastCard title={dashboardCopy.forecast.cards.water} payload={forecastData.water} color="#0284c7" />
-        <ForecastCard title={dashboardCopy.forecast.cards.waste} payload={forecastData.waste} color="#0f766e" />
-        <ForecastCard title={dashboardCopy.forecast.cards.solar} payload={forecastData.solar} color="#65a30d" />
+        <ForecastCard title={dashboardCopy.forecast.cards.energy} payload={forecastData.energy} color="#d97706" unit="kWh" />
+        <ForecastCard title={dashboardCopy.forecast.cards.water} payload={forecastData.water} color="#0284c7" unit="kl" />
+        <ForecastCard title={dashboardCopy.forecast.cards.waste} payload={forecastData.waste} color="#0f766e" unit="kg" />
+        <ForecastCard title={dashboardCopy.forecast.cards.solar} payload={forecastData.solar} color="#65a30d" unit="kWh" />
       </div>
     </div>
   );
@@ -81,7 +82,7 @@ const styles = {
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
     gap: "20px",
     marginTop: "15px",
   },

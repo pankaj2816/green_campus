@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 import {
   exportCampusDataset,
@@ -17,27 +17,33 @@ function DataUploadPanel({ onUploadSuccess }) {
   const [validating, setValidating] = useState(false);
   const [validation, setValidation] = useState(null);
   const [notice, setNotice] = useState(null);
+  const validationVersion = useRef(0);
+  const busy = loading || exporting || resetting;
 
   const handleFileChange = async (nextFile) => {
+    const version = ++validationVersion.current;
     setFile(nextFile);
     setValidation(null);
 
     if (!nextFile) {
+      setValidating(false);
       return;
     }
 
     setValidating(true);
     try {
       const result = await validateCampusDataset(nextFile);
+      if (version !== validationVersion.current) return;
       setValidation(result);
     } catch (error) {
+      if (version !== validationVersion.current) return;
       setValidation({
         ready: false,
         warnings: [error.message || dashboardCopy.dataControls.validationNotReady],
         sheet_summaries: [],
       });
     } finally {
-      setValidating(false);
+      if (version === validationVersion.current) setValidating(false);
     }
   };
 
@@ -114,6 +120,7 @@ function DataUploadPanel({ onUploadSuccess }) {
         <input
           type="file"
           accept=".xlsx"
+          disabled={busy}
           onChange={(e) => handleFileChange(e.target.files[0])}
           style={styles.hiddenInput}
           key={file ? file.name : "empty-file"}
@@ -181,20 +188,20 @@ function DataUploadPanel({ onUploadSuccess }) {
         <button
           onClick={handleUpload}
           style={styles.primaryButton}
-          disabled={loading || validating || (validation && validation.ready === false)}
+          disabled={busy || validating || !file || !validation?.ready}
         >
           {loading
             ? dashboardCopy.dataControls.importingLabel
             : dashboardCopy.dataControls.importLabel}
         </button>
 
-        <button onClick={handleExport} style={styles.tertiaryButton} disabled={exporting}>
+        <button onClick={handleExport} style={styles.tertiaryButton} disabled={busy || validating}>
           {exporting
             ? dashboardCopy.dataControls.exportingLabel
             : dashboardCopy.dataControls.exportLabel}
         </button>
 
-        <button onClick={handleReset} style={styles.secondaryButton} disabled={resetting}>
+        <button onClick={handleReset} style={styles.secondaryButton} disabled={busy || validating}>
           {resetting
             ? dashboardCopy.dataControls.resettingLabel
             : dashboardCopy.dataControls.resetLabel}

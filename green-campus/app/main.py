@@ -1,12 +1,14 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import engine, Base
 from app.routers import energy, water, waste, dashboard, auth
 from app.routers import insights
 from app.routers import compliance
-#from app.routers import ai
 from app.routers import forecast, ai_risk
 from app.routers import solar
 from app.routers import data_import
@@ -53,7 +55,6 @@ app.include_router(waste.router)
 app.include_router(dashboard.router)
 app.include_router(insights.router)
 app.include_router(compliance.router)
-#app.include_router(ai.router)
 app.include_router(forecast.router)
 app.include_router(ai_risk.router)
 app.include_router(solar.router)
@@ -65,6 +66,16 @@ app.include_router(alerts.router)
 app.include_router(data_quality.router)
 app.include_router(operations.router)
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {"message": "Green Campus Backend Running"}
+
+
+@app.get("/health")
+def health():
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        return {"status": "ok", "database": "connected"}
+    except SQLAlchemyError:
+        return JSONResponse(status_code=503, content={"status": "unavailable", "database": "disconnected"})

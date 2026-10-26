@@ -10,6 +10,7 @@ function AIForecastChart({
   forecastLower,
   forecastUpper,
   color = "#2f80ed",
+  unit = "kWh",
 }) {
   if (!forecastValues || forecastValues.length === 0) {
     return <p>{dashboardCopy.chart.forecastNoData}</p>;
@@ -57,6 +58,10 @@ function AIForecastChart({
   const options = {
     responsive: true,
     maintainAspectRatio: false,
+    scales: {
+      x: { title: { display: true, text: "Period" } },
+      y: { beginAtZero: true, title: { display: true, text: `Usage / generation (${unit})` } },
+    },
     plugins: {
       legend: {
         position: "top",

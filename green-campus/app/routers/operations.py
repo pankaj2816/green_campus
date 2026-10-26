@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
+from typing import Literal
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -8,7 +9,7 @@ from app.routers.auth import get_current_user, require_admin
 from app.services.audit import log_audit_event
 from app.services.device_readiness import (
     build_device_readiness_payload,
-    list_or_seed_devices,
+    list_devices,
     replace_device_registry,
 )
 
@@ -16,12 +17,13 @@ router = APIRouter(prefix="/operations", tags=["Operations"])
 
 
 class DeviceItemRequest(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
     id: int | None = None
     name: str = Field(min_length=2)
     category: str = Field(min_length=2)
     building: str = Field(min_length=2)
-    source_type: str = Field(min_length=2)
-    status: str = Field(min_length=2)
+    source_type: Literal["smart_meter", "manual_log", "inverter_api", "bms_feed", "gateway"]
+    status: Literal["healthy", "warning", "manual", "planned", "offline"]
     expected_frequency_minutes: int = Field(ge=15, le=10080)
     last_sync_at: str | None = None
     notes: str | None = None
@@ -37,7 +39,7 @@ def get_device_readiness(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    devices = list_or_seed_devices(db)
+    devices = list_devices(db)
     return build_device_readiness_payload(devices)
 
 

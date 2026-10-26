@@ -1,20 +1,38 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function InsightDetailDrawer({ detail, onClose }) {
+  const closeButton = useRef(null);
+  useEffect(() => {
+    if (!detail) return;
+    const previous = document.activeElement;
+    closeButton.current?.focus();
+    const onKey = (event) => {
+      if (event.key === "Escape") onClose();
+      if (event.key === "Tab") {
+        event.preventDefault();
+        closeButton.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      previous?.focus();
+    };
+  }, [detail, onClose]);
   if (!detail) {
     return null;
   }
 
   return (
     <>
-      <button type="button" style={styles.overlay} onClick={onClose} aria-label="Close detail drawer" />
-      <aside style={styles.drawer} className="premium-card">
+      <button type="button" tabIndex={-1} style={styles.overlay} onClick={onClose} aria-label="Close detail drawer" />
+      <aside role="dialog" aria-modal="true" aria-label={detail.title} style={styles.drawer} className="premium-card">
         <div style={styles.header}>
           <div>
             <span style={styles.kicker}>{detail.category || "Detail"}</span>
             <h3 style={styles.title}>{detail.title}</h3>
           </div>
-          <button type="button" onClick={onClose} style={styles.closeButton}>
+          <button type="button" ref={closeButton} onClick={onClose} style={styles.closeButton}>
             Close
           </button>
         </div>

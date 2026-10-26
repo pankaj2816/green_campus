@@ -1,4 +1,5 @@
 from io import BytesIO
+import math
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
@@ -35,27 +36,10 @@ def _rows_to_dataframe(rows, column_map):
         for source_key, target_key in column_map.items():
             value = getattr(row, source_key)
             if source_key == "timestamp":
-                value = pd.to_datetime(value).strftime("%Y-%m-%d")
+                value = pd.to_datetime(value).isoformat()
             item[target_key] = value
         data.append(item)
-    return pd.DataFrame(data)
-
-
-def _infer_water_unit(df: pd.DataFrame):
-    if df.empty:
-        return df, "kl"
-
-    numeric_values = pd.to_numeric(df["water_kl"], errors="coerce").dropna()
-    if numeric_values.empty:
-        return df, "kl"
-
-    median_value = float(numeric_values.median())
-    if median_value > 10000:
-        df = df.copy()
-        df["water_kl"] = pd.to_numeric(df["water_kl"], errors="coerce").fillna(0) / 1000
-        return df, "liters_converted_to_kl"
-
-    return df, "kl"
+    return pd.DataFrame(data, columns=list(column_map.values()))
 
 
 def _sanitize_resource_dataframe(sheet_name: str, df: pd.DataFrame):
@@ -78,6 +62,7 @@ def _sanitize_resource_dataframe(sheet_name: str, df: pd.DataFrame):
         cleaned.loc[cleaned["building"].isin(["", "nan", "None"]), "building"] = pd.NA
     if value_field in cleaned.columns:
         cleaned[value_field] = pd.to_numeric(cleaned[value_field], errors="coerce")
+        cleaned.loc[~cleaned[value_field].map(lambda value: math.isfinite(value) and value >= 0), value_field] = float("nan")
 
     valid_mask = pd.Series(True, index=cleaned.index)
     for column in required_columns:
@@ -94,9 +79,18 @@ def _sanitize_resource_dataframe(sheet_name: str, df: pd.DataFrame):
 
 
 def _validate_workbook(file_obj):
-    xls = pd.ExcelFile(file_obj)
+    file_obj.seek(0, 2)
+    if file_obj.tell() > 10 * 1024 * 1024:
+        raise HTTPException(status_code=413, detail="Workbook must be 10 MB or smaller.")
+    file_obj.seek(0)
+    try:
+        with pd.ExcelFile(file_obj, engine="openpyxl") as xls:
+            sheets = {name: pd.read_excel(xls, name) for name in REQUIRED_SHEETS if name in xls.sheet_names}
+            sheet_names = xls.sheet_names
+    except Exception:
+        raise HTTPException(status_code=400, detail="Unable to read workbook. Upload a valid .xlsx file.")
     results = {
-        "sheet_names": xls.sheet_names,
+        "sheet_names": sheet_names,
         "missing_required_sheets": [],
         "optional_missing_sheets": [],
         "sheet_summaries": [],
@@ -106,7 +100,8 @@ def _validate_workbook(file_obj):
 
     dataframes = {}
     for sheet_name, config in REQUIRED_SHEETS.items():
-        if sheet_name not in xls.sheet_names:
+        sheet_has_errors = False
+        if sheet_name not in sheet_names:
             if config["required"]:
                 results["missing_required_sheets"].append(sheet_name)
                 results["ready"] = False
@@ -114,31 +109,41 @@ def _validate_workbook(file_obj):
                 results["optional_missing_sheets"].append(sheet_name)
             continue
 
-        df = pd.read_excel(xls, sheet_name)
+        df = sheets[sheet_name]
+        if sheet_name == "water" and "water_kl" not in df.columns and "water_liters" in df.columns:
+            df = df.copy()
+            df["water_kl"] = pd.to_numeric(df["water_liters"], errors="coerce") / 1000
+            results["warnings"].append("Converted the explicitly labeled water_liters column to kl.")
         missing_columns = [column for column in config["columns"] if column not in df.columns]
         if missing_columns:
+            sheet_has_errors = True
             results["ready"] = False
             results["warnings"].append(
                 f"Sheet '{sheet_name}' is missing columns: {', '.join(missing_columns)}."
             )
 
-        if sheet_name == "water" and "water_kl" in df.columns:
-            df, inferred_water_unit = _infer_water_unit(df)
-            if inferred_water_unit == "liters_converted_to_kl":
-                results["warnings"].append(
-                    "Water values looked like liters, so they were converted to kl during import."
-                )
-
         if not missing_columns:
             df, sanitize_warnings = _sanitize_resource_dataframe(sheet_name, df)
             results["warnings"].extend(sanitize_warnings)
+            if sanitize_warnings:
+                sheet_has_errors = True
+                results["ready"] = False
+            if config["required"] and df.empty:
+                sheet_has_errors = True
+                results["ready"] = False
+                results["warnings"].append(f"Required sheet '{sheet_name}' has no valid data rows.")
+            duplicate_keys = ["date", "building"] + (["waste_type"] if sheet_name == "waste" and "waste_type" in df.columns else [])
+            if df.duplicated(subset=duplicate_keys).any():
+                sheet_has_errors = True
+                results["ready"] = False
+                results["warnings"].append(f"Sheet '{sheet_name}' has duplicate readings for the same timestamp and building.")
 
         dataframes[sheet_name] = df
         results["sheet_summaries"].append({
             "sheet": sheet_name,
             "rows": int(len(df.index)),
             "columns": list(df.columns),
-            "status": "ready" if not missing_columns else "needs_attention",
+            "status": "needs_attention" if sheet_has_errors else "ready",
         })
 
     return results, dataframes
@@ -211,7 +216,6 @@ async def upload_campus_excel(
             timestamp=pd.to_datetime(row["date"]),
         ))
 
-    db.commit()
     log_audit_event(
         db,
         event_type="dataset",
@@ -311,6 +315,12 @@ def export_campus_excel(
         water_df.to_excel(writer, sheet_name="water", index=False)
         waste_df.to_excel(writer, sheet_name="waste", index=False)
         solar_df.to_excel(writer, sheet_name="solar", index=False)
+        # Imported labels are data, even when they start with an Excel formula marker.
+        for sheet in writer.book.worksheets:
+            for row in sheet.iter_rows():
+                for cell in row:
+                    if cell.data_type == "f":
+                        cell.data_type = "s"
 
     output.seek(0)
     return StreamingResponse(

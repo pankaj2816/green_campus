@@ -28,7 +28,7 @@ def seasonal_outlook(
     )
     forecast_payload = forecast_resources(
         db,
-        granularity="seasonal",
+        granularity="monthly",
         building=building,
         date_from=date_from,
         date_to=date_to,

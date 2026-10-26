@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { runSimulation } from "../services/api";
 import { dashboardCopy } from "../config/dashboardConfig";
@@ -25,8 +25,19 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [notice, setNotice] = useState(null);
+  const requestVersion = useRef(0);
+  useEffect(() => {
+    requestVersion.current += 1;
+    setResult(null);
+    setNotice(null);
+    setLoading(false);
+    return () => { requestVersion.current += 1; };
+  }, [selectedBuilding, dateFrom, dateTo]);
 
   const handleChange = (key, value) => {
+    requestVersion.current += 1;
+    setResult(null);
+    setLoading(false);
     setInputs((current) => ({
       ...current,
       [key]: Number(value),
@@ -34,6 +45,7 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
   };
 
   const handleRun = async () => {
+    const version = ++requestVersion.current;
     setNotice(null);
     setLoading(true);
 
@@ -44,12 +56,14 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
         date_to: dateTo || null,
         ...inputs,
       });
+      if (version !== requestVersion.current) return;
       setResult(data);
     } catch (error) {
+      if (version !== requestVersion.current) return;
       console.error(error);
       setNotice({ tone: "error", message: error.message || dashboardCopy.simulator.failed });
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   };
 
@@ -60,7 +74,7 @@ function SustainabilitySimulator({ selectedBuilding, dateFrom, dateTo }) {
           <h3 style={{ margin: 0 }}>{dashboardCopy.simulator.title}</h3>
           <p style={styles.subtext}>{dashboardCopy.simulator.subtitle}</p>
         </div>
-        <button onClick={handleRun} style={styles.button}>
+        <button onClick={handleRun} style={styles.button} disabled={loading}>
           {loading ? dashboardCopy.simulator.runningLabel : dashboardCopy.simulator.runLabel}
         </button>
       </div>

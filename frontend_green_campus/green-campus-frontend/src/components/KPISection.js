@@ -2,6 +2,7 @@ import React from "react";
 import DashboardCards from "./DashboardCards";
 
 function KPISection({ data, onOpenDetail }) {
+  if (!data || data.has_data === false) return null;
   return (
     <div style={styles.wrapper}>
       <div style={styles.header}>

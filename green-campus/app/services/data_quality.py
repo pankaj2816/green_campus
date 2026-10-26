@@ -1,10 +1,10 @@
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime
 
 from sqlalchemy.orm import Session
 
 from app import models
-from app.services.date_filters import apply_date_range
+from app.services.date_filters import apply_date_range, normalize_date_range
 
 
 RESOURCE_CONFIG = {
@@ -97,8 +97,14 @@ def _summarize_resource(rows: list, resource: str, expected_months: list[tuple[i
     timestamps = [row.timestamp for row in rows if row.timestamp]
     covered_month_keys = {_month_key(value) for value in timestamps}
     missing_months = [month for month in expected_months if month not in covered_month_keys]
+    building_coverage = defaultdict(set)
+    for row in rows:
+        if row.building and row.timestamp:
+            building_coverage[row.building].add(_month_key(row.timestamp))
+    expected_month_set = set(expected_months)
+    missing_building_months = sum(len(expected_month_set - months) for months in building_coverage.values())
     duplicate_keys = Counter(
-        (row.building, row.timestamp.date().isoformat())
+        (row.building, row.timestamp.isoformat(), getattr(row, "waste_type", None))
         for row in rows
         if row.building and row.timestamp
     )
@@ -106,7 +112,7 @@ def _summarize_resource(rows: list, resource: str, expected_months: list[tuple[i
     values = [float(getattr(row, value_attr) or 0) for row in rows]
     zero_or_negative = sum(1 for value in values if value <= 0)
 
-    month_coverage = (len(covered_month_keys) / len(expected_months)) if expected_months else 1
+    month_coverage = 1 - missing_building_months / (len(expected_months) * max(len(buildings), 1)) if expected_months else 1
     value_health = 1 - (zero_or_negative / len(values)) if values else 0
     duplicate_health = 1 - min(duplicate_count / max(len(rows), 1), 1)
     score = round((month_coverage * 50) + (value_health * 30) + (duplicate_health * 20), 1)
@@ -128,6 +134,7 @@ def _summarize_resource(rows: list, resource: str, expected_months: list[tuple[i
         "last_date": max(timestamps).date().isoformat() if timestamps else None,
         "covered_months": len(covered_month_keys),
         "missing_month_count": len(missing_months),
+        "missing_building_month_count": missing_building_months,
         "missing_months": [_format_month(month) for month in missing_months[:12]],
         "duplicate_readings": duplicate_count,
         "zero_or_negative_values": zero_or_negative,
@@ -157,7 +164,8 @@ def build_data_quality_report(
     if all_timestamps:
         first_date = min(all_timestamps)
         last_date = max(all_timestamps)
-        expected_months = _month_range(first_date, last_date)
+        start, end = normalize_date_range(date_from, date_to)
+        expected_months = _month_range(start or first_date, end or last_date)
     else:
         first_date = None
         last_date = None
@@ -175,8 +183,11 @@ def build_data_quality_report(
         ((sum(optional_scores) / max(len(optional_scores), 1)) * 0.25 if optional_scores else 18),
         1,
     )
+    if not all_timestamps:
+        overall_score = 0
     history_months = len(expected_months)
-    forecast_readiness = min(round((history_months / 12) * 100, 1), 100)
+    required_coverage = min((item["covered_months"] for item in resources if item["required"]), default=0)
+    forecast_readiness = min(round((required_coverage / 12) * 100, 1), 100)
 
     issue_count = sum(
         1
@@ -193,6 +204,8 @@ def build_data_quality_report(
             recommendations.append(f"Review missing {label} months: {', '.join(item['missing_months'][:4])}.")
         if item["duplicate_readings"] > 0:
             recommendations.append(f"Check duplicate {label} readings for the same building and date.")
+        if item.get("missing_building_month_count", 0) > item["missing_month_count"]:
+            recommendations.append(f"Some buildings have missing {label} months even though other buildings cover that period.")
         if item["zero_or_negative_values"] > 0:
             recommendations.append(f"Check zero or negative {label} values because they can distort trends.")
 

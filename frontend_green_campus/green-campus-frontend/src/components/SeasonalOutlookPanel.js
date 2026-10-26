@@ -30,7 +30,7 @@ function SeasonalOutlookPanel({ outlook }) {
         <MetricCard
           title={dashboardCopy.seasonal.cards.nextEnergy}
           value={`${outlook.forecast_energy_next_period} kWh`}
-          caption={dashboardCopy.seasonal.captions.seasonalForecast}
+          caption={outlook.forecast_period || dashboardCopy.seasonal.captions.seasonalForecast}
         />
         <MetricCard
           title={dashboardCopy.seasonal.cards.exportPotential}

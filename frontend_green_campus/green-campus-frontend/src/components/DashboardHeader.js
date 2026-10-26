@@ -95,8 +95,8 @@ function DashboardHeader({
         <div style={styles.commandBrief}>
           <InsightCard
             label="Priority Risk"
-            value={primaryRisk ? primaryRisk.risk_level : "Stable"}
-            note={primaryRisk?.primary_driver || primaryRisk?.message || "No major risk signal is active right now."}
+            value={primaryRisk ? primaryRisk.risk_level : "Not assessed"}
+            note={primaryRisk?.primary_driver || primaryRisk?.message || "More history is needed to assess forecast risk."}
             darkMode={executiveDarkMode}
           />
           <InsightCard
@@ -531,6 +531,7 @@ const styles = {
     cursor: "pointer",
   },
   sidePanel: {
+    alignSelf: "start",
     display: "flex",
     alignItems: "stretch",
     justifyContent: "center",

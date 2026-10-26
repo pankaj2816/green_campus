@@ -1,10 +1,14 @@
 from datetime import datetime, timedelta
+from fastapi import HTTPException
 
 
 def parse_date(value: str | None):
     if not value:
         return None
-    return datetime.strptime(value, "%Y-%m-%d")
+    try:
+        return datetime.strptime(value, "%Y-%m-%d")
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=422, detail="Dates must use YYYY-MM-DD and be valid calendar dates.")
 
 
 def normalize_date_range(date_from: str | None = None, date_to: str | None = None):
@@ -20,7 +24,7 @@ def apply_date_range(query, model, date_from: str | None = None, date_to: str | 
     if start:
         query = query.filter(model.timestamp >= start)
     if end:
-        query = query.filter(model.timestamp < end + timedelta(days=1))
+        query = query.filter(model.timestamp <= datetime.max) if end.date() == datetime.max.date() else query.filter(model.timestamp < end + timedelta(days=1))
     return query
 
 

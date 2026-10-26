@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function InfoHint({
   title = "What this means",
@@ -8,6 +9,26 @@ export default function InfoHint({
   placement = "bottom",
 }) {
   const [open, setOpen] = useState(false);
+  const trigger = useRef(null);
+  const tooltip = useRef(null);
+  const tooltipId = useId();
+  const [position, setPosition] = useState({ left: 16, top: 16 });
+  useLayoutEffect(() => {
+    if (!open) return;
+    const anchor = trigger.current.getBoundingClientRect();
+    const box = tooltip.current.getBoundingClientRect();
+    const preferredLeft = align === "right" ? anchor.right - box.width : align === "center" ? anchor.left + anchor.width / 2 - box.width / 2 : anchor.left;
+    const fitsBelow = anchor.bottom + box.height + 12 < window.innerHeight;
+    const top = placement === "top" || !fitsBelow ? anchor.top - box.height - 8 : anchor.bottom + 8;
+    setPosition({ left: Math.max(12, Math.min(preferredLeft, window.innerWidth - box.width - 12)), top: Math.max(12, Math.min(top, window.innerHeight - box.height - 12)) });
+    const close = () => setOpen(false);
+    window.addEventListener("resize", close);
+    window.addEventListener("scroll", close, true);
+    return () => {
+      window.removeEventListener("resize", close);
+      window.removeEventListener("scroll", close, true);
+    };
+  }, [open, align, placement]);
 
   return (
     <span
@@ -19,26 +40,31 @@ export default function InfoHint({
     >
       <button
         type="button"
+        ref={trigger}
         style={styles.button}
         aria-label={title}
-        onClick={() => setOpen((current) => !current)}
+        aria-describedby={open ? tooltipId : undefined}
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        onKeyDown={(event) => { if (event.key === "Escape") setOpen(false); }}
       >
         !
       </button>
-      {open ? (
+      {open ? createPortal(
         <span
+          ref={tooltip}
+          id={tooltipId}
+          role="tooltip"
           style={{
             ...styles.tooltip,
             width,
             maxWidth: "min(320px, calc(100vw - 32px))",
-            ...(align === "right" ? styles.tooltipRight : {}),
-            ...(align === "center" ? styles.tooltipCenter : {}),
-            ...(placement === "top" ? styles.tooltipTop : {}),
+            ...position,
           }}
         >
           <strong style={styles.tooltipTitle}>{title}</strong>
           <span style={styles.tooltipText}>{text}</span>
-        </span>
+        </span>, document.body
       ) : null}
     </span>
   );
@@ -67,10 +93,11 @@ const styles = {
     lineHeight: 1,
   },
   tooltip: {
-    position: "absolute",
-    top: "30px",
-    left: 0,
-    zIndex: 25,
+    position: "fixed",
+    zIndex: 100,
+    pointerEvents: "none",
+    maxHeight: "calc(100vh - 24px)",
+    overflowY: "auto",
     background: "#17342d",
     color: "#f5fbf8",
     borderRadius: "16px",
@@ -78,18 +105,6 @@ const styles = {
     boxShadow: "0 18px 36px rgba(8, 18, 16, 0.28)",
     display: "grid",
     gap: "6px",
-  },
-  tooltipRight: {
-    left: "auto",
-    right: 0,
-  },
-  tooltipCenter: {
-    left: "50%",
-    transform: "translateX(-50%)",
-  },
-  tooltipTop: {
-    top: "auto",
-    bottom: "30px",
   },
   tooltipTitle: {
     fontSize: "12px",

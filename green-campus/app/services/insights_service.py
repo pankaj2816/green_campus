@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 import re
+from collections import defaultdict
 
 from app.models import EnergyData, SolarData, WasteData, WaterData
 from app.services.carbon import calculate_carbon
@@ -42,11 +43,17 @@ def _resource_totals(db: Session, building: str | None, date_from: str | None = 
         date_to,
     ).all()
 
+    def daily_values(records, field):
+        totals = defaultdict(float)
+        for record in records:
+            totals[record.timestamp.date()] += float(getattr(record, field) or 0)
+        return [totals[day] for day in sorted(totals)]
+
     return {
-        "energy": [record.consumption_kwh for record in energy_records],
-        "water": [record.consumption_kl for record in water_records],
-        "waste": [record.quantity_kg for record in waste_records],
-        "solar": [record.solar_kwh for record in solar_records],
+        "energy": daily_values(energy_records, "consumption_kwh"),
+        "water": daily_values(water_records, "consumption_kl"),
+        "waste": daily_values(waste_records, "quantity_kg"),
+        "solar": daily_values(solar_records, "solar_kwh"),
     }
 
 

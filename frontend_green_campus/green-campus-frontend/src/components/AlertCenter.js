@@ -21,7 +21,7 @@ function AlertCenter({ alertsData, onOpenDetail }) {
         </div>
       </div>
 
-      <div style={styles.grid}>
+      <div style={styles.grid} className="dashboard-pair-grid">
         <div style={styles.panel}>
           {(alertsData.alerts || []).length > 0 ? (
             alertsData.alerts.map((alert, index) => (

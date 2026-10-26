@@ -120,7 +120,7 @@ def build_alert_overview(
                 })
 
     export_ready_days = []
-    for day in sorted(set(energy_daily) | set(solar_daily)):
+    for day in sorted(set(energy_daily) & set(solar_daily)):
         solar_total = solar_daily.get(day, 0)
         energy_total = energy_daily.get(day, 0)
         if solar_total > energy_total:
@@ -145,6 +145,14 @@ def build_alert_overview(
             "category": "forecast",
             "title": "High Forecast Risk",
             "message": risk_data[0]["message"],
+        })
+
+    if not energy_daily or not water_daily:
+        alerts.append({
+            "level": "medium",
+            "category": "data",
+            "title": "Insufficient Data",
+            "message": "Energy and water readings are required in this scope and date window before operational stability can be assessed.",
         })
 
     if not alerts:

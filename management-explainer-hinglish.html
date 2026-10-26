@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MGCD Management Explainer</title>
+  <style>
+    :root {
+      --bg: #eef5f1;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-strong: #ffffff;
+      --text: #17342d;
+      --muted: #5f756f;
+      --accent: #1b7f62;
+      --accent-2: #2563eb;
+      --accent-soft: rgba(27, 127, 98, 0.10);
+      --border: rgba(96, 125, 115, 0.18);
+      --shadow: 0 24px 60px rgba(15, 33, 28, 0.10);
+      --radius-xl: 28px;
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --max: 1400px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Inter", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.10), transparent 26%),
+        radial-gradient(circle at top right, rgba(27, 127, 98, 0.12), transparent 24%),
+        linear-gradient(180deg, #f5faf7 0%, #eef5f1 55%, #eaf0f7 100%);
+    }
+
+    .shell {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .hero-card,
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+    }
+
+    .hero-card {
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      right: -40px;
+      top: -40px;
+      background: radial-gradient(circle, rgba(27, 127, 98, 0.14), transparent 70%);
+      pointer-events: none;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--accent-soft);
+      margin-bottom: 16px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: -0.03em;
+    }
+
+    h1 {
+      font-size: clamp(34px, 4vw, 54px);
+      line-height: 1.05;
+      margin-bottom: 16px;
+    }
+
+    .hero-subtitle,
+    .card p,
+    .guide-text,
+    .talking-point li,
+    .step p,
+    .faq-answer {
+      color: var(--muted);
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .hero-subtitle {
+      max-width: 840px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .mini {
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(23, 52, 45, 0.08);
+      border-radius: 18px;
+      padding: 14px 16px;
+    }
+
+    .mini-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .mini strong {
+      display: block;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .agenda {
+      padding: 28px;
+    }
+
+    .agenda ol {
+      margin: 18px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.75);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .chip.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.18);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 270px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      padding: 18px;
+    }
+
+    .sidebar h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 15px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.68);
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(27, 127, 98, 0.18), rgba(37, 99, 235, 0.15));
+      border-color: rgba(27, 127, 98, 0.25);
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel {
+      padding: 24px;
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+      animation: fadeIn 0.22s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-head {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+      margin-bottom: 18px;
+    }
+
+    .section-badge {
+      padding: 8px 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .feature,
+    .step,
+    .qa,
+    .talking-point {
+      background: var(--surface-strong);
+      border: 1px solid rgba(23, 52, 45, 0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .feature h4,
+    .step h4,
+    .qa h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .feature ul,
+    .talking-point ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .script-box {
+      background: linear-gradient(135deg, rgba(27, 127, 98, 0.08), rgba(37, 99, 235, 0.08));
+      border: 1px solid rgba(27, 127, 98, 0.16);
+      border-radius: 18px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+
+    .script-box strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .timeline {
+      display: grid;
+      gap: 12px;
+    }
+
+    .step {
+      position: relative;
+      padding-left: 64px;
+    }
+
+    .step-number {
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .accordion {
+      display: grid;
+      gap: 12px;
+    }
+
+    .qa button {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .faq-answer {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .qa.open .faq-answer {
+      display: block;
+    }
+
+    .footer-note {
+      margin-top: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        padding: 16px;
+      }
+
+      .hero-card,
+      .agenda,
+      .panel,
+      .sidebar {
+        padding: 18px;
+      }
+
+      .step {
+        padding-left: 18px;
+        padding-top: 56px;
+      }
+
+      .step-number {
+        left: 18px;
+        top: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <div class="hero-card">
+        <div class="kicker">MAHE Green Campus Dashboard (MGCD)</div>
+        <h1>Management Presentation Script in Simple Hinglish</h1>
+        <p class="hero-subtitle">
+          Ye interactive guide aapko project ko management, faculty, sustainability team, ya operations team ko simple aur structured way mein explain karne mein help karega. Har section mein ready-made bolne wali lines bhi di gayi hain.
+        </p>
+        <div class="hero-grid">
+          <div class="mini">
+            <div class="mini-label">Project Type</div>
+            <strong>Campus Sustainability Intelligence Platform</strong>
+          </div>
+          <div class="mini">
+            <div class="mini-label">Main Use</div>
+            <strong>Monitoring, Forecasting, Planning, Reporting</strong>
+          </div>
+          <div class="mini">
+            <div class="mini-label">Audience</div>
+            <strong>Management, Admin, Facilities, Review Team</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-card agenda">
+        <div class="kicker">Presentation Flow</div>
+        <h2>Is page ko kaise use karna hai</h2>
+        <ol>
+          <li>Left side se section choose karo.</li>
+          <li>Har section mein features aur unko explain karne ki simple script milegi.</li>
+          <li>Audience mode change karke same project ko alag tone mein explain kar sakte ho.</li>
+          <li>Last mein management FAQs bhi diye gaye hain.</li>
+        </ol>
+      </div>
+    </section>
+
+    <div class="toolbar" id="audienceModes">
+      <button class="chip active" data-mode="management">Management Mode</button>
+      <button class="chip" data-mode="technical">Technical Review Mode</button>
+      <button class="chip" data-mode="operations">Operations Mode</button>
+    </div>
+
+    <section class="grid">
+      <aside class="sidebar card">
+        <h3>Explain Sections</h3>
+        <div class="nav-list" id="sectionNav">
+          <button class="nav-btn active" data-target="overview">1. Project Overview</button>
+          <button class="nav-btn" data-target="problem">2. Problem Statement</button>
+          <button class="nav-btn" data-target="features">3. Main Features</button>
+          <button class="nav-btn" data-target="flow">4. End-to-End Workflow</button>
+          <button class="nav-btn" data-target="ai">5. AI and Smart Logic</button>
+          <button class="nav-btn" data-target="governance">6. Governance and Control</button>
+          <button class="nav-btn" data-target="demo">7. Demo Script</button>
+          <button class="nav-btn" data-target="faq">8. Management FAQ</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="panel card active" id="overview">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Project Overview</div>
+              <h2>Ye project hai kya?</h2>
+            </div>
+          </div>
+          <div class="panel-grid">
+            <div class="feature">
+              <h4>Main Idea</h4>
+              <p>Ye ek smart dashboard hai jo campus ke energy, water, waste aur solar data ko ek jagah laakar live analysis, AI prediction aur reporting deta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Kis ke liye useful hai?</h4>
+              <p>Management, sustainability cell, estate team, hostel administration, audit team aur decision makers ke liye useful hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Expected benefit</h4>
+              <p>Decision fast hota hai, wastage identify hoti hai, forecast milta hai aur report presentation-ready form mein milti hai.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="overview"></div>
+        </section>
+
+        <section class="panel card" id="problem">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Problem</div>
+              <h2>Campus ko iski zarurat kyun hai?</h2>
+            </div>
+          </div>
+          <div class="panel-grid">
+            <div class="feature">
+              <h4>Data scattered hota hai</h4>
+              <p>Energy alag sheet mein, water alag report mein, waste manually maintain hota hai, aur solar alag source mein hota hai. Isse combined decision mushkil hota hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Reactive system hota hai</h4>
+              <p>Normally institutions issue tab dekhte hain jab bill aa jata hai ya overconsumption ho chuka hota hai. Ye platform proactive planning allow karta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Management visibility kam hoti hai</h4>
+              <p>Upper management ko clear answer chahiye hota hai: kya consume ho raha hai, kya बचत ho sakti hai, aur kya next action hona chahiye.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="problem"></div>
+        </section>
+
+        <section class="panel card" id="features">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Features</div>
+              <h2>Main features ko simple language mein samjho</h2>
+            </div>
+          </div>
+          <div class="panel-grid">
+            <div class="feature">
+              <h4>Overview Dashboard</h4>
+              <ul>
+                <li>Current campus status</li>
+                <li>Comparison with previous period</li>
+                <li>Main KPIs: energy, water, waste, solar, net grid, green index</li>
+                <li>Seasonal outlook and action board</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h4>Intelligence Section</h4>
+              <ul>
+                <li>Carbon footprint</li>
+                <li>Solar contribution</li>
+                <li>Alerts and export-ready days</li>
+                <li>Resource flow and trend visualization</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h4>Planning Studio</h4>
+              <ul>
+                <li>Daily, monthly, yearly, seasonal forecast</li>
+                <li>AI risk analysis</li>
+                <li>Anomalies, opportunities, recommendations</li>
+                <li>What-if scenario simulation</li>
+              </ul>
+            </div>
+            <div class="feature">
+              <h4>Governance Section</h4>
+              <ul>
+                <li>Building ranking</li>
+                <li>Occupancy and campus context settings</li>
+                <li>Assumptions and formula explanation</li>
+                <li>Editable planning values</li>
+              </ul>
+            </div>
+          </div>
+          <div class="script-box" data-script="features"></div>
+        </section>
+
+        <section class="panel card" id="flow">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Workflow</div>
+              <h2>Project practically kaise kaam karta hai?</h2>
+            </div>
+          </div>
+          <div class="timeline">
+            <div class="step">
+              <div class="step-number">1</div>
+              <h4>Login ya Register</h4>
+              <p>User dashboard access karta hai. Yeh controlled access ke liye useful hai.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <h4>Excel Import</h4>
+              <p>Energy, water, waste aur solar ka structured data upload hota hai. System workbook ko validate bhi karta hai.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <h4>Dashboard Aggregation</h4>
+              <p>Backend data ko process karke summary, trend, building-wise breakdown aur carbon calculations nikalta hai.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <h4>AI and Risk Engine</h4>
+              <p>Forecast, alerts, anomalies aur recommendations generate hote hain taaki next decision clearer ho.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">5</div>
+              <h4>Report and Action</h4>
+              <p>Management summary, screenshot mode, print report aur recommendation tracking ki wajah se decision se execution tak flow complete hota hai.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="flow"></div>
+        </section>
+
+        <section class="panel card" id="ai">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">AI Logic</div>
+              <h2>Isme AI exactly kya karta hai?</h2>
+            </div>
+          </div>
+          <div class="panel-grid">
+            <div class="feature">
+              <h4>Forecasting</h4>
+              <p>System future resource demand estimate karta hai. Daily, monthly, yearly aur seasonal modes available hain.</p>
+            </div>
+            <div class="feature">
+              <h4>Occupancy-aware prediction</h4>
+              <p>Agar June ya vacation months mein students kam hain, to system lower demand planning dikhata hai. Agar busy academic period hai, to demand high expect karta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Risk Engine</h4>
+              <p>Growth, variability aur trend ke basis par high, medium ya low risk type insight deta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Recommendations</h4>
+              <p>System sirf numbers nahi dikhata, balki action suggestions bhi deta hai, jaise saving opportunities, unusual spikes aur planning interventions.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="ai"></div>
+        </section>
+
+        <section class="panel card" id="governance">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Governance</div>
+              <h2>Control aur transparency kahan milti hai?</h2>
+            </div>
+          </div>
+          <div class="panel-grid">
+            <div class="feature">
+              <h4>Editable assumptions</h4>
+              <p>Energy cost per unit, carbon factor, occupancy values aur benchmark values ko adjust kiya ja sakta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Building ranking</h4>
+              <p>Kaun sa building better perform kar raha hai aur kaun sa attention demand kar raha hai, ye instantly dikh jata hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Action tracking</h4>
+              <p>Recommendation ko suggested, planned, in progress ya completed status mein convert kiya ja sakta hai.</p>
+            </div>
+            <div class="feature">
+              <h4>Plain-language explanation</h4>
+              <p>Terms aur formulas ko simple language mein explain kiya gaya hai, taaki non-technical audience bhi samajh sake.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="governance"></div>
+        </section>
+
+        <section class="panel card" id="demo">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">Demo Script</div>
+              <h2>Management ko live demo kaise dena hai?</h2>
+            </div>
+          </div>
+          <div class="timeline">
+            <div class="step">
+              <div class="step-number">1</div>
+              <h4>Opening line</h4>
+              <p>“Ye platform campus sustainability ko monitor, predict aur improve karne ke liye banaya gaya hai.”</p>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <h4>Overview dikhao</h4>
+              <p>Current KPIs, green index aur comparison analytics se start karo taaki management ko immediate value dikhe.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <h4>Intelligence section dikhao</h4>
+              <p>Carbon footprint, solar support aur alert center dikha kar bolo ki system sirf monitoring nahi, interpretation bhi deta hai.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">4</div>
+              <h4>AI section dikhao</h4>
+              <p>Forecast, risk aur recommendation par focus karke bolo ki future planning ab assumption-based nahi, data-assisted ho sakti hai.</p>
+            </div>
+            <div class="step">
+              <div class="step-number">5</div>
+              <h4>Governance and report close</h4>
+              <p>Editable settings aur executive report view dikha kar bolo ki project operational bhi hai aur presentation-ready bhi.</p>
+            </div>
+          </div>
+          <div class="script-box" data-script="demo"></div>
+        </section>
+
+        <section class="panel card" id="faq">
+          <div class="section-head">
+            <div>
+              <div class="section-badge">FAQ</div>
+              <h2>Management ke likely questions aur simple answers</h2>
+            </div>
+          </div>
+          <div class="accordion">
+            <div class="qa">
+              <button type="button">1. Is project ka direct benefit kya hai?</button>
+              <div class="faq-answer">Direct benefit hai visibility, faster decision making, wastage identification, forecast-based planning aur clean management reporting.</div>
+            </div>
+            <div class="qa">
+              <button type="button">2. Kya ye sirf demo hai ya real campus mein use ho sakta hai?</button>
+              <div class="faq-answer">Abhi ye dashboard-first operational platform hai. Structured data import ke saath use ho sakta hai, aur future mein IoT integration ke saath real-time solution ban sakta hai.</div>
+            </div>
+            <div class="qa">
+              <button type="button">3. AI ka real role kya hai?</button>
+              <div class="faq-answer">AI yahan future trend prediction, risk estimation, anomaly detection aur recommendation generation ke liye use ho raha hai. Matlab ye sirf historical dashboard nahi hai.</div>
+            </div>
+            <div class="qa">
+              <button type="button">4. Kya isme manual control bhi hai?</button>
+              <div class="faq-answer">Haan. Occupancy, cost factors, benchmark values aur action status jaise controls editable hain, isliye management assumptions ko customize kar sakta hai.</div>
+            </div>
+            <div class="qa">
+              <button type="button">5. Future expansion kya ho sakta hai?</button>
+              <div class="faq-answer">Real-time smart meters, device health monitoring, weather-aware forecasting, automated reports, user roles aur building-level live telemetry add kiye ja sakte hain.</div>
+            </div>
+          </div>
+          <div class="script-box" data-script="faq"></div>
+        </section>
+      </main>
+    </section>
+
+    <div class="footer-note">
+      Prepared for explaining MGCD in simple Hinglish to management and non-technical stakeholders.
+    </div>
+  </div>
+
+  <script>
+    const scripts = {
+      management: {
+        overview: "Aap bol sakte ho: 'Ye project ek single-window sustainability intelligence platform hai. Isme management ko ek hi jagah current status, forecast, risk, aur recommended actions mil jate hain. Isse decision making fast aur more data-driven ho jati hai.'",
+        problem: "Aap bol sakte ho: 'Abhi campus ka data multiple places par bikhra hota hai. Is project ka purpose hai scattered data ko ek actionable system mein convert karna, jahan sirf monitoring nahi balki interpretation aur planning bhi ho.'",
+        features: "Aap bol sakte ho: 'System ko 4 major parts mein samjha ja sakta hai - current monitoring, deeper intelligence, future planning, aur governance control. Isse senior management se lekar operations team tak sabko relevant view milta hai.'",
+        flow: "Aap bol sakte ho: 'User data import karta hai, system usko process karke dashboard aur AI insights banata hai, aur phir wahi insights report aur action workflow mein convert ho jati hain. Matlab data se decision aur decision se action tak full chain cover hoti hai.'",
+        ai: "Aap bol sakte ho: 'AI ka role yahan practical hai. Ye demand forecast karta hai, risk batata hai, unusual spikes identify karta hai, aur saving opportunities suggest karta hai. Isliye system future planning mein help karta hai.'",
+        governance: "Aap bol sakte ho: 'Project transparent bhi hai kyunki assumptions aur calculation drivers visible aur editable hain. Isse trust banta hai aur management apne context ke hisab se values adjust kar sakta hai.'",
+        demo: "Aap bol sakte ho: 'Demo mein pehle current picture dikhao, phir carbon-solar-alert intelligence, phir AI prediction, aur last mein governance aur report view. Is sequence se value sabse clearly samajh aati hai.'",
+        faq: "Aap bol sakte ho: 'Agar management koi concern raise kare, to highlight karo ki system modular hai, abhi operational decision support de raha hai, aur future mein real-time campus platform ban sakta hai.'"
+      },
+      technical: {
+        overview: "Technical review mein bolo: 'Ye FastAPI backend aur React frontend based platform hai jo Excel-driven campus data ko analytics, forecasting, risk and reporting workflows mein convert karta hai.'",
+        problem: "Technical audience ko samjhao ki current institutional problem data fragmentation, low observability aur delayed interpretation hai. System in sab ko standardize karta hai.",
+        features: "Bolo: 'Feature architecture monitoring, intelligence, planning aur governance blocks mein divided hai, jisse modular expansion possible hota hai.'",
+        flow: "Technical flow: upload -> validation -> database storage -> aggregation APIs -> frontend bundle -> forecasting / risk / reporting layers.",
+        ai: "Yahan bolo ki AI layer occupancy-aware forecasting, heuristic-risk analysis, anomaly logic aur scenario simulation ke through future-oriented decision support deti hai.",
+        governance: "Governance mein editable settings, action tracker, assumptions layer aur building ranking transparency ka part hain.",
+        demo: "Technical demo mein APIs ya implementation details sirf tab touch karo jab poocha jaye; otherwise outputs and value stream pe focus rakho.",
+        faq: "Agar architecture ya scalability poocha jaye to bolo ki next step telemetry ingestion aur role-based operational hardening hai."
+      },
+      operations: {
+        overview: "Operations team ko bolo: 'Ye system aapko bataega kis building mein issue hai, kis month mein load badhega, aur kya action lena chahiye.'",
+        problem: "Bolo ki abhi manual tracking aur delayed reporting ki wajah se corrective action late hota hai. Is dashboard se daily review easy hota hai.",
+        features: "Operations focus: KPI cards, alerts, building ranking, comparison analytics aur action board sabse useful sections hain.",
+        flow: "Practical flow bolo: data upload karo, current status dekho, alert samjho, recommendation assign karo, aur next review mein comparison check karo.",
+        ai: "Operations language mein bolo: 'AI future ka अंदाजा deta hai taaki peak load ya unusual consumption se pehle planning ho sake.'",
+        governance: "Governance section aapko assumptions aur occupancy values adjust karne deta hai taaki forecast aur planning more realistic bane.",
+        demo: "Operations demo mein current issue -> alert -> recommendation -> action status -> next expected outcome sequence follow karo.",
+        faq: "Agar poocha jaye ki daily kaam mein kya use hai, bolo ki ye review aur intervention priority set karne ke liye very useful hai."
+      }
+    };
+
+    const navButtons = [...document.querySelectorAll(".nav-btn")];
+    const panels = [...document.querySelectorAll(".panel")];
+    const chips = [...document.querySelectorAll(".chip")];
+    const scriptBoxes = [...document.querySelectorAll(".script-box")];
+    let activeMode = "management";
+
+    function renderScripts() {
+      scriptBoxes.forEach((box) => {
+        const key = box.dataset.script;
+        box.innerHTML = "<strong>Bolne ke liye ready line</strong>" + scripts[activeMode][key];
+      });
+    }
+
+    function activatePanel(targetId) {
+      navButtons.forEach((button) => {
+        button.classList.toggle("active", button.dataset.target === targetId);
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle("active", panel.id === targetId);
+      });
+    }
+
+    navButtons.forEach((button) => {
+      button.addEventListener("click", () => activatePanel(button.dataset.target));
+    });
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        chips.forEach((item) => item.classList.remove("active"));
+        chip.classList.add("active");
+        activeMode = chip.dataset.mode;
+        renderScripts();
+      });
+    });
+
+    document.querySelectorAll(".qa").forEach((item) => {
+      item.querySelector("button").addEventListener("click", () => {
+        item.classList.toggle("open");
+      });
+    });
+
+    renderScripts();
+  </script>
+</body>
+</html>

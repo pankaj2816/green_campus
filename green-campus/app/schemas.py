@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class OrmModel(BaseModel):
@@ -8,8 +8,9 @@ class OrmModel(BaseModel):
 
 
 class EnergyBase(BaseModel):
-    building: str
-    consumption_kwh: float
+    model_config = ConfigDict(str_strip_whitespace=True, allow_inf_nan=False)
+    building: str = Field(min_length=1, max_length=200)
+    consumption_kwh: float = Field(ge=0)
 
 
 class EnergyCreate(EnergyBase):
@@ -22,8 +23,9 @@ class Energy(EnergyBase, OrmModel):
 
 
 class WaterBase(BaseModel):
-    building: str
-    consumption_kl: float
+    model_config = ConfigDict(str_strip_whitespace=True, allow_inf_nan=False)
+    building: str = Field(min_length=1, max_length=200)
+    consumption_kl: float = Field(ge=0)
 
 
 class WaterCreate(WaterBase):
@@ -36,9 +38,10 @@ class Water(WaterBase, OrmModel):
 
 
 class WasteBase(BaseModel):
-    building: str
-    waste_type: str
-    quantity_kg: float
+    model_config = ConfigDict(str_strip_whitespace=True, allow_inf_nan=False)
+    building: str = Field(min_length=1, max_length=200)
+    waste_type: str = Field(min_length=1, max_length=200)
+    quantity_kg: float = Field(ge=0)
 
 
 class WasteCreate(WasteBase):

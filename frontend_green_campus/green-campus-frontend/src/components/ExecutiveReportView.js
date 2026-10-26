@@ -34,6 +34,9 @@ function ExecutiveReportView({
   if (!data) {
     return null;
   }
+  if (data.has_data === false) {
+    return <section style={styles.container}><h2>No report data</h2><p>No readings exist for this building and date range. Choose a period with recorded data before printing a report.</p></section>;
+  }
 
   const risk = riskData?.[0];
   const topBuildings = (performanceData || []).slice(0, 3);

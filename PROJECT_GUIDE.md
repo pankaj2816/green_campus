@@ -2,6 +2,10 @@
 
 ## Latest Reviewed Changes
 
+The latest detailed audit, corrected behaviors, test coverage, and remaining model limits are documented in `PROJECT_AUDIT_REPORT.md`.
+
+Excel import now requires valid non-negative finite readings and non-empty energy/water sheets. Water units are explicit (`water_kl` or `water_liters`); numeric size no longer causes automatic conversion. Invalid workbooks leave the current dataset unchanged. Device reads no longer create demonstration meters. Use `/health` to check database connectivity.
+
 - Dashboard loading now uses the authenticated `/dashboard/bundle` endpoint. Forecast results are reused within each request, and section failures are reported while other sections continue loading.
 - Electricity charts compare kWh with kWh. The doughnut shows solar used versus grid draw; water (kl) and waste (kg) remain separate. Waste totals also include a breakdown by type.
 - The first registered account becomes an administrator. Public registration closes once any account exists. Existing accounts keep their current roles.

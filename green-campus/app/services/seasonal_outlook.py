@@ -20,15 +20,17 @@ MONTH_LABELS = {
 
 
 def generate_seasonal_outlook(summary, forecast_payload, building: str | None = None):
-    current_month = datetime.now().month
+    reference = forecast_payload.get("reference_date")
+    current_month = datetime.fromisoformat(reference).month if reference else datetime.now().month
     next_month = (current_month % 12) + 1
-    current_occupancy = ACADEMIC_OCCUPANCY_FACTORS.get(current_month, 1.0)
-    next_occupancy = ACADEMIC_OCCUPANCY_FACTORS.get(next_month, 1.0)
+    occupancy = forecast_payload.get("academic_occupancy_factors") or ACADEMIC_OCCUPANCY_FACTORS
+    current_occupancy = occupancy.get(current_month, 1.0)
+    next_occupancy = occupancy.get(next_month, 1.0)
 
     forecast_energy = forecast_payload.get("energy", {}).get("forecast_values", [])
     forecast_solar = forecast_payload.get("solar", {}).get("forecast_values", [])
-    first_forecast_energy = forecast_energy[0] if forecast_energy else summary.get("net_energy", 0)
-    first_forecast_solar = forecast_solar[0] if forecast_solar else summary.get("solar", 0)
+    first_forecast_energy = forecast_energy[0] if forecast_energy else 0
+    first_forecast_solar = forecast_solar[0] if forecast_solar else 0
     potential_export = max(first_forecast_solar - first_forecast_energy, 0)
 
     low_occupancy = next_occupancy < 0.65
@@ -67,6 +69,8 @@ def generate_seasonal_outlook(summary, forecast_payload, building: str | None = 
         )
 
     return {
+        "reference_date": reference,
+        "forecast_period": (forecast_payload.get("energy", {}).get("forecast_labels") or [None])[0],
         "scope": building or "Campus",
         "current_month": MONTH_LABELS[current_month],
         "next_month": MONTH_LABELS[next_month],

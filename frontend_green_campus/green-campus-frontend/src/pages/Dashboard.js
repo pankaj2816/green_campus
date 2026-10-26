@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 
 import DashboardHeader from "../components/DashboardHeader";
 import DashboardSidebar from "../components/DashboardSidebar";
@@ -27,7 +27,7 @@ import StatusNotice from "../components/StatusNotice";
 import DeviceReadinessPanel from "../components/DeviceReadinessPanel";
 import AuditTrailPanel from "../components/AuditTrailPanel";
 import { dashboardCopy } from "../config/dashboardConfig";
-import { fetchAssumptions, fetchCurrentUser, fetchDashboardBundle, fetchDashboardSettings } from "../services/api";
+import { fetchAssumptions, fetchCurrentUser, fetchDashboardBundle } from "../services/api";
 
 function SectionIntro({ kicker, title, subtitle, helpText, darkMode = false }) {
   return (
@@ -83,8 +83,11 @@ function Dashboard({ onLogout }) {
   const [settingsData, setSettingsData] = useState(null);
   const [loadError, setLoadError] = useState("");
   const [canManage, setCanManage] = useState(false);
+  const requestVersion = useRef(0);
+  const presentationBeforePrint = useRef(false);
 
   const fetchData = useCallback(async () => {
+    const version = ++requestVersion.current;
     setLoading(true);
     setLoadError("");
 
@@ -95,6 +98,8 @@ function Dashboard({ onLogout }) {
         dateFrom,
         dateTo,
       });
+
+      if (version !== requestVersion.current) return;
 
       setData(bundle.summary);
       setComparisonData(bundle.comparisonData);
@@ -115,15 +120,17 @@ function Dashboard({ onLogout }) {
         setLoadError(`Some sections could not be loaded: ${failedSections.join(", ")}.`);
       }
     } catch (error) {
+      if (version !== requestVersion.current) return;
       console.error("Dashboard fetch error:", error);
       setLoadError(error.message || "Unable to load dashboard data. Please check the backend service and try again.");
     } finally {
-      setLoading(false);
+      if (version === requestVersion.current) setLoading(false);
     }
   }, [selectedBuilding, forecastGranularity, dateFrom, dateTo]);
 
   useEffect(() => {
     fetchData();
+    return () => { requestVersion.current += 1; };
   }, [fetchData]);
 
   useEffect(() => {
@@ -155,12 +162,9 @@ function Dashboard({ onLogout }) {
 
   const refreshSettings = useCallback(async () => {
     try {
-      const [assumptionsResult, settingsResult] = await Promise.all([
-        fetchAssumptions(),
-        fetchDashboardSettings(),
-      ]);
+      const assumptionsResult = await fetchAssumptions();
       setAssumptions(assumptionsResult);
-      setSettingsData(settingsResult);
+      setSettingsData(assumptionsResult.settings);
       fetchData();
     } catch (error) {
       console.error("Settings refresh error:", error);
@@ -171,6 +175,7 @@ function Dashboard({ onLogout }) {
     const handleAfterPrint = () => {
       setPendingPrint(false);
       setPrintMode(false);
+      setScreenshotMode(presentationBeforePrint.current);
     };
 
     window.addEventListener("afterprint", handleAfterPrint);
@@ -193,7 +198,20 @@ function Dashboard({ onLogout }) {
     return <h2 style={{ padding: "30px" }}>{dashboardCopy.global.loadingDashboard}</h2>;
   }
 
+  if (!data && loadError) {
+    return (
+      <div role="alert" style={{ padding: "30px" }}>
+        <h2>Dashboard could not load</h2>
+        <p>{loadError}</p>
+        <button type="button" onClick={fetchData}>Try Again</button>
+        <button type="button" onClick={onLogout}>Back to Login</button>
+      </div>
+    );
+  }
+
   const handlePrintReport = () => {
+    if (loading || !data) return;
+    presentationBeforePrint.current = screenshotMode;
     setPrintMode(true);
     setScreenshotMode(true);
     setActiveView("report");
@@ -284,7 +302,7 @@ function Dashboard({ onLogout }) {
             {activeView === "overview" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.primarySection} darkMode={executiveDarkMode} />
-                <div style={styles.workspaceShell}>
+                <div style={styles.workspaceShell} className="dashboard-workspace-grid">
                   <div style={styles.workspaceMain}>
                     <CampusPulseBar
                       data={data}
@@ -323,7 +341,7 @@ function Dashboard({ onLogout }) {
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.performanceSection} darkMode={executiveDarkMode} />
                 <div style={styles.intelligenceStack}>
-                  <div style={styles.twoCol}>
+                  <div style={styles.twoCol} className="dashboard-pair-grid">
                     <CarbonFootprintDial data={data} />
                     <SolarSection data={data} />
                   </div>
@@ -346,7 +364,7 @@ function Dashboard({ onLogout }) {
             {activeView === "planning" ? (
               <section style={styles.sectionBlock} className="stagger-in stagger-in-delay-1">
                 <SectionIntro {...dashboardCopy.layout.planningSection} darkMode={executiveDarkMode} />
-                <div style={styles.workspaceShell}>
+                <div style={styles.workspaceShell} className="dashboard-workspace-grid">
                   <div style={styles.workspaceMain}>
                     <AIForecastSection
                       forecastData={forecastData}
@@ -564,6 +582,7 @@ const styles = {
   twoCol: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+    alignItems: "start",
     gap: "16px",
     marginBottom: "16px",
   },

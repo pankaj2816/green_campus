@@ -169,6 +169,7 @@ const styles = {
   },
   grid: {
     display: "grid",
+    alignItems: "start",
     gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
     gap: "20px",
     marginBottom: "20px",

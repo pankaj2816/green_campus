@@ -1,5 +1,4 @@
 import React from "react";
-import GaugeChart from "react-gauge-chart";
 import { dashboardCopy } from "../config/dashboardConfig";
 
 const { theme } = dashboardCopy;
@@ -12,7 +11,7 @@ function CarbonFootprintDial({ data }) {
   const carbonTon = data.carbon / 1000;
   const grossCarbonTon = (data.gross_carbon || 0) / 1000;
   const avoidedCarbonTon = (data.solar_avoided_carbon || 0) / 1000;
-  const percent = Math.min(carbonTon / 5, 1);
+  const percent = grossCarbonTon > 0 ? Math.max(0, Math.min(carbonTon / grossCarbonTon, 1)) : 0;
 
   return (
     <div style={styles.card} className="premium-card lift-card stagger-in stagger-in-delay-1">
@@ -28,14 +27,10 @@ function CarbonFootprintDial({ data }) {
 
       <div style={styles.layout} className="carbon-footprint-layout">
         <div style={styles.gaugeWrap}>
-          <GaugeChart
-            id="carbon-gauge"
-            nrOfLevels={24}
-            percent={percent}
-            colors={["#22c55e", "#f59e0b", "#dc2626"]}
-            arcWidth={0.24}
-            textColor={theme.colors.primaryText}
-          />
+          <span style={styles.mainCaption}>Grid share of electricity emissions</span>
+          <strong style={styles.mainValue}>{(percent * 100).toFixed(1)}%</strong>
+          <meter aria-label="Grid share of electricity emissions" min={0} max={100} value={percent * 100} style={{ width: "100%", height: "28px" }} />
+          <span style={styles.mainCaption}>Remaining emissions after solar offset</span>
         </div>
 
         <div style={styles.primaryMetricBlock}>
@@ -101,8 +96,10 @@ const styles = {
     marginTop: "16px",
   },
   gaugeWrap: {
-    position: "relative",
-    minHeight: "250px",
+    display: "grid",
+    gap: "12px",
+    padding: "18px",
+    alignContent: "center",
   },
   primaryMetricBlock: {
     display: "flex",
